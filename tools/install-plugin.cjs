@@ -613,9 +613,9 @@ function normalizeMacosAntigravityAppPath(rawPath) {
   return normalized.toLowerCase().endsWith(".app") ? normalized : fallback;
 }
 
-function generateMacosLauncherInfoPlist(version = "1.0.8-beta.3") {
-  const safeShort = escapeXmlText(version || "1.0.8-beta.3");
-  const numericMatch = String(version || "1.0.8-beta.3").match(/^\d+(?:\.\d+){0,2}/);
+function generateMacosLauncherInfoPlist(version = "1.0.8-beta.4") {
+  const safeShort = escapeXmlText(version || "1.0.8-beta.4");
+  const numericMatch = String(version || "1.0.8-beta.4").match(/^\d+(?:\.\d+){0,2}/);
   const safeBundleVer = escapeXmlText(numericMatch ? numericMatch[0] : "1.0.8");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -917,9 +917,9 @@ function createMacosLosslessLauncher(opts = {}) {
   if (!version) {
     try {
       const pkg = JSON.parse(fs.readFileSync(path.join(opts.sourceDir || ROOT_DIR, "package.json"), "utf8"));
-      version = pkg?.version || "1.0.8-beta.3";
+      version = pkg?.version || "1.0.8-beta.4";
     } catch {
-      version = "1.0.8-beta.3";
+      version = "1.0.8-beta.4";
     }
   }
   const targetApp = normalizeMacosAntigravityAppPath(opts.targetApp || "/Applications/Antigravity.app");
@@ -1166,9 +1166,9 @@ function resolveLinuxLauncherTargetExe(opts = {}) {
   return "antigravity";
 }
 
-function generateLinuxLauncherDesktop({ targetExe = "antigravity", iconPath = "obsidian-prism", version = "1.0.8-beta.3" } = {}) {
+function generateLinuxLauncherDesktop({ targetExe = "antigravity", iconPath = "obsidian-prism", version = "1.0.8-beta.4" } = {}) {
   const safeIcon = String(iconPath || "obsidian-prism").replace(/[\r\n]+/g, "").trim() || "obsidian-prism";
-  const safeVersion = String(version || "1.0.8-beta.3").replace(/[\r\n]+/g, "").trim() || "1.0.8-beta.3";
+  const safeVersion = String(version || "1.0.8-beta.4").replace(/[\r\n]+/g, "").trim() || "1.0.8-beta.4";
   const execToken = formatDesktopExecArg(targetExe);
   return [
     "[Desktop Entry]",
@@ -1225,9 +1225,9 @@ function createLinuxLosslessLauncher(opts = {}) {
   if (!version) {
     try {
       const pkg = JSON.parse(fs.readFileSync(path.join(opts.sourceDir || ROOT_DIR, "package.json"), "utf8"));
-      version = pkg?.version || "1.0.8-beta.3";
+      version = pkg?.version || "1.0.8-beta.4";
     } catch {
-      version = "1.0.8-beta.3";
+      version = "1.0.8-beta.4";
     }
   }
 

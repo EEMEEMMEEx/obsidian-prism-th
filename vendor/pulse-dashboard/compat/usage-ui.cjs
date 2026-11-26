@@ -2,7 +2,7 @@
 // Integrated & adapted for Obsidian Prism under GPL-3.0-only compatibility terms.
 // Shared local usage views. Values and model labels are inserted as text.
 module.exports = function createUsageDashboard({root,language,setMarkup,hostLabel='Antigravity',guideDismissed=false,onDismissGuide,onLanguage,onRefresh,onScope}) {
-  const dialog=document.createElement('dialog');dialog.id='usage-dashboard';dialog.setAttribute('popover','manual');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label',language.language==='zh-TW'?'用量統計':language.language==='zh-CN'?'用量统计':'Token usage');
+  const dialog=document.createElement('dialog');dialog.id='usage-dashboard';dialog.setAttribute('popover','manual');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label',language.language==='en'?'Token usage':'สถิติการใช้งาน Token');
   dialog.style.cssText='width:min(1040px,calc(100vw - 40px));max-width:none;height:min(840px,calc(100dvh - 40px));max-height:none;box-sizing:border-box;overflow:hidden;visibility:visible;pointer-events:auto;padding:0;border:1px solid var(--pulse-border);border-radius:14px;background:var(--pulse-background);color:var(--pulse-foreground);box-shadow:0 16px 60px var(--pulse-shadow);';
   const shell=document.createElement('div'),view=shell.attachShadow({mode:'open'});shell.style.height='100%';dialog.append(shell);root.append(dialog);
   const backdrop=document.createElement('style');backdrop.textContent='#usage-dashboard{position:fixed;inset:0;margin:auto}#usage-dashboard::backdrop{background:rgba(0,0,0,.48);pointer-events:auto}';root.append(backdrop);
@@ -40,7 +40,7 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
     @media(prefers-reduced-motion:reduce){button,.year-menu,.year-chevron,.scope-thumb,.totals,#overview,#details{transition:none}button:active{transform:none}}
   `;view.append(css);
   const page=document.createElement('div');page.className='page';
-  setMarkup(page,`<div class="page-head"><header class="top"><div><h1 id="title"></h1><div class="sub"><span class="live-dot"></span><span id="subtitle"></span></div></div><div class="actions"><button id="locale" type="button" aria-label="Language"><span id="locale-label" class="locale-label">中</span></button><button id="refresh" type="button" aria-label="Refresh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 7a5 5 0 1 0-1.3 4.4M13 3v4H9"/></svg></button><button id="close" type="button" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg></button></div></header><div class="tabs-bar"><nav class="tabs" role="tablist"><button id="overview-tab" role="tab" aria-controls="overview"></button><button id="details-tab" role="tab" aria-controls="details"></button></nav><div class="seg scope-seg" id="scope-controls" role="group" hidden><i class="scope-thumb" aria-hidden="true"></i><button type="button" data-usage-scope="local"></button><button type="button" data-usage-scope="account"></button></div></div></div><div class="page-body" id="page-body"><div class="totals" id="totals"></div><section id="usage-waiting" class="usage-waiting" role="status" hidden></section><section id="overview" role="tabpanel"><div class="section-head"><div><h2 id="activity-title"></h2><div class="muted" id="heat-sub"></div></div><div class="chart-controls"><div class="seg" id="heat-controls"><button data-heat="day"></button><button data-heat="week"></button></div><div class="year-picker"><button id="year" type="button" class="year-trigger" aria-label="Year" aria-haspopup="listbox" aria-controls="year-menu" aria-expanded="false"><span id="year-label"></span><svg class="year-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button><div id="year-menu" class="year-menu" role="listbox" aria-label="Year" popover="manual"></div></div></div></div><div class="heat-wrap"><div class="calendar"><div class="months" id="months"></div><div class="heat-row"><div class="weekdays" id="weekdays"></div><div class="heat" id="heat"></div></div></div></div><div class="heat-footer"><span id="heat-summary"></span><div class="scale"><span id="less"></span><i class="swatch"></i><i class="swatch" data-level="1"></i><i class="swatch" data-level="2"></i><i class="swatch" data-level="3"></i><i class="swatch" data-level="4"></i><span id="more"></span></div></div><div class="selected"><div><div class="title" id="selection-title"></div><span class="muted" id="selection-value"></span></div><button id="selection-details"></button></div></section><section id="details" role="tabpanel" hidden><div class="section-head"><h2 id="detail-title"></h2><div class="chart-controls"><div class="range"><button id="previous" aria-label="Previous">‹</button><strong id="range-label"></strong><button id="next" aria-label="Next">›</button></div><div class="seg" id="period-controls"><button data-period="day"></button><button data-period="week"></button><button data-period="month"></button></div></div></div><div class="legend" id="legend"></div><div class="chart-wrap"><div class="chart"><div class="axis" id="axis"></div><div class="plot" id="plot"></div></div></div><div class="table-wrap"><table class="table"><thead><tr id="table-head"></tr></thead><tbody id="table-body"></tbody></table></div></section><div class="alert" id="alert" hidden></div><footer class="footer"><span id="coverage"></span><span id="timezone"></span></footer></div><div class="tip" id="tip" role="status" hidden></div>`);view.append(page);
+  setMarkup(page,`<div class="page-head"><header class="top"><div><h1 id="title"></h1><div class="sub"><span class="live-dot"></span><span id="subtitle"></span></div></div><div class="actions"><button id="locale" type="button" aria-label="Language"><span id="locale-label" class="locale-label">TH</span></button><button id="refresh" type="button" aria-label="Refresh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 7a5 5 0 1 0-1.3 4.4M13 3v4H9"/></svg></button><button id="close" type="button" aria-label="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg></button></div></header><div class="tabs-bar"><nav class="tabs" role="tablist"><button id="overview-tab" role="tab" aria-controls="overview"></button><button id="details-tab" role="tab" aria-controls="details"></button></nav><div class="seg scope-seg" id="scope-controls" role="group" hidden><i class="scope-thumb" aria-hidden="true"></i><button type="button" data-usage-scope="local"></button><button type="button" data-usage-scope="account"></button></div></div></div><div class="page-body" id="page-body"><div class="totals" id="totals"></div><section id="usage-waiting" class="usage-waiting" role="status" hidden></section><section id="overview" role="tabpanel"><div class="section-head"><div><h2 id="activity-title"></h2><div class="muted" id="heat-sub"></div></div><div class="chart-controls"><div class="seg" id="heat-controls"><button data-heat="day"></button><button data-heat="week"></button></div><div class="year-picker"><button id="year" type="button" class="year-trigger" aria-label="Year" aria-haspopup="listbox" aria-controls="year-menu" aria-expanded="false"><span id="year-label"></span><svg class="year-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button><div id="year-menu" class="year-menu" role="listbox" aria-label="Year" popover="manual"></div></div></div></div><div class="heat-wrap"><div class="calendar"><div class="months" id="months"></div><div class="heat-row"><div class="weekdays" id="weekdays"></div><div class="heat" id="heat"></div></div></div></div><div class="heat-footer"><span id="heat-summary"></span><div class="scale"><span id="less"></span><i class="swatch"></i><i class="swatch" data-level="1"></i><i class="swatch" data-level="2"></i><i class="swatch" data-level="3"></i><i class="swatch" data-level="4"></i><span id="more"></span></div></div><div class="selected"><div><div class="title" id="selection-title"></div><span class="muted" id="selection-value"></span></div><button id="selection-details"></button></div></section><section id="details" role="tabpanel" hidden><div class="section-head"><h2 id="detail-title"></h2><div class="chart-controls"><div class="range"><button id="previous" aria-label="Previous">‹</button><strong id="range-label"></strong><button id="next" aria-label="Next">›</button></div><div class="seg" id="period-controls"><button data-period="day"></button><button data-period="week"></button><button data-period="month"></button></div></div></div><div class="legend" id="legend"></div><div class="chart-wrap"><div class="chart"><div class="axis" id="axis"></div><div class="plot" id="plot"></div></div></div><div class="table-wrap"><table class="table"><thead><tr id="table-head"></tr></thead><tbody id="table-body"></tbody></table></div></section><div class="alert" id="alert" hidden></div><footer class="footer"><span id="coverage"></span><span id="timezone"></span></footer></div><div class="tip" id="tip" role="status" hidden></div>`);view.append(page);
   const intro=document.createElement('section');intro.id='usage-intro';intro.className='usage-intro';intro.hidden=true;intro.setAttribute('aria-labelledby','usage-intro-title');
   setMarkup(intro,'<div class="intro-heading"><span class="intro-mark" aria-hidden="true"><svg viewBox="0 0 16 16"><ellipse cx="8" cy="4" rx="5" ry="2"/><path d="M3 4v8c0 2 10 2 10 0V4M3 8c0 2 10 2 10 0"/></svg></span><h2 id="usage-intro-title"></h2></div><div class="intro-copy"><p id="usage-intro-history"></p><p id="usage-intro-scope"></p><p id="usage-intro-storage"></p></div><div class="intro-bottom"><span id="usage-intro-error" role="status"></span><button id="usage-intro-done" type="button"></button></div>');
   page.querySelector('#totals').before(intro);
@@ -56,19 +56,19 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
       scopeAnimations.push(el.animate([{opacity:.45,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],{duration:180,easing:'cubic-bezier(0.23,1,0.32,1)'}));
     }
   }
-  const zh=()=>language.language==='zh-CN'||language.language==='zh-TW',tw=()=>language.language==='zh-TW',w=(cn,en,twText)=>(tw()&&twText!==undefined)?twText:(zh()?cn:en);
+  const isEn=()=>language.language==='en',w=(th,en)=>isEn()?en:th;
   let guideSaving=false,guideError=false,guideSignature=null;
   const replayGuide=window.__agPulseUsageGuidePreview===true;
   function renderGuide(){
     const signature=language.language+'|'+themeSignature();
     if(replayGuide&&signature!==guideSignature){guideDismissed=false;guideError=false;}
     guideSignature=signature;intro.hidden=guideDismissed;
-    text('usage-intro-title',w('先了解你的用量统计','About your token usage','先了解您的用量統計'));
-    text('usage-intro-history',w('自动汇总本机 Antigravity 可读取的本地历史对话，再持续记录新请求（默认统计本机全部流经流量，也可切换查看当前账号）；已删除或缺失的历史可能无法补齐。','Available local conversations are imported automatically and new requests are recorded continuously (defaulting to all local Antigravity traffic, with an option to filter by the current account). Deleted or missing history may leave gaps.','自動彙總本機 Antigravity 可讀取的本機歷史對話，並持續記錄新請求（預設統計本機全部流經流量，亦可切換檢視目前帳號）；已刪除或缺失的記錄可能無法補齊。'));
-    text('usage-intro-scope',w('统计仅代表本机已记录的 Token 用量，不是账户账单；天、周、月均按 UTC+8 划分。','Totals cover usage recorded on this device, not account billing. Days, weeks and months use UTC+8.','統計僅代表本機已記錄的 Token 用量，非帳號帳單；日、週、月均按 UTC+8 劃分。'));
-    text('usage-intro-storage',w('只在本地保存时间、模型和用量，不保存对话正文。删除对话不会扣除已记录的用量。','Only times, models and usage counters are saved locally, never conversation text. Deleting a chat does not subtract usage already recorded.','僅於本機儲存時間、模型與用量，不儲存對話內文。刪除對話不會扣減已記錄的用量。'));
-    text('usage-intro-done',guideSaving?w('保存中…','Saving…','儲存中…'):w('知道了','Got it','我知道了'));
-    text('usage-intro-error',guideError?w('未能保存，请再试一次。','Could not save. Please try again.','未能儲存，請再試一次。'):'' );
+    text('usage-intro-title',w('เกี่ยวกับสถิติการใช้งาน Token','About your token usage'));
+    text('usage-intro-history',w('นำเข้าประวัติบทสนทนาในเครื่องของ Antigravity โดยอัตโนมัติ และบันทึกคำขอใหม่อย่างต่อเนื่อง (ค่าเริ่มต้นรวมทุกการใช้งานในเครื่อง หรือเลือกกรองเฉพาะบัญชีปัจจุบัน) ประวัติที่ถูกลบหรือสูญหายอาจไม่ครบถ้วน','Available local conversations are imported automatically and new requests are recorded continuously (defaulting to all local Antigravity traffic, with an option to filter by the current account). Deleted or missing history may leave gaps.'));
+    text('usage-intro-scope',w('ยอดรวมแสดงเฉพาะ Token ที่บันทึกในเครื่องนี้ ไม่ใช่บิลของบัญชี โดยแบ่งวัน สัปดาห์ และเดือนตาม UTC+8','Totals cover usage recorded on this device, not account billing. Days, weeks and months use UTC+8.'));
+    text('usage-intro-storage',w('บันทึกเฉพาะเวลา โมเดล และปริมาณการใช้งานไว้ในเครื่อง ไม่เก็บข้อความบทสนทนา การลบแชทจะไม่หักยอดที่บันทึกไว้แล้ว','Only times, models and usage counters are saved locally, never conversation text. Deleting a chat does not subtract usage already recorded.'));
+    text('usage-intro-done',guideSaving?w('กำลังบันทึก…','Saving…'):w('เข้าใจแล้ว','Got it'));
+    text('usage-intro-error',guideError?w('บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง','Could not save. Please try again.'):'' );
     $('usage-intro-done').disabled=guideSaving;$('usage-intro-done').setAttribute('aria-busy',String(guideSaving));
   }
   function dismissGuide(){
@@ -80,7 +80,7 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
     try{await onDismissGuide();dismissGuide();}catch{if(!disposed)guideError=true;}
     finally{guideSaving=false;if(!disposed)renderGuide();}
   });
-  const full=n=>Number(n||0).toLocaleString(language.language==='en'?'en-US':language.language);
+  const full=n=>Number(n||0).toLocaleString(language.language==='en'?'en-US':'th-TH');
   const compact=n=>{n=Number(n||0);for(const [base,suffix,nextBase,nextSuffix]of [[1e12,'T',0,''],[1e9,'B',1e12,'T'],[1e6,'M',1e9,'B'],[1e3,'K',1e6,'M']])if(n>=base){const scaled=n/base,rounded=Number(scaled.toFixed(1));return nextBase&&rounded*base>=nextBase?`1${nextSuffix}`:`${rounded}${suffix}`;}return full(n);};
   const add=(date,days)=>{const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);};
   const week=date=>{const d=new Date(date+'T00:00:00Z');return add(date,-((d.getUTCDay()+6)%7));};
@@ -121,7 +121,7 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
   function tooltip(bucket,target,activeModel=null){
     if(!$('tip').hidden&&tipTarget===target&&tipModel===activeModel)return;tipTarget=target;tipModel=activeModel;
     highlightModel(activeModel);
-    const tip=$('tip');tip.replaceChildren(node('div','tip-title',bucket.from===bucket.to?bucket.from:bucket.from+' – '+bucket.to),node('strong','',full(bucket.total)+' Token'),node('div','muted',w(`${bucket.requests} 次请求`,`${bucket.requests} requests`,`${bucket.requests} 次請求`)));
+    const tip=$('tip');tip.replaceChildren(node('div','tip-title',bucket.from===bucket.to?bucket.from:bucket.from+' – '+bucket.to),node('strong','',full(bucket.total)+' Token'),node('div','muted',w(`${bucket.requests} คำขอ`,`${bucket.requests} requests`)));
     for(const [model,r]of Object.entries(bucket.models).sort((a,b)=>b[1].total-a[1].total)){
       const row=node('div','tip-model'+(activeModel?(activeModel===model?' active':' dimmed'):'')),label=node('span',''),dot=node('i','dot'),amount=node('span','',compact(r.total));dot.style.setProperty('--model-color',color(model));label.append(dot,document.createTextNode(modelName(model)));amount.append(node('span','model-share',bucket.total?(r.total/bucket.total*100).toFixed(1)+'%':'0%'));row.append(label,amount);tip.append(row);
     }
@@ -135,7 +135,7 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
     button.addEventListener('pointermove',event=>{const model=event.target.closest?.('.bar-segment')?.dataset.model||null;tooltip(bucket,button,model);});
     button.addEventListener('click',()=>{selected=bucket;anchor=bucket.from;showSelection();});
   };
-  function showSelection(){const bucket=selected||totals(value.today,value.today);text('selection-title',bucket.from===bucket.to?bucket.from:bucket.from+' – '+bucket.to);text('selection-value',full(bucket.total)+' Token · '+w(`${bucket.requests} 次请求`,`${bucket.requests} requests`,`${bucket.requests} 次請求`));}
+  function showSelection(){const bucket=selected||totals(value.today,value.today);text('selection-title',bucket.from===bucket.to?bucket.from:bucket.from+' – '+bucket.to);text('selection-value',full(bucket.total)+' Token · '+w(`${bucket.requests} คำขอ`,`${bucket.requests} requests`));}
   function renderHeat(){
     if(!value)return;
     const start=week(year+'-01-01'),end=year+'-12-31',weeks=Math.floor((Date.parse(end)-Date.parse(start))/604800000)+1;
@@ -157,11 +157,11 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
     if(heatMode==='day'){
       $('months').style.gridTemplateColumns=`repeat(${weeks},minmax(0,1fr))`;
       for(let m=1;m<=12;m++){const date=`${year}-${String(m).padStart(2,'0')}-01`,col=Math.floor((Date.parse(date)-Date.parse(start))/604800000)+1;
-        const label=node('span','',zh()?m+'月':['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]);label.style.gridColumn=col;label.style.gridRow=1;$('months').append(label);}
-      for(let i=0;i<7;i++)$('weekdays').append(node('span','',i%2===0?(zh()?['一','','三','','五','','日'][i]:['M','','W','','F','','S'][i]):''));
+        const label=node('span','',isEn()?['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]:['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][m-1]);label.style.gridColumn=col;label.style.gridRow=1;$('months').append(label);}
+      for(let i=0;i<7;i++)$('weekdays').append(node('span','',i%2===0?(isEn()?['M','','W','','F','','S'][i]:['จ','','พ','','ศ','','อา'][i]):''));
     }
-    text('heat-sub',heatMode==='day'?w('每格代表一天','Each square is one day','每格代表一天'):w('每格代表一周 · 周一开始','Each square is one week · starts Monday','每格代表一週 · 週一開始'));
-    const annual=totals(year+'-01-01',year+'-12-31');text('heat-summary',w(`${year} 年 · ${full(annual.total)} Token`,`${year} · ${full(annual.total)} tokens`,`${year} 年 · ${full(annual.total)} Token`));
+    text('heat-sub',heatMode==='day'?w('แต่ละช่องแทน 1 วัน','Each square is one day'):w('แต่ละช่องแทน 1 สัปดาห์ · เริ่มวันจันทร์','Each square is one week · starts Monday'));
+    const annual=totals(year+'-01-01',year+'-12-31');text('heat-summary',w(`ปี ${year} · ${full(annual.total)} Token`,`${year} · ${full(annual.total)} tokens`));
     for(const b of view.querySelectorAll('[data-heat]'))b.setAttribute('aria-pressed',String(b.dataset.heat===heatMode));showSelection();
   }
   function highlightModel(model){
@@ -191,10 +191,10 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
       if(period!=='day'||i%3===0||i===buckets.length-1)button.append(node('span','x-label',period==='day'?String(i+1):period==='week'?bucket.from.slice(5):bucket.from.slice(0,7)));
       bindBucket(button,bucket);$('plot').append(button);
     }
-    if(!buckets.some(b=>b.total))$('plot').append(node('div','chart-empty',w('所选时段暂无用量记录','No usage recorded in this period','所選時段尚無用量記錄')));
-    $('table-head').replaceChildren(...[w('模型','Model','模型'),w('总 Token','Total tokens','總 Token'),w('未缓存输入','Uncached input','未快取輸入'),w('缓存读取','Cache read','快取讀取'),w('缓存写入','Cache write','快取寫入'),w('输出','Output','輸出')].map(label=>node('th','',label)));
+    if(!buckets.some(b=>b.total))$('plot').append(node('div','chart-empty',w('ไม่มีข้อมูลการใช้งานในช่วงเวลาที่เลือก','No usage recorded in this period')));
+    $('table-head').replaceChildren(...[w('โมเดล','Model'),w('Token รวม','Total tokens'),w('อินพุตไม่แคช','Uncached input'),w('อ่านแคช','Cache read'),w('เขียนแคช','Cache write'),w('เอาต์พุต','Output')].map(label=>node('th','',label)));
     $('table-body').replaceChildren();const rangeTotals=totals(buckets[0].from,buckets.at(-1).to,true);
-    chartSummary.replaceChildren(node('strong','',compact(rangeTotals.total)+' Token'),document.createTextNode(' · '+w(`${full(rangeTotals.requests)} 次请求`,`${full(rangeTotals.requests)} requests`,`${full(rangeTotals.requests)} 次請求`)));
+    chartSummary.replaceChildren(node('strong','',compact(rangeTotals.total)+' Token'),document.createTextNode(' · '+w(`${full(rangeTotals.requests)} คำขอ`,`${full(rangeTotals.requests)} requests`)));
     for(const [model,r]of Object.entries(rangeTotals.models).sort((a,b)=>b[1].total-a[1].total)){
       const row=node('tr',''),label=node('td',''),dot=node('span','dot');dot.style.setProperty('--model-color',color(model));label.append(dot,document.createTextNode(modelName(model)));row.append(label,...[r.total,r.uncached,r.cacheRead,r.cacheWrite,r.output].map(n=>node('td','',full(n))));row.addEventListener('pointerenter',()=>highlightModel(model));row.addEventListener('pointerleave',()=>highlightModel(null));$('table-body').append(row);
     }
@@ -205,18 +205,18 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
     if(!value){
       closeYear(false);$('tip').hidden=true;$('overview').hidden=true;$('details').hidden=true;$('usage-waiting').hidden=false;
       const sc=$('scope-controls');if(sc)sc.hidden=typeof onScope!=='function';
-    text('usage-waiting',w('正在重新连接统计…','Reconnecting usage…','正在重新連線統計資料…'));text('subtitle',w('正在重新连接本机统计','Reconnecting local usage','正在重新連線本機統計'));text('coverage','');text('timezone','');$('alert').hidden=true;
+    text('usage-waiting',w('กำลังเชื่อมต่อสถิติอีกครั้ง…','Reconnecting usage…'));text('subtitle',w('กำลังเชื่อมต่อสถิติในเครื่องอีกครั้ง','Reconnecting local usage'));text('coverage','');text('timezone','');$('alert').hidden=true;
       for(const metric of $('totals').children){metric.title='';metric.querySelector('.value')?.replaceChildren(node('span','','—'));}
       return;
     }
     $('usage-waiting').hidden=true;
     syncPalette();
     const activeScope=pendingScope||(value.scope==='local'?'local':'account');
-    text('title',w('用量统计','Token usage','用量統計'));dialog.setAttribute('aria-label',w('用量统计','Token usage','用量統計'));text('subtitle',activeScope==='local'?w(`本机 ${hostLabel} · 全部流经统计`,`Local ${hostLabel} · all local`,`本機 ${hostLabel} · 本機全部`):w(`本机 ${hostLabel} · 当前账号`,`Local ${hostLabel} · current account`,`本機 ${hostLabel} · 目前帳號`));
+    text('title',w('สถิติการใช้งาน Token','Token usage'));dialog.setAttribute('aria-label',w('สถิติการใช้งาน Token','Token usage'));text('subtitle',activeScope==='local'?w(`เครื่องนี้ ${hostLabel} · ทั้งหมดในเครื่อง`,`Local ${hostLabel} · all local`):w(`เครื่องนี้ ${hostLabel} · บัญชีปัจจุบัน`,`Local ${hostLabel} · current account`));
     const scopeControls=$('scope-controls');if(scopeControls){
       const hideControls=typeof onScope!=='function';
       if(scopeControls.hidden!==hideControls)scopeControls.hidden=hideControls;
-      const scopeLabel=w('统计范围','Usage scope','統計範圍');
+      const scopeLabel=w('ขอบเขตสถิติ','Usage scope');
       if(scopeControls.getAttribute('aria-label')!==scopeLabel)scopeControls.setAttribute('aria-label',scopeLabel);
       if(scopeControls.dataset.activeScope!==activeScope)scopeControls.dataset.activeScope=activeScope;
       for(const b of scopeControls.querySelectorAll('button')){
@@ -226,19 +226,19 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
       }
     }
     if(value.scope==='account'&&value.accountAvailable===false&&!scopeLoading){
-      text('overview-tab',w('概览','Overview','概覽'));text('details-tab',w('详情','Details','詳細資料'));
+      text('overview-tab',w('ภาพรวม','Overview'));text('details-tab',w('รายละเอียด','Details'));
       closeYear(false);$('tip').hidden=true;$('overview').hidden=true;$('details').hidden=true;$('usage-waiting').hidden=false;
-      text('usage-waiting',w('当前未检测到登录账号，可切换到「本机全部」查看统计，或在 Antigravity 登录后重试。','No signed-in account detected. Switch to All local or sign in to view account usage.','目前未偵測到登入帳號，可切換至「本機全部」檢視統計，或於 Antigravity 登入後重試。'));
-      languagePicker.update();for(const [id,label]of [['locale',language.t('language')],['refresh',w('刷新用量','Refresh usage','重新整理用量')],['close',w('关闭','Close','關閉')]]){$(id).setAttribute('aria-label',label);$(id).title=label;}
+      text('usage-waiting',w('ไม่พบบัญชีที่เข้าสู่ระบบ สลับไปที่ "ทั้งหมดในเครื่อง" หรือเข้าสู่ระบบ Antigravity แล้วลองใหม่','No signed-in account detected. Switch to All local or sign in to view account usage.'));
+      languagePicker.update();for(const [id,label]of [['locale',language.t('language')],['refresh',w('รีเฟรชการใช้งาน','Refresh usage')],['close',w('ปิด','Close')]]){$(id).setAttribute('aria-label',label);$(id).title=label;}
       for(const metric of $('totals').children){metric.title='';metric.querySelector('.value')?.replaceChildren(node('span','','—'));}
       text('coverage','');text('timezone','');$('alert').hidden=true;return;
     }
-    text('overview-tab',w('活动概览','Activity','活動總覽'));text('details-tab',w('用量详情','Usage details','用量詳細資料'));text('activity-title',w('Token 活动','Token activity','Token 活動'));text('detail-title',w('按模型统计','Usage by model','依模型統計'));
-    languagePicker.update();for(const [id,label]of [['locale',language.t('language')],['refresh',w('刷新用量','Refresh usage','重新整理用量')],['close',w('关闭','Close','關閉')]]){$(id).setAttribute('aria-label',label);$(id).title=label;}text('less',w('少','Less','少'));text('more',w('多','More','多'));text('selection-details',w('查看明细','View breakdown','檢視明細'));
-    for(const b of view.querySelectorAll('[data-heat]'))b.textContent=b.dataset.heat==='day'?w('每天','Daily','每日'):w('每周','Weekly','每週');
-    for(const b of view.querySelectorAll('[data-period]'))b.textContent=({day:w('天','Day','日'),week:w('周','Week','週'),month:w('月','Month','月')})[b.dataset.period];
+    text('overview-tab',w('ภาพรวมกิจกรรม','Activity'));text('details-tab',w('รายละเอียดการใช้งาน','Usage details'));text('activity-title',w('กิจกรรม Token','Token activity'));text('detail-title',w('สถิติตามโมเดล','Usage by model'));
+    languagePicker.update();for(const [id,label]of [['locale',language.t('language')],['refresh',w('รีเฟรชการใช้งาน','Refresh usage')],['close',w('ปิด','Close')]]){$(id).setAttribute('aria-label',label);$(id).title=label;}text('less',w('น้อย','Less'));text('more',w('มาก','More'));text('selection-details',w('ดูรายละเอียด','View breakdown'));
+    for(const b of view.querySelectorAll('[data-heat]'))b.textContent=b.dataset.heat==='day'?w('รายวัน','Daily'):w('รายสัปดาห์','Weekly');
+    for(const b of view.querySelectorAll('[data-period]'))b.textContent=({day:w('วัน','Day'),week:w('สัปดาห์','Week'),month:w('เดือน','Month')})[b.dataset.period];
     $('overview-tab').setAttribute('aria-selected',String(tab==='overview'));$('details-tab').setAttribute('aria-selected',String(tab==='details'));$('overview').hidden=tab!=='overview';$('details').hidden=tab!=='details';
-    $('totals').replaceChildren();for(const [label,total]of [[w('今日用量','Today','今日用量'),value.todayTokens],[w('本周用量','This week','本週用量'),value.weekTokens],[w('本月用量','This month','本月用量'),value.monthTokens],[w('累计用量','All time','累積用量'),value.totalTokens]]){
+    $('totals').replaceChildren();for(const [label,total]of [[w('วันนี้','Today'),value.todayTokens],[w('สัปดาห์นี้','This week'),value.weekTokens],[w('เดือนนี้','This month'),value.monthTokens],[w('ทั้งหมด','All time'),value.totalTokens]]){
       const metric=node('div','metric'),n=node('div','value',compact(total));n.append(node('span','unit','Token'));metric.append(node('label','',label),n);metric.title=full(total)+' Token';$('totals').append(metric);
     }
     const years=[];const first=Number(value.firstDate?.slice(0,4)||value.today.slice(0,4)),currentYear=Number(value.today.slice(0,4)),minimum=Math.max(first,currentYear-10);for(let y=currentYear;y>=minimum;y--)years.push(y);
@@ -248,11 +248,11 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
         option.addEventListener('click',()=>{year=String(y);syncYear();closeYear();renderHeat();});return option;}));$('year').dataset.years=years.join(',');
     }
     syncYear();
-    text('coverage',w(`已记录 ${full(value.requests)} 次请求${value.firstDate?' · 始于 '+value.firstDate:''}`,`${full(value.requests)} requests recorded${value.firstDate?' · since '+value.firstDate:''}`,`已記錄 ${full(value.requests)} 次請求${value.firstDate?' · 起始於 '+value.firstDate:''}`));
-    text('timezone',value.timeZone+' · '+(value.syncing||value.retryingConversations>0?w('正在同步历史…','Syncing history…','正在同步歷程記錄…'):w('本地统计','Local usage','本機統計')));
-    const alerts=[];if(value.unknownRequests)alerts.push(w(`${value.unknownRequests} 次请求日期未知，共 ${compact(value.unknownTokens)} Token`,`${value.unknownRequests} undated requests · ${compact(value.unknownTokens)} tokens`,`${value.unknownRequests} 次請求日期未知，共 ${compact(value.unknownTokens)} Token`));
+    text('coverage',w(`บันทึกแล้ว ${full(value.requests)} คำขอ${value.firstDate?' · ตั้งแต่ '+value.firstDate:''}`,`${full(value.requests)} requests recorded${value.firstDate?' · since '+value.firstDate:''}`));
+    text('timezone',value.timeZone+' · '+(value.syncing||value.retryingConversations>0?w('กำลังซิงค์ประวัติ…','Syncing history…'):w('สถิติในเครื่อง','Local usage')));
+    const alerts=[];if(value.unknownRequests)alerts.push(w(`${value.unknownRequests} คำขอไม่ระบุวันที่ · ${compact(value.unknownTokens)} Token`,`${value.unknownRequests} undated requests · ${compact(value.unknownTokens)} tokens`));
     const confirmedMissing=value.confirmedMissingConversations??(value.syncing?0:value.missingConversations);
-    if(value.partialRequests||value.unreadableFiles||confirmedMissing>0&&!value.syncing||value.persistenceError)alerts.push(w('部分记录暂不可读取，用量可能不完整','Some records are unavailable; usage may be incomplete','部分記錄暫無法讀取，用量可能不完整'));
+    if(value.partialRequests||value.unreadableFiles||confirmedMissing>0&&!value.syncing||value.persistenceError)alerts.push(w('ไม่สามารถอ่านบางรายการได้ สถิติอาจไม่ครบถ้วน','Some records are unavailable; usage may be incomplete'));
     $('alert').hidden=!alerts.length;text('alert',alerts.join(' · '));
     if(tab==='overview')renderHeat();else renderChart();
   }
@@ -279,7 +279,7 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
   for(const b of view.querySelectorAll('[data-heat]'))b.addEventListener('click',()=>{heatMode=b.dataset.heat;renderHeat();});
   for(const b of view.querySelectorAll('[data-period]'))b.addEventListener('click',()=>{period=b.dataset.period;renderChart();});
   function syncYear(){
-    text('year-label',String(year));$('year').setAttribute('aria-label',w('选择年份','Select year','選取年份')+' · '+year);$('year-menu').setAttribute('aria-label',w('年份','Year','年份'));
+    text('year-label',String(year));$('year').setAttribute('aria-label',w('เลือกปี','Select year')+' · '+year);$('year-menu').setAttribute('aria-label',w('ปี','Year'));
     for(const option of $('year-menu').children)option.setAttribute('aria-selected',String(option.dataset.year===String(year)));
   }
   function closeYear(restore=true){if(!$('year-menu').matches(':popover-open'))return;$('year-menu').hidePopover();$('year').setAttribute('aria-expanded','false');if(restore)$('year').focus({preventScroll:true});}
@@ -315,7 +315,7 @@ module.exports = function createUsageDashboard({root,language,setMarkup,hostLabe
     if(busy||disposed)return;busy=true;const button=$('refresh'),turn=600,started=performance.now();button.disabled=true;button.setAttribute('aria-busy','true');
     refreshMotion=button.querySelector('svg').animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:turn,iterations:Infinity});
     try{await onRefresh();}
-    catch{if(!disposed){text('alert',w('暂时无法刷新，请稍后重试','Refresh unavailable. Try again shortly.','暫時無法重新整理，請稍後重試'));$('alert').hidden=false;}}
+    catch{if(!disposed){text('alert',w('ไม่สามารถรีเฟรชได้ชั่วคราว กรุณาลองใหม่ภายหลัง','Refresh unavailable. Try again shortly.'));$('alert').hidden=false;}}
     finally{
       // Fast requests still paint one whole turn. Slow requests finish their
       // current turn, so cancel never snaps a half-rotated icon back to zero.

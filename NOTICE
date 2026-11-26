@@ -57,7 +57,7 @@ notices are preserved in full in `THIRD_PARTY_NOTICES.md`:
     absorbed and adapted in `vendor/effort-slider/`
   - yiheng8023/antigravity-chinese v3.3.63 (https://github.com/yiheng8023/antigravity-chinese)
     Copyright (c) 2026 Antigravity Chinese Localization Contributors — MIT License (compatible with GPL-3.0-only),
-    dictionary & DOM translation reference re-architected into pure CDP Channel 4 in `vendor/host-i18n/`
+    dictionary & DOM translation pattern reference only (Chinese host-UI overlay removed in v1.0.8-beta.4)
 
 Design & interaction inspiration is also gratefully credited to:
   - Nwflower/dsh-claude-style

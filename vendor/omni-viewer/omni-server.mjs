@@ -8,7 +8,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-export const OMNI_VERSION = '1.0.8-beta.3';
+export const OMNI_VERSION = '1.0.8-beta.4';
 export const OMNI_BINDING = '__agPrismOmniCall';
 
 const MAX_TEXT_SLICE_BYTES = 2 * 1024 * 1024;
@@ -30,7 +30,13 @@ const VIEWER_CSP = [
 ].join('; ');
 
 export const SANDBOX_HTML_CSP = "sandbox allow-scripts; connect-src 'none'; form-action 'none'; navigate-to 'none'";
-const SUPPORTED_VIEWER_LANGS = Object.freeze(['zh-CN', 'zh-TW', 'yue', 'en', 'ja', 'ko', 'es', 'fr', 'de']);
+const SUPPORTED_VIEWER_LANGS = Object.freeze(['th', 'en']);
+function normalizeViewerLang(raw) {
+  const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
+  if (/^en\b/.test(s) || s === 'english') return 'en';
+  if (/^th\b/.test(s) || s === 'thai') return 'th';
+  return 'th';
+}
 
 const MIME_BY_EXT = Object.freeze({
   '.mp4': 'video/mp4',
@@ -533,7 +539,7 @@ function buildFallbackViewerHtml(ctx) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
-  return `<!doctype html><html lang="${esc(ctx.lang || 'zh-CN')}" data-theme="${esc(ctx.theme || 'dark')}" data-ag-cs-corners="${esc(ctx.corners || 'balanced')}"><head><meta charset="utf-8"><title>${esc(ctx.name || 'Omni Workbench')}</title></head><body><main data-kind="${esc(ctx.kind)}" data-stream="${esc(ctx.streamUrl || '')}">${esc(ctx.name || ctx.kind)}</main></body></html>`;
+  return `<!doctype html><html lang="${esc(ctx.lang || 'th')}" data-theme="${esc(ctx.theme || 'dark')}" data-ag-cs-corners="${esc(ctx.corners || 'balanced')}"><head><meta charset="utf-8"><title>${esc(ctx.name || 'Omni Workbench')}</title></head><body><main data-kind="${esc(ctx.kind)}" data-stream="${esc(ctx.streamUrl || '')}">${esc(ctx.name || ctx.kind)}</main></body></html>`;
 }
 
 export class OmniServer {
@@ -1086,8 +1092,9 @@ export class OmniServer {
         const accent = ['follow', 'cobalt', 'iris', 'amber', 'mono'].includes(rawAccent) ? rawAccent : 'follow';
         const rawCorners = u.searchParams.get('corners') || 'balanced';
         const corners = ['sharp', 'balanced', 'soft'].includes(rawCorners) ? rawCorners : 'balanced';
-        const rawLang = u.searchParams.get('lang') || 'zh-CN';
-        const lang = SUPPORTED_VIEWER_LANGS.includes(rawLang) ? rawLang : 'zh-CN';
+        const rawLang = u.searchParams.get('lang') || 'th';
+        const normLang = normalizeViewerLang(rawLang);
+        const lang = SUPPORTED_VIEWER_LANGS.includes(normLang) ? normLang : 'th';
 
         const ctx = {
           baseUrl: this.baseUrl,

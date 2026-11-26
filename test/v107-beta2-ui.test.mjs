@@ -9,7 +9,6 @@ const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
 const cdp = require(path.join(ROOT, 'cdp.js'));
 const ctxMenuMod = require(path.join(ROOT, 'context-menu-btw.js'));
-const i18nRuntime = require(path.join(ROOT, 'vendor', 'host-i18n', 'host-i18n-runtime.js'));
 
 function checkBalancedBraces(css) {
   let depth = 0;
@@ -845,27 +844,12 @@ test('v1.0.7-beta.2 Task 6 (/btw context menu capture phase): beats host #root s
   }
 });
 
-test('v1.0.7-beta.2 Task 7 (Issue #18 Layer A): vendor/host-i18n/zh-CN.json covers all 6 builtin Swarm host strings, preserves Swarm, and restores losslessly', () => {
-  const dict = JSON.parse(fs.readFileSync(path.join(ROOT, 'vendor', 'host-i18n', 'zh-CN.json'), 'utf8'));
-  const expectedKeys = [
-    'Unlock the power of agent swarms.',
-    "Live view of the native swarm board, roster and @mention graph for the current conversation's swarm.",
-    "(Preview & Quota Heavy) Run a swarm: several agents working in parallel on one task, each in its own conversation, collaborating through a shared message board. Use when the work splits into pieces that can be done at the same time, or when a second pair of eyes should check the first pair's work.",
-    "What the coordinator writes so the Swarm UI's Overview can show the swarm's goal, its groups of work and a screenshot timeline. Load it before you brief and add the first workers to a swarm.",
-    'ONLY for the native-swarm worker whose brief says it is the monitor. On a timer, it checks whether the whole swarm has stalled and calls on the one member who can unstick it. Coordinators and other workers: do not load this.',
-    "ONLY for the native-swarm worker whose brief says it is the narrator. It watches the board and keeps the facts behind the user's Overview (view.json) current. Coordinators and other workers: do not load this.",
-  ];
-  for (const key of expectedKeys) {
-    const val = dict.exact[key];
-    assert.equal(typeof val, 'string', `Missing Swarm host-i18n key: ${key}`);
-    assert.ok(val.includes('Swarm'), `Translation must preserve "Swarm": ${val}`);
-    assert.ok(/[\u4e00-\u9fff]/.test(val), `Translation must contain Simplified Chinese text: ${val}`);
-  }
-  assert.ok(typeof i18nRuntime.createHostI18nEngine === 'function');
-  const eng = i18nRuntime.createHostI18nEngine(dict);
-  for (const key of expectedKeys) {
-    assert.equal(eng.translate(key), dict.exact[key], `Host i18n engine must translate "${key}"`);
-  }
+test('v1.0.7-beta.2 Task 7 (host-i18n removed): vendor/host-i18n is removed and Channel 4 stays disabled', () => {
+  assert.equal(fs.existsSync(path.join(ROOT, 'vendor', 'host-i18n')), false);
+  assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'on', language: 'th' }), false);
+  assert.equal(cdp.buildHostI18nExpression({ hostLocalization: 'on', language: 'th' }), '');
+  assert.equal(cdp.shouldEnableSwarmI18n({ hostLocalization: 'on', language: 'th' }), false);
+  assert.equal(cdp.buildSwarmI18nExpression({ hostLocalization: 'on', language: 'th' }), '');
 });
 
 test('v1.0.7-beta.2 #192 [P2-3]: settings-panel.js remount & inject.js fallback remove expression both purge prism-thought-general-config companion card', () => {

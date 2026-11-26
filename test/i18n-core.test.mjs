@@ -236,45 +236,38 @@ function createMiniDom() {
   };
 }
 
-test('normalizeLanguage, LANG_OPTIONS, and UI_TABLE support all 8 required languages + yue migration', () => {
+test('normalizeLanguage, LANG_OPTIONS, and UI_TABLE support 2 languages (th default/fallback + en) and fall back removed/unknown locales to th', () => {
   assert.deepEqual(
     i18nCore.LANG_OPTIONS.map((o) => [o.id, o.label]),
     [
-      ['zh-CN', '简体中文'],
-      ['zh-TW', '繁體中文'],
+      ['th', 'ไทย'],
       ['en', 'English'],
-      ['ja', '日本語'],
-      ['ko', '한국어'],
-      ['es', 'Español'],
-      ['fr', 'Français'],
-      ['de', 'Deutsch'],
     ]
   );
 
-  assert.equal(i18nCore.normalizeLanguage('zh-CN'), 'zh-CN');
-  assert.equal(i18nCore.normalizeLanguage('zh_TW'), 'zh-TW');
-  assert.equal(i18nCore.normalizeLanguage('zh-Hant'), 'zh-TW');
-  assert.equal(i18nCore.normalizeLanguage('zh-HK'), 'zh-TW');
-  assert.equal(i18nCore.normalizeLanguage('zh-MO'), 'zh-TW');
-  assert.equal(i18nCore.normalizeLanguage('yue'), 'zh-CN');
-  assert.equal(i18nCore.normalizeLanguage('zh-yue'), 'zh-CN');
-  assert.equal(i18nCore.normalizeLanguage('cantonese'), 'zh-CN');
+  assert.equal(i18nCore.normalizeLanguage('th'), 'th');
+  assert.equal(i18nCore.normalizeLanguage('th_TH'), 'th');
+  assert.equal(i18nCore.normalizeLanguage('th-TH'), 'th');
+  assert.equal(i18nCore.normalizeLanguage('thai'), 'th');
+  assert.equal(i18nCore.normalizeLanguage('en'), 'en');
   assert.equal(i18nCore.normalizeLanguage('en-US'), 'en');
-  assert.equal(i18nCore.normalizeLanguage('ja-JP'), 'ja');
-  assert.equal(i18nCore.normalizeLanguage('ko-KR'), 'ko');
-  assert.equal(i18nCore.normalizeLanguage('es-ES'), 'es');
-  assert.equal(i18nCore.normalizeLanguage('fr-FR'), 'fr');
-  assert.equal(i18nCore.normalizeLanguage('de-DE'), 'de');
-  assert.equal(i18nCore.normalizeLanguage(true), 'zh-CN');
+  assert.equal(i18nCore.normalizeLanguage('en_GB'), 'en');
+  assert.equal(i18nCore.normalizeLanguage('english'), 'en');
+  assert.equal(i18nCore.normalizeLanguage(true), 'th');
   assert.equal(i18nCore.normalizeLanguage(false), 'en');
-  for (const cjkLang of ['zh-CN', 'zh-TW', 'ja', 'ko']) {
-    assert.equal(i18nCore.isCjkLanguage(cjkLang), true, `isCjkLanguage(${cjkLang}) must be true`);
+  for (const removedOrUnknown of ['zh-CN', 'zh_TW', 'zh-Hant', 'zh-HK', 'zh-MO', 'yue', 'zh-yue', 'cantonese', 'ja-JP', 'ko-KR', 'es-ES', 'fr-FR', 'de-DE', 'pt-BR', '', null]) {
+    assert.equal(i18nCore.normalizeLanguage(removedOrUnknown), 'th', `normalizeLanguage(${String(removedOrUnknown)}) must fall back to th`);
   }
-  for (const latinLang of ['en', 'es', 'fr', 'de']) {
-    assert.equal(i18nCore.isCjkLanguage(latinLang), false, `isCjkLanguage(${latinLang}) must be false`);
+  assert.equal(i18nCore.normalizeLanguage('pt-BR', 'en'), 'en');
+  assert.equal(i18nCore.intlLocale('th'), 'th-TH');
+  assert.equal(i18nCore.intlLocale('en'), 'en-US');
+  assert.equal(i18nCore.htmlLangAttr('th'), 'th');
+  assert.equal(i18nCore.htmlLangAttr('en'), 'en');
+  for (const lang of ['th', 'en', 'zh-CN', 'ja', 'ko']) {
+    assert.equal(i18nCore.isCjkLanguage(lang), false, `isCjkLanguage(${lang}) must be false`);
   }
 
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     assert.ok(ui.setLanguageTitle);
     assert.ok(ui.setLanguageDesc);
@@ -285,14 +278,15 @@ test('normalizeLanguage, LANG_OPTIONS, and UI_TABLE support all 8 required langu
     assert.ok(ui.tabModels);
     assert.ok(ui.studioPlaceholder);
   }
+  const thUi = i18nLocales.getUiStrings('th');
+  for (const removedLang of ['zh-CN', 'zh-TW', 'ja', 'ko', 'es', 'fr', 'de', 'yue', 'pt-BR']) {
+    assert.equal(i18nLocales.getUiStrings(removedLang).setLanguageTitle, thUi.setLanguageTitle, `getUiStrings(${removedLang}) must fall back to th`);
+  }
 
   assert.deepEqual(i18nLocales.DICT_ROWS, []);
-  const zhBundle = i18nLocales.resolveLocaleBundle('zh-CN');
-  assert.ok(zhBundle);
-  assert.deepEqual(zhBundle.rules, []);
-  assert.deepEqual(zhBundle.timeRules, []);
-  assert.deepEqual(zhBundle.sentences, []);
+  assert.equal(i18nLocales.resolveLocaleBundle('th'), null);
   assert.equal(i18nLocales.resolveLocaleBundle('en'), null);
+  assert.equal(i18nLocales.resolveLocaleBundle('zh-CN'), null);
 });
 
 test('createDomTranslator returns null and leaves Antigravity host DOM untouched (coexists with host localization)', () => {
@@ -393,7 +387,7 @@ test('v1.0.1 i18n keys cover all 8 languages for scene presets, 6 new config key
     'permAutoDesc',
     'permTurboDesc',
   ];
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     for (const k of requiredNewKeys) {
       assert.ok(typeof ui[k] === 'string' && ui[k].trim().length > 0, `Missing ${k} for language ${lang}`);
@@ -405,10 +399,11 @@ test('v1.0.1 i18n keys cover all 8 languages for scene presets, 6 new config key
 });
 
 test('settings-panel schema, scene presets, strict apiKey-stripping JSON export, and allowlist-validated JSON import', () => {
-  // Verify all 39 global config keys (including darkAura, darkAuraStyle, convRipple, effortMemory, periodicModelPicker, contextMenu, sidebarNavFold, scrollBottomMotion, hostLocalization, omniModule, linkTarget, sidebarStudio, autoUpdate, updateChannel & autoArchiveOnExit) match exact contract
+  // Verify all 38 global config keys (hostLocalization removed; includes darkAura, darkAuraStyle, convRipple, effortMemory, periodicModelPicker, contextMenu, sidebarNavFold, scrollBottomMotion, omniModule, linkTarget, sidebarStudio, autoUpdate, updateChannel & autoArchiveOnExit) match exact contract
   const { PRISM_SETTINGS_SCHEMA, SCENE_PRESETS, buildSanitizedConfigExport, validateImportedConfigJson, getDefaultSettingsPatch } =
     settingsPanel;
-  assert.equal(Object.keys(PRISM_SETTINGS_SCHEMA).length, 39);
+  assert.equal(Object.keys(PRISM_SETTINGS_SCHEMA).length, 38);
+  assert.equal(PRISM_SETTINGS_SCHEMA.hostLocalization, undefined);
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.homeRipple.allowed, [true, false]);
   assert.equal(PRISM_SETTINGS_SCHEMA.homeRipple.default, true);
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.convRipple.allowed, ['off', 'subtle', 'medium', 'full']);
@@ -423,7 +418,7 @@ test('settings-panel schema, scene presets, strict apiKey-stripping JSON export,
   assert.equal(PRISM_SETTINGS_SCHEMA.effortMemory.default, 'on');
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.periodicModelPicker.allowed, ['on', 'off']);
   assert.equal(PRISM_SETTINGS_SCHEMA.periodicModelPicker.default, 'on');
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     assert.ok(typeof ui.setPeriodicPickerTitle === 'string' && ui.setPeriodicPickerTitle.trim().length > 0, `Missing setPeriodicPickerTitle for ${lang}`);
     assert.ok(typeof ui.setPeriodicPickerDesc === 'string' && ui.setPeriodicPickerDesc.trim().length > 0, `Missing setPeriodicPickerDesc for ${lang}`);
@@ -432,8 +427,6 @@ test('settings-panel schema, scene presets, strict apiKey-stripping JSON export,
   assert.equal(PRISM_SETTINGS_SCHEMA.sidebarNavFold.default, 'off');
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.scrollBottomMotion.allowed, ['smooth', 'instant']);
   assert.equal(PRISM_SETTINGS_SCHEMA.scrollBottomMotion.default, 'smooth');
-  assert.deepEqual(PRISM_SETTINGS_SCHEMA.hostLocalization.allowed, ['auto', 'on', 'off']);
-  assert.equal(PRISM_SETTINGS_SCHEMA.hostLocalization.default, 'auto');
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.accentTone.allowed, ['follow', 'cobalt', 'iris', 'amber', 'mono']);
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.cornerStyle.allowed, ['sharp', 'balanced', 'soft']);
   assert.deepEqual(PRISM_SETTINGS_SCHEMA.codeFont.allowed, ['default', 'jetbrains', 'cascadia', 'sfmono']);
@@ -522,15 +515,17 @@ test('settings-panel schema, scene presets, strict apiKey-stripping JSON export,
   assert.equal(boolAlias.settings.sidebarNavFold, 'on');
   assert.equal(boolAlias.settings.linkTarget, 'builtin');
   assert.equal(boolAlias.settings.mascot, 'crab');
-  assert.ok(['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'].includes(boolAlias.settings.language));
+  assert.ok(['th', 'en'].includes(boolAlias.settings.language));
 
-  assert.equal(i18nLocales.getUiStrings('zh-CN').presetUltra, '完整光效');
+  assert.equal(i18nLocales.getUiStrings('th').presetUltra, 'ภาพเต็มรูปแบบ');
   assert.equal(i18nLocales.getUiStrings('en').presetUltra, 'Full Visuals');
+  assert.equal(i18nLocales.getUiStrings('zh-CN').presetUltra, 'ภาพเต็มรูปแบบ');
 
   assert.equal(validateImportedConfigJson('not-json').ok, false);
   assert.equal(validateImportedConfigJson('{"unknownOnly": 1}').ok, false);
   const defaultPatch = getDefaultSettingsPatch();
-  assert.equal(Object.keys(defaultPatch).length, 39);
+  assert.equal(Object.keys(defaultPatch).length, 38);
+  assert.equal(defaultPatch.hostLocalization, undefined);
   assert.equal(defaultPatch.homeRipple, true);
   assert.equal(defaultPatch.convRipple, 'off');
   assert.equal(defaultPatch.darkAura, 'balanced');
@@ -541,7 +536,7 @@ test('settings-panel schema, scene presets, strict apiKey-stripping JSON export,
   assert.equal(defaultPatch.sidebarNavFold, 'off');
   assert.equal(defaultPatch.scrollBottomMotion, 'smooth');
 
-  // convRipple & darkAura/darkAuraStyle 8-language i18n coverage (0 CJK in en/es/fr/de, 0 runtime slice leak)
+  // convRipple & darkAura/darkAuraStyle 2-language i18n coverage (0 CJK in th/en, 0 runtime slice leak)
   const CJK_RE_CR = /[\u3000-\u30ff\u3400-\u9fff\uac00-\ud7af\uff00-\uffef]/;
   const runtimeKeySetCr = new Set(i18nLocales.RUNTIME_UI_KEYS);
   const convI18nKeys = [
@@ -552,13 +547,11 @@ test('settings-panel schema, scene presets, strict apiKey-stripping JSON export,
   for (const ck of convI18nKeys) {
     assert.equal(runtimeKeySetCr.has(ck), false, `${ck} must NOT be in RUNTIME_UI_KEYS`);
   }
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     for (const ck of convI18nKeys) {
       assert.ok(typeof ui[ck] === 'string' && ui[ck].trim().length > 0, `Missing ${ck} for ${lang}`);
-      if (['en', 'es', 'fr', 'de'].includes(lang)) {
-        assert.equal(CJK_RE_CR.test(ui[ck]), false, `CJK leak in ${ck} (${lang})`);
-      }
+      assert.equal(CJK_RE_CR.test(ui[ck]), false, `CJK leak in ${ck} (${lang})`);
     }
   }
   assert.equal(SCENE_PRESETS.ultra.homeRipple, true);
@@ -602,8 +595,8 @@ test('UX-1 / OP-5 / UX-4 / UX-9 regressions: async thought config export, tech->
   assert.equal(importedLegacy.ok, true);
   assert.equal(importedLegacy.thought.stylePreset, 'technical');
 
-  // 3. 8-language lightPreset context hints, optFontSfmono, and swarmSplitSub
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  // 3. 2-language lightPreset context hints, optFontSfmono, and swarmSplitSub
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     assert.ok(ui.lightPresetHintDark && ui.lightPresetHintDark.length > 4);
     assert.ok(ui.lightPresetHintWarm && ui.lightPresetHintWarm.length > 4);
@@ -615,14 +608,14 @@ test('UX-1 / OP-5 / UX-4 / UX-9 regressions: async thought config export, tech->
   }
 });
 
-test('PR #50 & PR #41/#49: DEFAULT_CONFIG & config.example.json default to auto, 8-lang runtime resolves navigator.languages[0] with en fallback, and 6 new home keys registered cleanly', () => {
+test('PR #50 & PR #41/#49: DEFAULT_CONFIG & config.example.json default to auto, 2-lang runtime resolves navigator.languages[0] with th fallback, and 6 new home keys registered cleanly', () => {
   assert.equal(cdp.DEFAULT_CONFIG.language, 'auto');
   assert.equal(cdp.DEFAULT_CONFIG.lang, 'auto');
   const exCfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config.example.json'), 'utf8'));
   assert.equal(exCfg.language, 'auto');
   assert.equal(exCfg.lang, 'auto');
 
-  // PR #41 & PR #49: 6 new runtime UI keys present in i18n-locales (8-lang, 0 CJK in en/es/fr/de) AND in Channel 1 __uiSlice
+  // PR #41 & PR #49: 6 new runtime UI keys present in i18n-locales (2-lang th/en, 0 CJK) AND in Channel 1 __uiSlice
   const homeKeys = [
     'homeScopeAll',
     'homeScopeActive',
@@ -632,16 +625,18 @@ test('PR #50 & PR #41/#49: DEFAULT_CONFIG & config.example.json default to auto,
     'homeLocalScopeNote',
   ];
   const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf]/;
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     const slice = i18nLocales.getRuntimeUiSlice(lang);
+    assert.equal(slice.lang, lang);
     for (const k of homeKeys) {
       assert.ok(typeof ui[k] === 'string' && ui[k].trim().length > 0, `Missing ${k} in UI_TABLE for ${lang}`);
       assert.equal(slice.strings[k], ui[k], `Missing ${k} in getRuntimeUiSlice(${lang})`);
-      if (lang === 'en' || lang === 'es' || lang === 'fr' || lang === 'de') {
-        assert.equal(CJK_RE.test(ui[k]), false, `CJK leak in ${k} (${lang}): ${ui[k]}`);
-      }
+      assert.equal(CJK_RE.test(ui[k]), false, `CJK leak in ${k} (${lang}): ${ui[k]}`);
     }
+  }
+  for (const removedLang of ['zh-CN', 'zh-TW', 'ja', 'ko', 'es', 'fr', 'de']) {
+    assert.equal(i18nLocales.getRuntimeUiSlice(removedLang).lang, 'th', `getRuntimeUiSlice(${removedLang}) must fall back to th`);
   }
   const ch1Expr = cdp.buildInjectExpression(cdp.DEFAULT_CONFIG);
   assert.ok(Buffer.byteLength(ch1Expr, 'utf8') < 685000, 'Channel 1 bundle must stay < 685,000 B');
@@ -844,41 +839,49 @@ test('PR #50 & PR #41/#49: DEFAULT_CONFIG & config.example.json default to auto,
     return { langAttr, hasCjkAttr, langTitle, overviewTab, greetingText };
   };
 
-  // English Windows (en-US primary, zh-Hans-CN secondary) -> English UI
-  const enRes = runRuntimeWithNav(null, { language: 'en-US', languages: ['en-US', 'zh-Hans-CN'] });
+  // English Windows (en-US primary, th-TH secondary) -> English UI
+  const enRes = runRuntimeWithNav(null, { language: 'en-US', languages: ['en-US', 'th-TH'] });
   assert.equal(enRes.langAttr, 'en');
   assert.equal(enRes.hasCjkAttr, false);
   assert.equal(enRes.langTitle, 'UI Language');
   assert.equal(enRes.overviewTab, 'Overview');
   assert.equal(enRes.greetingText, "What's up next?");
 
-  // Unsupported locale (pt-BR) -> falls back to English, NOT zh-CN
-  const ptRes = runRuntimeWithNav(null, { language: 'pt-BR' });
-  assert.equal(ptRes.langAttr, 'en');
-  assert.equal(ptRes.hasCjkAttr, false);
-  assert.equal(ptRes.langTitle, 'UI Language');
+  // Thai locale (th-TH) -> Thai UI
+  const thUiExp = i18nLocales.getUiStrings('th');
+  const thRes = runRuntimeWithNav(null, { language: 'th-TH' });
+  assert.equal(thRes.langAttr, 'th');
+  assert.equal(thRes.hasCjkAttr, false);
+  assert.equal(thRes.langTitle, thUiExp.setLanguageTitle);
+  assert.equal(thRes.overviewTab, thUiExp.tabOverview);
+  assert.equal(thRes.greetingText, 'ทำอะไรต่อดี?');
 
-  // Supported 8 locales (fr-FR -> fr, zh-HK -> zh-TW, zh-CN -> zh-CN, ja-JP -> ja)
-  assert.equal(runRuntimeWithNav(null, { language: 'fr-FR' }).langAttr, 'fr');
-  assert.equal(runRuntimeWithNav(null, { language: 'zh-CN' }).langAttr, 'zh-CN');
-  assert.equal(runRuntimeWithNav(null, { language: 'ja-JP' }).langAttr, 'ja');
-  assert.equal(runRuntimeWithNav(null, { language: 'zh-HK' }).langAttr, 'zh-TW');
+  // Unsupported & removed locales -> fall back cleanly to Thai ('th')
+  for (const fbNav of ['pt-BR', 'fr-FR', 'zh-CN', 'ja-JP', 'zh-HK']) {
+    const fbRes = runRuntimeWithNav(null, { language: fbNav });
+    assert.equal(fbRes.langAttr, 'th', `auto runtime for ${fbNav} must fall back to th`);
+    assert.equal(fbRes.hasCjkAttr, false);
+    assert.equal(fbRes.langTitle, thUiExp.setLanguageTitle);
+  }
 
-  // Explicit user overrides ignore navigator.language
-  assert.equal(runRuntimeWithNav({ language: 'zh-CN', lang: 'zh-CN' }, { language: 'en-US' }).langAttr, 'zh-CN');
-  assert.equal(runRuntimeWithNav({ language: 'en', lang: 'en' }, { language: 'zh-CN' }).langAttr, 'en');
+  // Explicit user overrides ignore navigator.language (and removed explicit values fall back to 'th')
+  assert.equal(runRuntimeWithNav({ language: 'th', lang: 'th' }, { language: 'en-US' }).langAttr, 'th');
+  assert.equal(runRuntimeWithNav({ language: 'en', lang: 'en' }, { language: 'th-TH' }).langAttr, 'en');
+  assert.equal(runRuntimeWithNav({ language: 'zh-CN', lang: 'zh-CN' }, { language: 'en-US' }).langAttr, 'th');
 
-  // settingsPanel.validateImportedConfigJson({ language: 'auto' }) prioritizes navigator.languages[0] & falls back to 'en'
+  // settingsPanel.validateImportedConfigJson({ language: 'auto' }) prioritizes navigator.languages[0] & falls back to 'th'
   const origNavDesc = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
   try {
-    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { language: 'zh-CN', languages: ['en-US', 'zh-CN'] } });
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { language: 'th-TH', languages: ['en-US', 'th-TH'] } });
     assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'en');
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { language: 'th-TH' } });
+    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'th');
     Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { language: 'pt-BR' } });
-    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'en');
+    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'th');
     Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { language: 'fr-FR' } });
-    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'fr');
+    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'th');
     Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { language: 'zh-CN' } });
-    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'zh-CN');
+    assert.equal(settingsPanel.validateImportedConfigJson('{"language":"auto"}').settings.language, 'th');
     assert.equal(settingsPanel.buildSanitizedConfigExport({ language: 'auto' }).settings.language, 'auto');
     assert.equal(settingsPanel.buildSanitizedConfigExport({ language: 'AUTO' }).settings.language, 'auto');
   } finally {

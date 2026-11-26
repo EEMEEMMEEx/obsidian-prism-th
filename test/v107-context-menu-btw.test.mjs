@@ -490,7 +490,7 @@ test('3. Redux discovery via #root __reactContainer$ downward BFS, sidebar casca
   assert.equal(homeRes.reason, 'no-cascade-id');
   const toast = env.doc.querySelector('.ag-cs-ctx-toast');
   assertNoTranslateAttrs(toast, 'no-conversation toast');
-  assert.ok(toast.textContent.includes('会话'));
+  assert.ok(toast.textContent.includes('บทสนทนา'));
 
   // Add selected sidebar row with data-cascade-id fallback
   const row = env.makeEl('div', { attrs: { 'data-testid': 'conversation-row-sidebar', 'data-selected': 'true', 'data-cascade-id': 'sidebar-cid-77' } });
@@ -715,21 +715,24 @@ test('7. Dual-mode curated menu (plain vs selection), no banned commands, SVG ic
   ctl.destroy();
 });
 
-test('8. 8-language live sync (zh-CN, zh-TW, en, ja, ko, es, fr, de) + yue->zh-CN migration including live refresh while open', () => {
+test('8. 2-language live sync (th default/fallback, en) + removed locale fallback to th including live refresh while open', () => {
   const env = createMockEnv();
   const ctl = ctxMenuMod.createContextMenuController({ doc: env.doc, win: env.win, nav: env.nav, loc: env.loc, stepDelayMs: 0 });
 
   const expectations = [
-    ['zh-CN', 'zh-CN', '复制', '打开侧边会话'],
-    ['zh-TW', 'zh-TW', '複製', '開啟側邊會話'],
-    ['zh-HK', 'zh-TW', '複製', '開啟側邊會話'],
-    ['yue', 'zh-CN', '复制', '打开侧边会话'],
+    ['th', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['th-TH', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
     ['en', 'en', 'Copy', 'Open side chat'],
-    ['ja', 'ja', 'コピー', 'サイド会話を開く'],
-    ['ko', 'ko', '복사', '사이드 채팅 열기'],
-    ['es', 'es', 'Copiar', 'Abrir chat lateral'],
-    ['fr', 'fr', 'Copier', 'Ouvrir le chat latéral'],
-    ['de', 'de', 'Kopieren', 'Seitenchat öffnen'],
+    ['en-US', 'en', 'Copy', 'Open side chat'],
+    ['zh-CN', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['zh-TW', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['zh-HK', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['yue', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['ja', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['ko', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['es', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['fr', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
+    ['de', 'th', 'คัดลอก', 'เปิดแชตด้านข้าง'],
   ];
 
   ctl.openAt(100, 100, { selectedText: 'hello' });

@@ -12,7 +12,7 @@
 
 <p>
   <a href="https://github.com/RMvdesi/obsidian-prism/releases"><img src="https://img.shields.io/github/v/release/RMvdesi/obsidian-prism?style=flat-square&color=3186ff&label=Release" alt="Latest Release" /></a>
-  <img src="https://img.shields.io/badge/Version-1.0.8--beta.3-0f172a?style=flat-square" alt="Version 1.0.8-beta.3" />
+  <img src="https://img.shields.io/badge/Version-1.0.8--beta.3-0f172a?style=flat-square" alt="Version 1.0.8-beta.4" />
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20Universal-1e293b?style=flat-square" alt="Platform" />
   <a href="https://github.com/RMvdesi/obsidian-prism/actions"><img src="https://img.shields.io/github/actions/workflow/status/RMvdesi/obsidian-prism/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-2563eb?style=flat-square" alt="License: GPL-3.0" /></a>
@@ -22,7 +22,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/hero-dark.webp" />
   <source media="(prefers-color-scheme: light)" srcset="assets/screenshots/hero-light.webp" />
-  <img src="assets/screenshots/hero-dark.webp" width="100%" alt="Obsidian Prism v1.0.8-beta.3 界面演示" />
+  <img src="assets/screenshots/hero-dark.webp" width="100%" alt="Obsidian Prism v1.0.8-beta.4 界面演示" />
 </picture>
 
 <sub>以上画面由离线渲染舞台直接运行本仓库前端源码逐帧录制，示例工作区与对话内容均为虚构。</sub>
@@ -100,7 +100,7 @@
 <details>
 <summary><strong>技术细节：性能、安全边界、遥测与配置（点击展开）</strong></summary>
 
-**Obsidian Prism (`v1.0.8-beta.3`)** 在不改动宿主业务逻辑、不触碰外部插件锁文件的前提下，通过模块化按需加载插件架构为 Antigravity 桌面端提供 Smoked Obsidian 视觉界面、工作台交互与行内 Diff 增强、侧边栏内置浏览器与多格式流式检视台、模型配额遥测、思考过程转译及实验性动静态壁纸（Beta）：
+**Obsidian Prism (`v1.0.8-beta.4`)** 在不改动宿主业务逻辑、不触碰外部插件锁文件的前提下，通过模块化按需加载插件架构为 Antigravity 桌面端提供 Smoked Obsidian 视觉界面、工作台交互与行内 Diff 增强、侧边栏内置浏览器与多格式流式检视台、模型配额遥测、思考过程转译及实验性动静态壁纸（Beta）：
 
 - **四套深浅配色与细节微调**：内置深色（`obsidian` 深空黑曜、`warm` 暖炭玄岩）与浅色（`crystal` 白昼冷晶、`alabaster` 暖白画册）共四套主题，支持跟随系统/宿主亮暗切换；统一 Smoked Obsidian 烟熏黑曜切面（用户消息气泡、文件变更条、Artifact 卡片、石墨键帽与单层行内文件芯片）；提供 5 档工业强调色（跟随模型 / 钴蓝 `cobalt` / 鸢尾紫 `iris` / 琥珀金 `amber` / 纯银钛单色 `mono`）、3 档全局圆角、4 档代码等宽字体与连字开关、环境光浓度调节。
 - **300Hz 高刷分频、五级水墨流式淡入与 `0fps` 语义余晖**：移除常驻大面积 `backdrop-filter` 模糊开销，休眠时 Canvas VRAM 主动回收至 `0x0`；对话流式吐字采用基于 `CSS.highlights` 的**五级水墨流式淡入**（零 DOM 节点包裹、零强制同步回流），在超长会话（`34k+` DOM 节点）与高刷屏下保持流畅零卡顿；推理稳态期背景极光自动限频至 `~30fps` 降低 GPU 占用，空闲 `1.2s` 后进入 `0fps` 休眠；支持「待用户决策 / 异常中止 / 长任务后台完成」三态无弹窗边缘余晖提示，静态定格后维持 `0fps` 零重绘。
@@ -181,10 +181,34 @@ npm run build:installer        # 编译 Windows 独立安装器 (.exe)
 npm run build:macos            # 编译 macOS Universal 安装包 (.dmg)
 ```
 
+#### Windows 安装器版本信息与代码签名
+
+`npm run build:installer` 会从 `cdp.js` 的 `PLUGIN_VERSION` 生成真实的 Win32 版本资源
+（`FileVersion`、`ProductVersion`、`ProductName`、`CompanyName`），因此资源管理器 → 属性 → 详细信息
+和 SmartScreen 信誉查询能看到正确产品信息，而不是 `0.0.0.0`。
+
+Authenticode 签名只在提供证书时执行，本地未签名构建不受影响：
+
+```bash
+# 命令行参数（优先于下方环境变量）
+node scripts/build-installer.mjs --out dist/obsidian-prism-installer.exe \
+  --sign-cert ./certs/prism.pfx --sign-password "$PRISM_SIGN_PASSWORD"
+
+# 或使用环境变量
+PRISM_SIGN_CERT=./certs/prism.pfx \
+PRISM_SIGN_PASSWORD=... \
+PRISM_SIGN_TIMESTAMP_URL=http://timestamp.digicert.com \
+npm run build:installer
+```
+
+> [!IMPORTANT]
+> 仅签名不能消除 SmartScreen 警告。信誉按证书与发布者名称逐步累积；只有 EV 代码签名证书能立即
+> 消除警告。发布时同时提供 SHA256 校验和也能降低下载阻力。
+
 #### 仓库核心目录结构
 ```text
 obsidian-prism/
-├── plugin.json                         # Antigravity 原生插件清单 (obsidian-prism@1.0.8-beta.3)
+├── plugin.json                         # Antigravity 原生插件清单 (obsidian-prism@1.0.8-beta.4)
 ├── LICENSE / NOTICE / CITATION.cff     # GPL-3.0 许可证、附加署名声明与仓库引用元数据
 ├── THIRD_PARTY_NOTICES.md              # 吸收整合的上游 MIT 项目完整版权与许可声明
 ├── assets/                             # 插件矢量图标与说明文档截图资源
@@ -205,7 +229,7 @@ obsidian-prism/
 ├── host-workbench-enhancer.js          # 控制器 6：扩展面板主题同步桥、代码折叠与导轨大纲控制器
 ├── ui-runtime.js                       # 前端微内核：配置热同步、DOM 观察器与生命周期编排
 ├── sidecars/daemon/                    # 本地常驻守护服务 (设置/遥测/用量/Git/归档/思考/Omni/行内Diff/壁纸Beta)
-├── vendor/                             # 遥测 (v0.9.1)、滑块、思考转译、行内Diff、壁纸Beta、omni-viewer、sidebar-studio 与 host-i18n
+├── vendor/                             # 遥测 (v0.9.1)、滑块、思考转译、行内Diff、壁纸Beta、omni-viewer 与 sidebar-studio
 └── installer/ & tools/                 # Windows (C#) / macOS (Swift) 原生插件安装器与工具链
 ```
 </details>
@@ -233,7 +257,7 @@ obsidian-prism/
   author       = {RMvdesi},
   title        = {{Obsidian Prism: Modular Optical UI, Workbench Enhancements, Omni File Viewer, Quota Telemetry & Thought Translator for Antigravity}},
   year         = {2026},
-  version      = {1.0.8-beta.3},
+  version      = {1.0.8-beta.4},
   license      = {GPL-3.0-only},
   url          = {https://github.com/RMvdesi/obsidian-prism}
 }
@@ -248,7 +272,7 @@ obsidian-prism/
 1. **[0DNANCY/agy-claude-style](https://github.com/0DNANCY/agy-claude-style)** — `MIT License`, `Copyright (c) 2026 0DNANCY`（基础配色框架、弹簧动画底座、WebGL2 地平线/字符波纹矩阵、像素宠物底座与打包器雏形）。
 2. **[ATtacK030130/antigrative-dashboard](https://github.com/ATtacK030130/antigrative-dashboard)** (`v0.9.1`) — `MIT License`, `Copyright (c) 2026 AG Pulse contributors`（吸收适配于 `vendor/pulse-dashboard/`，用于实时吞吐速率、Cache 命中率、5h/周双窗口模型配额预测、主/子代理消耗拆分与多实例进程血缘归属）。
 3. **[LLYSH-HANNARI/antigravity-Codex-Claude-effort-slider](https://github.com/LLYSH-HANNARI/antigravity-Codex-Claude-effort-slider)** — `MIT License`, `Copyright (c) 2026 月上寒 (LLYSH-HANNARI)`（吸收适配于 `vendor/effort-slider/`，用于模型菜单推理等级滑块与智能共存让位）。
-4. **[yiheng8023/antigravity-chinese](https://github.com/yiheng8023/antigravity-chinese)** (`v3.3.63`) — `MIT License`, `Copyright (c) 2026 Antigravity Chinese Localization Contributors`（参考其 `zh-CN` 词库与前端界面翻译匹配思路；本项目已在 `vendor/host-i18n/` 重构为不修改宿主安装包的按需加载本地化模块，并新增四层未知插件通用自动礼让、防死循环熔断与 `WeakMap` 100% 无损还原）。
+4. **[yiheng8023/antigravity-chinese](https://github.com/yiheng8023/antigravity-chinese)** (`v3.3.63`) — `MIT License`, `Copyright (c) 2026 Antigravity Chinese Localization Contributors`（参考其 `zh-CN` 词库与前端界面翻译匹配思路；早期版本曾在独立按需模块中重构实现，该中文宿主界面覆盖层已于 `v1.0.8-beta.4` 双语言（`th`/`en`）架构中整体移除）。
 5. **[Nwflower/dsh-claude-style](https://github.com/Nwflower/dsh-claude-style)** — Studio 极简排版、输入框边框结构与暖白浅色配色参考致谢。
 6. **[Microqian2th/dsh-codex-effort-slider](https://github.com/Microqian2th/dsh-codex-effort-slider)** — 轨道刻度分档、迟滞吸附与阻尼运动曲线参考致谢。
 7. **[mobius/dsh-performance-slider](https://github.com/mobius/dsh-performance-slider)** — 性能档位滑块交互与实时反馈设计参考致谢。

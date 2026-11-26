@@ -111,7 +111,7 @@ const state = {
   snapshot: null,
   audit: null,
   catalog: { health: 'loading', items: [] },
-  locale: 'zh-CN',
+  locale: 'th',
   userName: 'Alex',
   greetingSeed: Math.floor(Math.random() * 100),
   motionLevel: 'ultra',

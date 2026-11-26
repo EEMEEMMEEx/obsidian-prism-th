@@ -33,7 +33,13 @@ function runExe(exePath, args, timeoutMs = 20000, customEnv = null) {
   });
 }
 
-import { VALIDATORS, buildInstaller } from '../scripts/build-installer.mjs';
+import {
+  VALIDATORS,
+  buildInstaller,
+  buildVersionInfoSource,
+  windowsVersionParts,
+  signExecutable,
+} from '../scripts/build-installer.mjs';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);

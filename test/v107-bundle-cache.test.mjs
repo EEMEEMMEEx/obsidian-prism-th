@@ -542,7 +542,7 @@ test('v107 A2-8: single-pass PrismDaemon.rebuildBundle cold hit parses .bundle-c
     assert.equal(fs.existsSync(cachePath), true);
     assert.ok(dCold.omniExpr.length > 0);
     assert.ok(dCold.sidebarExpr.length > 0);
-    assert.ok(dCold.hostI18nExpr.length > 0);
+    assert.equal(dCold.hostI18nExpr, '');
     assert.ok(dCold.thoughtExpr.length > 0);
     assert.ok(dCold.inlineDiffExpr.length > 0);
     assert.ok(dCold.wallpaperExpr.length > 0);
@@ -597,7 +597,7 @@ test('v107 A2-8: single-pass PrismDaemon.rebuildBundle cold hit parses .bundle-c
 
     const hitStats = dHit.cdp.getBundleCacheStats();
     assert.equal(hitStats.diskHits, 1);
-    assert.equal(hitStats.channelDiskHits, 10);
+    assert.equal(hitStats.channelDiskHits, 9);
     assert.equal(hitStats.channelHitsByName.wallpaper, 1);
     assert.equal(hitStats.channelHitsByName.periodicPicker, 1);
     assert.equal(hitStats.channelHitsByName.mascot, 1);

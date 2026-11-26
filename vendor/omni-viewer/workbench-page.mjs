@@ -256,54 +256,54 @@ export function formatTimecodeMs(seconds) {
   return `${pad2(min)}:${pad2(sec)}.${pad3(ms)}`;
 }
 
-// 8+1-language table: [zh-CN, zh-TW, yue, en, ja, ko, es, fr, de]
+// 2-language table: [th, en]
 export const WORKBENCH_I18N = {
-  viewCanvas: ['画布', '畫布', '畫布', 'Canvas', 'キャンバス', '캔버스', 'Lienzo', 'Canevas', 'Leinwand'],
-  viewSource: ['源码', '原始碼', '源碼', 'Source', 'ソース', '소스', 'Código', 'Source', 'Quelltext'],
-  viewPreview: ['预览', '預覽', '預覽', 'Preview', 'プレビュー', '미리보기', 'Vista previa', 'Aperçu', 'Vorschau'],
-  viewSplit: ['对照', '對照', '對照', 'Split', '分割', '분할', 'Dividido', 'Scindé', 'Geteilt'],
-  viewTable: ['表格', '表格', '表格', 'Table', 'テーブル', '표', 'Tabla', 'Tableau', 'Tabelle'],
-  viewRaw: ['纯文本', '純文字', '純文字', 'Raw Text', 'テキスト', '원문', 'Texto sin formato', 'Texte brut', 'Rohtext'],
-  bgChecker: ['棋盘格', '棋盤格', '棋盤格', 'Checker', 'チェッカー', '체커', 'Damero', 'Damier', 'Raster'],
-  bgCheckerLight: ['浅棋盘格', '淺棋盤格', '淺棋盤格', 'Light Checker', '明チェッカー', '밝은 체커', 'Damero claro', 'Damier clair', 'Helles Raster'],
-  bgCheckerDark: ['深棋盘格', '深棋盤格', '深棋盤格', 'Dark Checker', '暗チェッカー', '어두운 체커', 'Damero oscuro', 'Damier sombre', 'Dunkles Raster'],
-  bgDark: ['深色底', '深色底', '深色底', 'Dark', 'ダーク', '어둡게', 'Oscuro', 'Sombre', 'Dunkel'],
-  bgLight: ['浅色底', '淺色底', '淺色底', 'Light', 'ライト', '밝게', 'Claro', 'Clair', 'Hell'],
-  fitWin: ['适应窗口', '適應視窗', '適應視窗', 'Fit', '全体表示', '맞춤', 'Ajustar', 'Ajuster', 'Anpassen'],
-  zoom100: ['1:1', '1:1', '1:1', '1:1', '1:1', '1:1', '1:1', '1:1', '1:1'],
-  copySvg: ['复制 SVG', '複製 SVG', '複製 SVG', 'Copy SVG', 'SVG コピー', 'SVG 복사', 'Copiar SVG', 'Copier SVG', 'SVG kopieren'],
-  copyText: ['复制内容', '複製內容', '複製內容', 'Copy', 'コピー', '복사', 'Copiar', 'Copier', 'Kopieren'],
-  prevFrame: ['< 1帧', '< 1幀', '< 1格', '-1F', '< 1F', '-1F', '-1F', '-1F', '-1F'],
-  nextFrame: ['1帧 >', '1幀 >', '1格 >', '+1F', '1F >', '+1F', '+1F', '+1F', '+1F'],
-  playPause: ['播放 / 暂停', '播放 / 暫停', '播放 / 暫停', 'Play / Pause', '再生 / 一時停止', '재생 / 일시정지', 'Reproducir / Pausa', 'Lire / Pause', 'Wiedergabe / Pause'],
-  loopOne: ['循环', '循環', '循環', 'Loop', 'ループ', '반복', 'Bucle', 'Boucle', 'Schleife'],
-  setPointA: ['设 A 点', '設 A 點', '設 A 點', 'Set A', 'A点', 'A 지정', 'Fijar A', 'Définir A', 'A setzen'],
-  setPointB: ['设 B 点', '設 B 點', '設 B 點', 'Set B', 'B点', 'B 지정', 'Fijar B', 'Définir B', 'B setzen'],
-  clearAB: ['清除 A-B', '清除 A-B', '清除 A-B', 'Clear A-B', 'A-B解除', 'A-B 해제', 'Borrar A-B', 'Effacer A-B', 'A-B löschen'],
-  saveFrame: ['下载帧 PNG', '下載幀 PNG', '下載格 PNG', 'Save Frame', 'フレーム保存', '프레임 저장', 'Guardar fotograma', 'Enregistrer l’image', 'Frame speichern'],
-  copyFrame: ['复制帧', '複製幀', '複製格', 'Copy Frame', 'フレームコピー', '프레임 복사', 'Copiar fotograma', 'Copier l’image', 'Frame kopieren'],
-  addMarker: ['+ 打点', '+ 打點', '+ 打點', '+ Marker', '+ マーカー', '+ 마커', '+ Marcador', '+ Marqueur', '+ Marker'],
-  copyMarkers: ['复制时间点', '複製時間點', '複製時間點', 'Copy Timecodes', 'タイムコードコピー', '타임코드 복사', 'Copiar códigos', 'Copier les codes', 'Timecodes kopieren'],
-  vpDesktop: ['桌面 100%', '桌面 100%', '桌面 100%', 'Desktop 100%', 'デスクトップ', '데스크톱 100%', 'Escritorio 100%', 'Bureau 100%', 'Desktop 100%'],
-  vpTablet: ['平板 768px', '平板 768px', '平板 768px', 'Tablet 768px', 'タブレット 768', '태블릿 768px', 'Tableta 768px', 'Tablette 768px', 'Tablet 768px'],
-  vpMobile: ['手机 390px', '手機 390px', '手機 390px', 'Mobile 390px', 'モバイル 390', '모바일 390px', 'Móvil 390px', 'Mobile 390px', 'Mobil 390px'],
-  reloadBtn: ['刷新', '重新整理', '重新整理', 'Reload', '再読込', '새로고침', 'Recargar', 'Recharger', 'Neu laden'],
-  filterPh: ['搜索过滤数据行…', '搜尋過濾資料列…', '搜尋過濾資料行…', 'Filter rows…', '行を絞り込む…', '행 필터링…', 'Filtrar filas…', 'Filtrer les lignes…', 'Zeilen filtern…'],
-  loadMore: ['加载更多切片', '載入更多切片', '載入更多切片', 'Load More', 'さらに読み込む', '더 불러오기', 'Cargar más', 'Charger plus', 'Mehr laden'],
-  prevPage: ['上一页', '上一頁', '上一頁', 'Prev', '前へ', '이전', 'Anterior', 'Préc.', 'Zurück'],
-  nextPage: ['下一页', '下一頁', '下一頁', 'Next', '次へ', '다음', 'Siguiente', 'Suiv.', 'Weiter'],
-  rowsUnit: ['行', '列', '行', 'rows', '行', '행', 'filas', 'lignes', 'Zeilen'],
-  colsUnit: ['列', '欄', '欄', 'cols', '列', '열', 'cols', 'cols', 'Spalten'],
-  fontPh: ['输入样张测试文本…', '輸入樣張測試文字…', '輸入測試文字…', 'Type sample text…', 'テスト文字列を入力…', '샘플 텍스트 입력…', 'Escribe texto de prueba…', 'Saisir un texte d’essai…', 'Beispieltext eingeben…'],
-  fontLiga: ['编程连字', '程式連字', '代碼連字', 'Ligatures', '合字', '합자', 'Ligaduras', 'Ligatures', 'Ligaturen'],
-  wrapLines: ['自动换行', '自動換行', '自動換行', 'Wrap', '折り返し', '줄 바꿈', 'Ajuste de línea', 'Retour à la ligne', 'Zeilenumbruch'],
-  copiedOk: ['已复制到剪贴板', '已複製到剪貼簿', '已複製到剪貼簿', 'Copied to clipboard', 'コピーしました', '클립보드에 복사됨', 'Copiado al portapapeles', 'Copié dans le presse-papiers', 'In Zwischenablage kopiert'],
-  savedPng: ['已导出 PNG', '已匯出 PNG', '已匯出 PNG', 'PNG exported', 'PNGを書き出しました', 'PNG 내보내기 완료', 'PNG exportado', 'PNG exporté', 'PNG exportiert'],
-  loading: ['正在加载…', '正在載入…', '載入緊…', 'Loading…', '読み込み中…', '불러오는 중…', 'Cargando…', 'Chargement…', 'Wird geladen…'],
-  emptyData: ['暂无可展示内容', '暫無可顯示內容', '暫時冇內容顯示', 'No content to display', '表示するデータがありません', '표시할 내용이 없습니다', 'Sin contenido para mostrar', 'Aucun contenu à afficher', 'Keine Inhalte anzuzeigen'],
-  loadError: ['加载失败', '載入失敗', '載入失敗', 'Failed to load file', '読み込みに失敗しました', '파일을 불러오지 못했습니다', 'Error al cargar el archivo', 'Échec du chargement', 'Datei konnte nicht geladen werden'],
-  waitingMermaid: ['等待传入图表数据…', '等待傳入圖表資料…', '等待傳入圖表數據…', 'Waiting for diagram payload…', '図表データを待機中…', '다이어그램 데이터 대기 중…', 'Esperando datos del diagrama…', 'En attente du diagramme…', 'Warte auf Diagrammdaten…'],
-  sandboxIsolated: ['沙盒隔离', '沙盒隔離', '沙盒隔離', 'Sandbox Isolated', 'サンドボックス隔離', '샌드박스 격리', 'Aislado en sandbox', 'Isolé en sandbox', 'Sandbox-isoliert'],
+  viewCanvas: ['แคนวาส', 'Canvas'],
+  viewSource: ['ซอร์สโค้ด', 'Source'],
+  viewPreview: ['ตัวอย่าง', 'Preview'],
+  viewSplit: ['แบ่งหน้าจอ', 'Split'],
+  viewTable: ['ตาราง', 'Table'],
+  viewRaw: ['ข้อความดิบ', 'Raw Text'],
+  bgChecker: ['ตารางหมากรุก', 'Checker'],
+  bgCheckerLight: ['ตารางหมากรุกสว่าง', 'Light Checker'],
+  bgCheckerDark: ['ตารางหมากรุกมืด', 'Dark Checker'],
+  bgDark: ['พื้นมืด', 'Dark'],
+  bgLight: ['พื้นสว่าง', 'Light'],
+  fitWin: ['พอดีหน้าต่าง', 'Fit'],
+  zoom100: ['1:1', '1:1'],
+  copySvg: ['คัดลอก SVG', 'Copy SVG'],
+  copyText: ['คัดลอก', 'Copy'],
+  prevFrame: ['-1F', '-1F'],
+  nextFrame: ['+1F', '+1F'],
+  playPause: ['เล่น / หยุด', 'Play / Pause'],
+  loopOne: ['วนซ้ำ', 'Loop'],
+  setPointA: ['ตั้งจุด A', 'Set A'],
+  setPointB: ['ตั้งจุด B', 'Set B'],
+  clearAB: ['ล้าง A-B', 'Clear A-B'],
+  saveFrame: ['บันทึกเฟรม PNG', 'Save Frame'],
+  copyFrame: ['คัดลอกเฟรม', 'Copy Frame'],
+  addMarker: ['+ มาร์กเกอร์', '+ Marker'],
+  copyMarkers: ['คัดลอกเวลา', 'Copy Timecodes'],
+  vpDesktop: ['เดสก์ท็อป 100%', 'Desktop 100%'],
+  vpTablet: ['แท็บเล็ต 768px', 'Tablet 768px'],
+  vpMobile: ['มือถือ 390px', 'Mobile 390px'],
+  reloadBtn: ['โหลดใหม่', 'Reload'],
+  filterPh: ['กรองแถวข้อมูล…', 'Filter rows…'],
+  loadMore: ['โหลดเพิ่ม', 'Load More'],
+  prevPage: ['ก่อนหน้า', 'Prev'],
+  nextPage: ['ถัดไป', 'Next'],
+  rowsUnit: ['แถว', 'rows'],
+  colsUnit: ['คอลัมน์', 'cols'],
+  fontPh: ['พิมพ์ข้อความทดสอบฟอนต์…', 'Type sample text…'],
+  fontLiga: ['อักษรเชื่อม', 'Ligatures'],
+  wrapLines: ['ตัดบรรทัด', 'Wrap'],
+  copiedOk: ['คัดลอกไปยังคลิปบอร์ดแล้ว', 'Copied to clipboard'],
+  savedPng: ['ส่งออก PNG แล้ว', 'PNG exported'],
+  loading: ['กำลังโหลด…', 'Loading…'],
+  emptyData: ['ไม่มีเนื้อหาให้แสดง', 'No content to display'],
+  loadError: ['โหลดไฟล์ไม่สำเร็จ', 'Failed to load file'],
+  waitingMermaid: ['รอข้อมูลแผนภาพ…', 'Waiting for diagram payload…'],
+  sandboxIsolated: ['แยกแซนด์บ็อกซ์', 'Sandbox Isolated'],
 };
 
 function escapeHtml(str) {
@@ -589,7 +589,13 @@ html, body {
 `;
 
 function bootPrismWorkbench(INIT_STATE, I18N_TABLE) {
-  const LANG_IDX = { 'zh-CN': 0, 'zh-TW': 1, yue: 2, en: 3, ja: 4, ko: 5, es: 6, fr: 7, de: 8 };
+  const LANG_IDX = { th: 0, en: 1 };
+  function normalizeLang(raw) {
+    const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
+    if (/^en\b/.test(s) || s === 'english') return 'en';
+    if (/^th\b/.test(s) || s === 'thai') return 'th';
+    return 'th';
+  }
   const urlQs = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
   const readHashParams = () =>
     new URLSearchParams(typeof location !== 'undefined' && location.hash ? location.hash.slice(1) : '');
@@ -606,7 +612,7 @@ function bootPrismWorkbench(INIT_STATE, I18N_TABLE) {
     lightPreset: INIT_STATE.lightPreset || urlQs.get('lightPreset') || 'crystal',
     accent: INIT_STATE.accent || urlQs.get('accent') || 'follow',
     corners: INIT_STATE.corners || urlQs.get('corners') || 'balanced',
-    lang: INIT_STATE.lang || urlQs.get('lang') || 'zh-CN',
+    lang: normalizeLang(INIT_STATE.lang || urlQs.get('lang') || 'th'),
     rawContent: INIT_STATE.rawContent || hashQs.get('raw') || urlQs.get('raw') || '',
     sandboxUrl: INIT_STATE.sandboxUrl || '',
     meta: INIT_STATE.meta || null,
@@ -709,7 +715,7 @@ function bootPrismWorkbench(INIT_STATE, I18N_TABLE) {
     htmlEl.setAttribute('data-wb-light-preset', state.lightPreset === 'alabaster' ? 'alabaster' : 'crystal');
     htmlEl.setAttribute('data-wb-accent', state.accent || 'follow');
     htmlEl.setAttribute('data-wb-corners', state.corners || 'balanced');
-    htmlEl.setAttribute('lang', state.lang || 'zh-CN');
+    htmlEl.setAttribute('lang', state.lang || 'th');
   }
 
   function setMetaPills(items) {
@@ -2469,7 +2475,7 @@ function bootPrismWorkbench(INIT_STATE, I18N_TABLE) {
 
     const familyName = `PrismPreviewFont_${Date.now()}`;
     const defaultSpecimen =
-      '天地玄黄 宇宙洪荒 · The quick brown fox jumps over the lazy dog · 0123456789 != === => <= ->';
+      'เป็นมนุษย์สุดประเสริฐเลิศคุณค่า · The quick brown fox jumps over the lazy dog · 0123456789 != === => <= ->';
     let ligaOn = true;
 
     const input = el('input', 'wb-input');
@@ -2780,7 +2786,7 @@ function bootPrismWorkbench(INIT_STATE, I18N_TABLE) {
       if (d.lightPreset) state.lightPreset = d.lightPreset;
       if (d.accent) state.accent = d.accent;
       if (d.corners) state.corners = d.corners;
-      if (d.lang) state.lang = d.lang;
+      if (d.lang) state.lang = normalizeLang(d.lang);
       if (d.title) state.name = d.title;
 
       if (d.kind && d.kind !== state.kind) {
@@ -2844,8 +2850,8 @@ export function renderWorkbenchHtml(ctx = {}) {
   const accent = ['follow', 'cobalt', 'iris', 'amber', 'mono'].includes(rawAccent) ? rawAccent : 'follow';
   const rawCorners = ctx.corners || ctx.cornerStyle || 'balanced';
   const corners = ['sharp', 'balanced', 'soft'].includes(rawCorners) ? rawCorners : 'balanced';
-  const rawLang = ctx.lang || ctx.language || 'zh-CN';
-  const lang = ['zh-CN', 'zh-TW', 'yue', 'en', 'ja', 'ko', 'es', 'fr', 'de'].includes(rawLang) ? rawLang : 'zh-CN';
+  const rawLang = String(ctx.lang || ctx.language || 'th').trim().toLowerCase().replace(/_/g, '-');
+  const lang = /^en\b/.test(rawLang) || rawLang === 'english' ? 'en' : 'th';
   const fileName = String(ctx.name ?? ctx.fileName ?? (extractFileName(filePath) || (resolvedKind === 'mermaid' ? 'Mermaid Diagram' : 'Workbench')));
 
   const explicitKind = rawKind && rawKind !== 'auto' && SUPPORTED_KINDS.has(rawKind) ? rawKind : '';

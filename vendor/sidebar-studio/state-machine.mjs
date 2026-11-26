@@ -95,46 +95,20 @@ export const DEFAULT_CHAT_POLICY = Object.freeze({
 });
 
 /**
- * 5 语随机问候词库（带用户名与无用户名兜底，绝不硬编码特定人名）
+ * Bilingual greeting pool (th / en, with username and anonymous fallback)
  */
 export const GREETING_POOLS = Object.freeze({
-  'zh-CN': Object.freeze({
+  th: Object.freeze({
     withUser: Object.freeze([
-      '{user}，你来啦！',
-      '嗨，{user}！',
-      '今天想聊点什么，{user}？',
-      '随时开始，{user}。',
+      'สวัสดี {user}!',
+      'ยินดีต้อนรับกลับมา {user}',
+      'พร้อมเริ่มหรือยัง {user}?',
+      'วันนี้มีอะไรให้ช่วยไหม {user}?',
     ]),
     anonymous: Object.freeze([
-      '你来啦！',
-      '今天想聊点什么？',
-      '随时开始。',
-    ]),
-  }),
-  'zh-TW': Object.freeze({
-    withUser: Object.freeze([
-      '{user}，你來啦！',
-      '嗨，{user}！',
-      '今天想聊些什麼，{user}？',
-      '隨時開始，{user}。',
-    ]),
-    anonymous: Object.freeze([
-      '你來啦！',
-      '今天想聊些什麼？',
-      '隨時開始。',
-    ]),
-  }),
-  yue: Object.freeze({
-    withUser: Object.freeze([
-      '{user}，你嚟啦！',
-      '哈囉，{user}！',
-      '今日想傾啲咩，{user}？',
-      '隨時可以開始，{user}。',
-    ]),
-    anonymous: Object.freeze([
-      '你嚟啦！',
-      '今日想傾啲咩？',
-      '隨時可以開始。',
+      'สวัสดี!',
+      'พร้อมเริ่มเมื่อไรก็บอกได้',
+      'วันนี้มีอะไรให้ช่วยไหม?',
     ]),
   }),
   en: Object.freeze({
@@ -150,33 +124,18 @@ export const GREETING_POOLS = Object.freeze({
       "What's on your mind?",
     ]),
   }),
-  ja: Object.freeze({
-    withUser: Object.freeze([
-      '{user}さん、おかえり！',
-      'こんにちは、{user}さん。',
-      '今日は何を話しましょうか、{user}さん？',
-      'いつでも始められます、{user}さん。',
-    ]),
-    anonymous: Object.freeze([
-      'おかえりなさい！',
-      '今日は何を話しましょうか？',
-      'いつでも始められます。',
-    ]),
-  }),
 });
 
 export function normalizeGreetingLang(rawLang) {
-  const s = String(rawLang || 'zh-CN').trim().toLowerCase();
-  if (s === 'zh-tw' || s === 'zh-hk' || s === 'zh-hant') return 'zh-TW';
-  if (s === 'yue' || s === 'zh-yue') return 'yue';
-  if (s.startsWith('ja')) return 'ja';
-  if (s.startsWith('en')) return 'en';
-  return 'zh-CN';
+  const s = String(rawLang || 'th').trim().toLowerCase().replace(/_/g, '-');
+  if (s === 'en' || s.startsWith('en-') || s === 'english') return 'en';
+  if (s === 'th' || s.startsWith('th-') || s === 'thai') return 'th';
+  return 'th';
 }
 
-export function formatGreeting(lang = 'zh-CN', userName = '', seedIndex = 0) {
+export function formatGreeting(lang = 'th', userName = '', seedIndex = 0) {
   const key = normalizeGreetingLang(lang);
-  const pool = GREETING_POOLS[key] || GREETING_POOLS['zh-CN'];
+  const pool = GREETING_POOLS[key] || GREETING_POOLS.th;
   const cleanUser = typeof userName === 'string' && !hasControlChars(userName) && !hasLoneSurrogate(userName)
     ? Array.from(userName.trim()).slice(0, 48).join('') : '';
   const list = cleanUser ? pool.withUser : pool.anonymous;
@@ -186,61 +145,25 @@ export function formatGreeting(lang = 'zh-CN', userName = '', seedIndex = 0) {
 }
 
 /**
- * Gemini 官方双层居中问候语池（第一行：图标 + 轻柔副标；第二行：轻字重主问候）。
- * 100% 开源中性，支持 5 语言按种子随机组合，零私密硬编码、采用中性自然表达。
+ * Bilingual hero greeting pool (th / en)
  */
 export const HERO_GREETING_POOLS = Object.freeze({
-  'zh-CN': Object.freeze({
+  th: Object.freeze({
     eyebrowWithUser: Object.freeze([
-      '你好，{user}',
-      '嗨，{user}',
-      '欢迎回来，{user}',
-      '{user}，很高兴见到你',
+      'สวัสดี {user}',
+      'ยินดีต้อนรับกลับมา {user}',
+      'พร้อมลุยแล้ว {user}',
     ]),
     eyebrowAnonymous: Object.freeze([
-      '你好',
-      '欢迎回来',
-      '随时开始',
+      'สวัสดี',
+      'ยินดีต้อนรับกลับมา',
+      'พร้อมเริ่มเสมอ',
     ]),
     headlines: Object.freeze([
-      '今天需要我为你做些什么？',
-      '想从哪里开始探索？',
-      '随时聊聊你的新想法。',
-      '有什么我可以帮你的？',
-    ]),
-  }),
-  'zh-TW': Object.freeze({
-    eyebrowWithUser: Object.freeze([
-      '你好，{user}',
-      '嗨，{user}',
-      '歡迎回來，{user}',
-    ]),
-    eyebrowAnonymous: Object.freeze([
-      '你好',
-      '歡迎回來',
-      '隨時開始',
-    ]),
-    headlines: Object.freeze([
-      '今天需要我為你做些什麼？',
-      '想從哪裡開始探索？',
-      '隨時聊聊你的新想法。',
-    ]),
-  }),
-  yue: Object.freeze({
-    eyebrowWithUser: Object.freeze([
-      '哈囉，{user}',
-      '你好呀，{user}',
-      '歡迎返嚟，{user}',
-    ]),
-    eyebrowAnonymous: Object.freeze([
-      '哈囉',
-      '歡迎返嚟',
-      '隨時開始',
-    ]),
-    headlines: Object.freeze([
-      '今日想我幫你做啲乜？',
-      '想由邊度開始傾起？',
-      '有咩新想法隨時講。',
+      'วันนี้เริ่มจากตรงไหนดี?',
+      'มีอะไรให้ช่วยไหมวันนี้?',
+      'อยากลองสำรวจเรื่องไหนดี?',
+      'เล่าไอเดียใหม่ของคุณได้เลย',
     ]),
   }),
   en: Object.freeze({
@@ -260,28 +183,11 @@ export const HERO_GREETING_POOLS = Object.freeze({
       'What would you like to explore?',
     ]),
   }),
-  ja: Object.freeze({
-    eyebrowWithUser: Object.freeze([
-      'こんにちは、{user}さん',
-      'おかえりなさい、{user}さん',
-      '{user}さん、準備はいいですか',
-    ]),
-    eyebrowAnonymous: Object.freeze([
-      'こんにちは',
-      'おかえりなさい',
-      'いつでも始められます',
-    ]),
-    headlines: Object.freeze([
-      '今日は何をお手伝いしましょうか？',
-      'どこから始めましょうか？',
-      'どんなアイデアでも気軽にどうぞ。',
-    ]),
-  }),
 });
 
-export function formatHeroGreeting(lang = 'zh-CN', userName = '', seedIndex = 0) {
+export function formatHeroGreeting(lang = 'th', userName = '', seedIndex = 0) {
   const key = normalizeGreetingLang(lang);
-  const pool = HERO_GREETING_POOLS[key] || HERO_GREETING_POOLS['zh-CN'];
+  const pool = HERO_GREETING_POOLS[key] || HERO_GREETING_POOLS.th;
   const cleanUser = typeof userName === 'string' && !hasControlChars(userName) && !hasLoneSurrogate(userName)
     ? Array.from(userName.trim()).slice(0, 48).join('') : '';
   const n = Number.isFinite(Number(seedIndex)) ? Math.abs(Math.trunc(Number(seedIndex))) : 0;

@@ -620,15 +620,17 @@ test('OmniServer /sandbox/ enforces strict opaque-origin CSP on .html/.htm and /
     );
   }
 
-  // /viewer accepts all 8 locales + yue compatibility and falls back invalid locales to zh-CN
-  for (const lang of ['zh-CN', 'zh-TW', 'yue', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  // /viewer accepts th and en and falls back invalid/removed locales to th
+  for (const lang of ['th', 'en']) {
     const res = await httpGetRaw(`${info.baseUrl}/viewer?token=${info.token}&kind=mermaid&lang=${encodeURIComponent(lang)}`);
     assert.equal(res.statusCode, 200);
     assert.ok(res.text.includes(`<html lang="${lang}"`), `/viewer must preserve lang="${lang}"`);
   }
-  const fallbackRes = await httpGetRaw(`${info.baseUrl}/viewer?token=${info.token}&kind=mermaid&lang=xx-INVALID`);
-  assert.equal(fallbackRes.statusCode, 200);
-  assert.ok(fallbackRes.text.includes('<html lang="zh-CN"'));
+  for (const removed of ['zh-CN', 'zh-TW', 'ja', 'xx-INVALID']) {
+    const fallbackRes = await httpGetRaw(`${info.baseUrl}/viewer?token=${info.token}&kind=mermaid&lang=${encodeURIComponent(removed)}`);
+    assert.equal(fallbackRes.statusCode, 200);
+    assert.ok(fallbackRes.text.includes('<html lang="th"'), `/viewer must fall back ${removed} to th`);
+  }
 });
 
 test('OmniServer CORS hardening: zero wildcard *, reflects verified local Origin or /sandbox/ null Origin with Vary: Origin', async (t) => {

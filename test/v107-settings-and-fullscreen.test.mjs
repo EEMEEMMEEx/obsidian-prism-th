@@ -864,24 +864,21 @@ test('CSS hygiene, dual-split :not([data-split-overlaid]), dead brand SVG CSS re
     'accentTone=mono must apply grayscale(1) to settings brand SVG'
   );
 
-  // 2-1A i18n-locales.js 8-locale setTargetFpsDesc check + yue->zh-CN migration
+  // 2-1A i18n-locales.js 2-locale (th/en) setTargetFpsDesc check + removed locale fallback to th
   const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
   const locales = require(path.join(ROOT, 'i18n-locales.js'));
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const desc = locales.getUiStrings(lang).setTargetFpsDesc;
     assert.ok(typeof desc === 'string' && desc.length >= 20, `${lang} setTargetFpsDesc must be non-empty`);
   }
-  assert.ok(locales.getUiStrings('zh-CN').setTargetFpsDesc.includes('水晶条/药水瓶'));
-  assert.ok(locales.getUiStrings('zh-TW').setTargetFpsDesc.includes('水晶條/藥水瓶'));
-  assert.equal(i18nCore.normalizeLanguage('yue'), 'zh-CN');
-  assert.equal(locales.getRuntimeUiSlice('yue').lang, 'zh-CN');
-  assert.ok(locales.getUiStrings(i18nCore.normalizeLanguage('yue')).setTargetFpsDesc.includes('水晶条/药水瓶'));
+  const thFpsDesc = locales.getUiStrings('th').setTargetFpsDesc;
+  assert.ok(thFpsDesc.includes('แท่งคริสตัล') && thFpsDesc.includes('หลอด Context'));
   assert.ok(/crystal bar.*vial/i.test(locales.getUiStrings('en').setTargetFpsDesc));
-  assert.ok(locales.getUiStrings('ja').setTargetFpsDesc.includes('クリスタル/バイアル'));
-  assert.ok(locales.getUiStrings('ko').setTargetFpsDesc.includes('바이알'));
-  assert.ok(locales.getUiStrings('es').setTargetFpsDesc.includes('barra de cristal'));
-  assert.ok(locales.getUiStrings('fr').setTargetFpsDesc.includes('barre cristal'));
-  assert.ok(locales.getUiStrings('de').setTargetFpsDesc.includes('Phiole'));
+  for (const removedLang of ['yue', 'zh-CN', 'zh-TW', 'ja', 'ko', 'es', 'fr', 'de']) {
+    assert.equal(i18nCore.normalizeLanguage(removedLang), 'th');
+    assert.equal(locales.getRuntimeUiSlice(removedLang).lang, 'th');
+    assert.equal(locales.getUiStrings(removedLang).setTargetFpsDesc, thFpsDesc);
+  }
 
   // Channel 1 budget check (< 550,000 B after Ch9/Ch10 split)
   const cdp = require(path.join(ROOT, 'cdp.js'));

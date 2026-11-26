@@ -1160,8 +1160,8 @@ test('Settings panel 8-locale Memory/DB Guard + GOMEMLIMIT controls and engineer
   ];
   for (const k of newKeys) {
     const row = i18nLocales.UI_TABLE[k];
-    assert.ok(Array.isArray(row) && row.length === 8, `Missing 8-locale row for ${k}`);
-    for (const idx of [2, 5, 6, 7]) {
+    assert.ok(Array.isArray(row) && row.length === 2, `Missing 2-locale (th, en) row for ${k}`);
+    for (const idx of [0, 1]) {
       assert.equal(CJK_RE.test(row[idx]), false, `CJK leak in ${k}[${idx}]: ${row[idx]}`);
     }
   }
@@ -1764,16 +1764,16 @@ test('Follow-up 1: language="auto" resolves live target page data-ag-cs-lang (an
     daemon.ensureLsClient = async () => ({ call: async () => ({ trajectorySummaries: {} }) });
     daemon.cdp = { ...daemon.cdp, readConfig: () => ({ ...cdp.DEFAULT_CONFIG, language: 'auto', lang: 'auto' }) };
 
-    // Case A: language='auto' + Chinese host page (data-ag-cs-lang="zh-CN") -> Simplified Chinese banner copy
+    // Case A: language='auto' + Thai host page (data-ag-cs-lang="th") -> Thai banner copy
     let lastBannerExpr = '';
-    const zhPageEntry = {
+    const thPageEntry = {
       url: 'vscode-file://vscode-app/workbench.html',
       title: 'obsidian-prism — Antigravity',
       session: {
         closed: false,
         send: async (_m, p) => {
           if (p.expression.includes('data-ag-cs-lang')) {
-            return { result: { value: 'zh-CN' } };
+            return { result: { value: 'th' } };
           }
           lastBannerExpr = p.expression;
           return { result: { value: { mounted: true } } };
@@ -1781,55 +1781,55 @@ test('Follow-up 1: language="auto" resolves live target page data-ag-cs-lang (an
         evaluate: async () => ({ dismissed: true }),
       },
     };
-    daemon.sessions.set('ws://local-zh', zhPageEntry);
+    daemon.sessions.set('ws://local-th', thPageEntry);
 
-    const zhRes = await daemon._checkStorageGuardAndNotify({
+    const thRes = await daemon._checkStorageGuardAndNotify({
       convDir,
       archiveDir,
       lsMemoryMb: 4800,
       checkIdle: async () => ({ idle: true }),
       now,
     });
-    assert.equal(zhRes.shown, true);
-    assert.equal(zhRes.lang, 'zh-CN');
-    const zhExpectedTitle = i18nLocales.getUiStrings('zh-CN').storageGuardTitle;
+    assert.equal(thRes.shown, true);
+    assert.equal(thRes.lang, 'th');
+    const thExpectedTitle = i18nLocales.getUiStrings('th').storageGuardTitle;
     const enTitle = i18nLocales.getUiStrings('en').storageGuardTitle;
-    assert.notEqual(zhExpectedTitle, enTitle);
-    const { doc: zhDoc } = createMiniDom();
-    const zhMount = vm.runInNewContext(lastBannerExpr, { document: zhDoc, window: {} });
-    assert.equal(zhMount.mounted, true);
-    assert.equal(zhDoc.querySelector('.ag-sg-title').textContent, zhExpectedTitle, 'language="auto" + zh-CN host page MUST render Simplified Chinese title');
+    assert.notEqual(thExpectedTitle, enTitle);
+    const { doc: thDoc } = createMiniDom();
+    const thMount = vm.runInNewContext(lastBannerExpr, { document: thDoc, window: {} });
+    assert.equal(thMount.mounted, true);
+    assert.equal(thDoc.querySelector('.ag-sg-title').textContent, thExpectedTitle, 'language="auto" + th host page MUST render Thai title');
 
-    // Case B: language='auto' + Japanese host page (data-ag-cs-lang="ja") -> Japanese banner copy
+    // Case B: language='auto' + English host page (data-ag-cs-lang="en") -> English banner copy
     lastBannerExpr = '';
-    daemon.sessions.set('ws://local-zh', {
-      ...zhPageEntry,
+    daemon.sessions.set('ws://local-th', {
+      ...thPageEntry,
       session: {
         closed: false,
         send: async (_m, p) => {
-          if (p.expression.includes('data-ag-cs-lang')) return { result: { value: 'ja' } };
+          if (p.expression.includes('data-ag-cs-lang')) return { result: { value: 'en' } };
           lastBannerExpr = p.expression;
           return { result: { value: { mounted: true } } };
         },
       },
     });
-    const jaRes = await daemon._checkStorageGuardAndNotify({
+    const enRes = await daemon._checkStorageGuardAndNotify({
       convDir,
       archiveDir,
       lsMemoryMb: 4800,
       checkIdle: async () => ({ idle: true }),
       now: now + 1000,
     });
-    assert.equal(jaRes.shown, true);
-    assert.equal(jaRes.lang, 'ja');
-    const { doc: jaDoc } = createMiniDom();
-    vm.runInNewContext(lastBannerExpr, { document: jaDoc, window: {} });
-    assert.equal(jaDoc.querySelector('.ag-sg-title').textContent, i18nLocales.getUiStrings('ja').storageGuardTitle);
+    assert.equal(enRes.shown, true);
+    assert.equal(enRes.lang, 'en');
+    const { doc: enDoc } = createMiniDom();
+    vm.runInNewContext(lastBannerExpr, { document: enDoc, window: {} });
+    assert.equal(enDoc.querySelector('.ag-sg-title').textContent, i18nLocales.getUiStrings('en').storageGuardTitle);
 
-    // Case C: language='auto' + blank page lang attribute -> falls back to systemLocale ('zh-TW'), NOT hardcoded English
+    // Case C: language='auto' + blank page lang attribute -> falls back to systemLocale ('th_TH.UTF-8')
     lastBannerExpr = '';
-    daemon.sessions.set('ws://local-zh', {
-      ...zhPageEntry,
+    daemon.sessions.set('ws://local-th', {
+      ...thPageEntry,
       session: {
         closed: false,
         send: async (_m, p) => {
@@ -1839,19 +1839,19 @@ test('Follow-up 1: language="auto" resolves live target page data-ag-cs-lang (an
         },
       },
     });
-    const twRes = await daemon._checkStorageGuardAndNotify({
+    const sysRes = await daemon._checkStorageGuardAndNotify({
       convDir,
       archiveDir,
       lsMemoryMb: 4800,
-      systemLocale: 'zh_TW.UTF-8',
+      systemLocale: 'th_TH.UTF-8',
       checkIdle: async () => ({ idle: true }),
       now: now + 2000,
     });
-    assert.equal(twRes.shown, true);
-    assert.equal(twRes.lang, 'zh-TW');
-    const { doc: twDoc } = createMiniDom();
-    vm.runInNewContext(lastBannerExpr, { document: twDoc, window: {} });
-    assert.equal(twDoc.querySelector('.ag-sg-title').textContent, i18nLocales.getUiStrings('zh-TW').storageGuardTitle);
+    assert.equal(sysRes.shown, true);
+    assert.equal(sysRes.lang, 'th');
+    const { doc: sysDoc } = createMiniDom();
+    vm.runInNewContext(lastBannerExpr, { document: sysDoc, window: {} });
+    assert.equal(sysDoc.querySelector('.ag-sg-title').textContent, i18nLocales.getUiStrings('th').storageGuardTitle);
 
     await daemon.stop(false);
   } finally {
@@ -2176,9 +2176,10 @@ test('Adversarial follow-up fixes: langProbe auto/html[lang] precedence, collaps
     daemon.cdp = { ...daemon.cdp, readConfig: () => ({ ...cdp.DEFAULT_CONFIG, language: 'auto', lang: 'auto' }) };
 
     for (const [label, domAttr, htmlLang, navLang, expectedLang] of [
-      ['data-ag-cs-lang=auto falls through to navigator.language', 'auto', 'en', 'zh-CN', 'zh-CN'],
-      ['missing data-ag-cs-lang prefers navigator.language over host html[lang=en]', null, 'en', 'zh-CN', 'zh-CN'],
-      ['missing navigator falls back to html[lang=ja]', null, 'ja', '', 'ja'],
+      ['data-ag-cs-lang=auto falls through to navigator.language', 'auto', 'en', 'th-TH', 'th'],
+      ['missing data-ag-cs-lang prefers navigator.language over host html[lang=en]', null, 'en', 'th-TH', 'th'],
+      ['missing navigator falls back to html[lang=th]', null, 'th', '', 'th'],
+      ['explicit navigator en-US resolves to en', 'auto', 'th', 'en-US', 'en'],
     ]) {
       let lastBannerExpr = '';
       daemon._storageGuardBannerShownAt = 0;

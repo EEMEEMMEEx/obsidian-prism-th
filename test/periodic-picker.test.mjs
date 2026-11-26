@@ -4940,9 +4940,9 @@ test('V13.1 PRISM-118 CNC Triptych: MOD-01/MOD-02, Hover Dual-Radar Compare + De
   );
   const microTags = specCard.querySelectorAll('.ag-pp-micro-tag');
   assert.equal(microTags.length, 3, 'MOD-01 must render 3 understated micro-tags');
-  assert.ok(specCard.textContent.includes('深度推理') && specCard.textContent.includes('512K 架构'));
+  assert.ok(specCard.textContent.includes('Reasoning') && specCard.textContent.includes('512K Arch'));
   const radarLabels = Array.from(specCard.querySelectorAll('.ag-pp-radar-vtx-lbl')).map((n) => n.textContent);
-  assert.deepEqual(radarLabels, ['推理', '终端', '科学', '工程', '极速']);
+  assert.deepEqual(radarLabels, ['ใช้เหตุผล', 'เทอร์มินัล', 'วิทย์', 'วิศวกรรม', 'ความเร็ว']);
   const tooltipEl = specCard.querySelector('.ag-pp-bench-tooltip');
   assert.ok(tooltipEl && tooltipEl.textContent.includes('AA v5') && tooltipEl.textContent.includes('TermBench'));
 
@@ -5841,7 +5841,7 @@ test('V14 Round 2 Audit Polish: Zero Center Sculpture Lock Sticker, End-to-End B
   assert.ok(drawImgCalls[0].alpha < 0.85, `orchUnsupported must attenuate left sculpture opacity, got ${drawImgCalls[0].alpha}`);
   assert.ok(drawImgCalls[0].filter.includes('saturate('), `orchUnsupported must softly desaturate left sculpture, got ${drawImgCalls[0].filter}`);
   assert.equal(ctx2d._drawnTexts.includes('LOCKED'), false, 'orchUnsupported must NOT stamp standalone LOCKED sticker over sculpture');
-  assert.ok(ctx2d._drawnTexts.includes('NON-PLANNER · 编排态不可选'), 'Right capsule must retain NON-PLANNER · 编排态不可选');
+  assert.ok(ctx2d._drawnTexts.includes('NON-PLANNER · ล็อกในโหมด Orch'), 'Right capsule must retain NON-PLANNER · ล็อกในโหมด Orch');
 
   // Case C: Verify clean watermark coordinates for Ne (dark & light -64px shift), Ar, Op, Fl, C, and 3-char 'Uuo' maxWidth guard
   for (const wmCase of [
@@ -6154,7 +6154,7 @@ test('V14.1 Dedicated Raw-Quartz Standby Banners (Zero 6C Fallback) & Heavy Fros
     assert.ok(drawnRecords[0].filter.includes('blur(16px)') && drawnRecords[0].filter.includes('saturate(0.08)'), `Expected heavy 16px blur + 92% desaturation filter, got ${drawnRecords[0].filter}`);
     assert.ok(drawnRecords[0].dx <= -80 && drawnRecords[0].dy <= -40 && drawnRecords[0].dh >= 560, 'Locked frosted draw must apply 4-edge overscan bleed so blur kernel never pulls transparent borders');
     assert.ok(drawnRecords[0].alpha < 0.80, `Expected frosted attenuated alpha, got ${drawnRecords[0].alpha}`);
-    assert.ok(ctx._drawnTexts.includes('NON-PLANNER · 编排态不可选'));
+    assert.ok(ctx._drawnTexts.includes('NON-PLANNER · ล็อกในโหมด Orch'));
     assert.equal(ctx._drawnTexts.includes('LOCKED'), false, 'Strictly zero circular LOCKED sticker over left silhouette');
   }
 
@@ -6730,13 +6730,13 @@ test('v1.0.8-beta (a) Open-state session switch 80ms debounce sync: ripple + 1.2
   assert.equal(waveRippleCalls[0].originZ, 10);
   assert.equal(badgeShownCalls.length, 1, 'Different-model session switch must trigger OLED sync badge');
   assert.equal(badgeShownCalls[0].dur, 1200);
-  assert.equal(badgeShownCalls[0].label, '已同步会话');
+  assert.equal(badgeShownCalls[0].label, 'ซิงค์แล้ว');
   // Zero-reflow rAF class toggle: enters .is-session-switching on the next animation frame without forced offsetWidth
   env.advanceTime(16);
   env.flushRaf();
   assert.equal(specCard.classList.contains('is-session-switching'), true, 'Spec card must enter .is-session-switching fade on rAF');
   assert.equal(telePod.classList.contains('is-session-switching'), true, 'Telemetry pod must enter .is-session-switching fade on rAF');
-  assert.ok(capturedOledTexts.includes('已同步会话'), `OLED must render "已同步会话" micro-badge, got ${JSON.stringify(capturedOledTexts)}`);
+  assert.ok(capturedOledTexts.includes('ซิงค์แล้ว'), `OLED must render "ซิงค์แล้ว" micro-badge, got ${JSON.stringify(capturedOledTexts)}`);
 
   env.advanceTime(180);
   assert.equal(specCard.classList.contains('is-session-switching'), false, 'Card fade class must clear after 180ms');
@@ -7368,19 +7368,16 @@ test('v1.0.8-beta (k) effortMemory shared persistence key "ag.prism.effortMemory
   inst.destroy();
 });
 
-test('v1.0.8-beta (l) host-i18n ag-pp- whitelist + #ag-prism-periodic-picker-root 5+1 anti-translate attrs + 0 hardcoded CJK across 8 modules when zh=false', () => {
-  // 1) host-i18n whitelist skips #ag-prism-periodic-picker-root & .ag-pp-* while translating regular host nodes
+test('v1.0.8-beta (l) host-i18n removed + #ag-prism-periodic-picker-root 5+1 anti-translate attrs + 0 hardcoded CJK across 8 modules in en/th/fallback', () => {
+  // 1) Legacy vendor/host-i18n was removed in the 2-language architecture; #ag-prism-periodic-picker-root still stamps 5+1 anti-translate attrs
+  assert.equal(fs.existsSync(HOST_I18N_FILE), false, 'vendor/host-i18n/host-i18n-runtime.js must remain removed');
   const i18nEnv = createPeriodicSandbox({ lang: 'en-US' });
-  const i18nMod = require(HOST_I18N_FILE);
   const factory = loadPeriodicFactoryInSandbox(i18nEnv);
 
-  const hostBtn = i18nEnv.makeElement('button', { text: 'Settings', useChildNodes: true });
-  hostBtn.appendChild(i18nEnv.createTextNode('Settings'));
   const triggerBtn = i18nEnv.makeElement('button', {
     attrs: { 'data-testid': 'model-selector-trigger' },
     text: 'Gemini 4 Carbon (High)',
   });
-  i18nEnv.body.appendChild(hostBtn);
   i18nEnv.body.appendChild(triggerBtn);
   i18nEnv.window.__agPeriodicMockHost = {
     selectedModel: { label: 'Gemini 4 Carbon (High)', modelId: 'gemini-4-c-high' },
@@ -7402,22 +7399,8 @@ test('v1.0.8-beta (l) host-i18n ag-pp- whitelist + #ag-prism-periodic-picker-roo
   assert.equal(rootEl.getAttribute('translate'), 'no');
   assert.equal(rootEl.getAttribute('data-no-translate'), '1');
   assert.equal(rootEl.classList.contains('notranslate'), true);
-  assert.equal(i18nMod.isPrismOwnedElement(rootEl), true);
-  assert.equal(i18nMod.isPrismOwnedElement(triggerBtn.querySelector('.ag-pp-mini-keycap')), true);
-  assert.equal(i18nMod.isPrismOwnedElement(i18nEnv.makeElement('div', { className: 'ag-pp-hold-ring' })), true);
 
-  const i18nInst = i18nMod.mountHostI18n({
-    root: i18nEnv.window,
-    doc: i18nEnv.document,
-    mode: 'on',
-    dict: { exact: { Settings: '设置', Carbon: '碳', 'Telemetry Offline': '遥测离线' }, patterns: [] },
-  });
-  i18nInst.scan();
-  assert.equal(hostBtn.textContent, '设置', 'Host UI outside ag-pp- must still be translated by host-i18n');
-  assert.equal(rootEl.textContent.includes('遥测离线'), false, 'host-i18n must never translate #ag-prism-periodic-picker-root');
-  i18nInst.destroy();
-
-  // 2) zh=false across 8 modules emits strictly ZERO CJK characters
+  // 2) EN DOM & zh=false across 8 modules emit strictly ZERO CJK characters
   const cjkRe = /[\u4e00-\u9fff]/;
   assert.equal(cjkRe.test(rootEl.textContent), false, `EN DOM must have 0 CJK chars, got sample: ${rootEl.textContent.slice(0, 200)}`);
 
@@ -7441,8 +7424,28 @@ test('v1.0.8-beta (l) host-i18n ag-pp- whitelist + #ag-prism-periodic-picker-roo
   for (const slot of auxList) {
     assert.equal(cjkRe.test(JSON.stringify(catalogApi.resolveAuxSlotDisplay(slot, false))), false, 'resolveAuxSlotDisplay(zh=false) leaked CJK');
   }
-
   inst.destroy();
+
+  // 3) Thai (th) and removed locale (ja -> fallback th) DOM also emit strictly ZERO CJK characters
+  for (const testLang of ['th', 'ja']) {
+    const thEnv = createPeriodicSandbox({ lang: testLang });
+    const thFactory = loadPeriodicFactoryInSandbox(thEnv);
+    const thTrigger = thEnv.makeElement('button', {
+      attrs: { 'data-testid': 'model-selector-trigger' },
+      text: 'Gemini 4 Carbon (High)',
+    });
+    thEnv.body.appendChild(thTrigger);
+    thEnv.window.__agPeriodicMockHost = {
+      selectedModel: { label: 'Gemini 4 Carbon (High)', modelId: 'gemini-4-c-high' },
+      modelOptions: [{ label: 'Gemini 4 Carbon (High)', modelId: 'gemini-4-c-high' }],
+    };
+    const thInst = thFactory.mountPeriodicPicker({ root: thEnv.window, doc: thEnv.document, mode: 'on' });
+    assert.equal(thInst.open(thTrigger), true);
+    const thRoot = thEnv.document.getElementById('ag-prism-periodic-picker-root');
+    assert.equal(cjkRe.test(thRoot.textContent), false, `${testLang} DOM must have 0 CJK chars, got sample: ${thRoot.textContent.slice(0, 200)}`);
+    assert.ok(thRoot.textContent.includes('ใช้เหตุผล'), `${testLang} must render Thai (th) labels`);
+    thInst.destroy();
+  }
 });
 
 test('v1.0.8-beta live-fix (1) 300Hz WebGL2 hot-path: 0 per-frame dynMesh rebuilds, cached pick(), legend atlas reuse/eviction, 0 offsetWidth reflow, and unpaused reopen after blur', () => {
@@ -7808,21 +7811,6 @@ test('v1.0.8-beta perf-dom-bg: 3D hit-layer pointer isolation, event bubble fire
   assert.notEqual(rootEl3, rootEl, 'visibilitychange(hidden) must evict detached shell cache');
 
   // 5) 背景模块 data-ag-pp-open="1" 真 0fps 休眠静态/行为核验
-  const hostI18nMod = require(HOST_I18N_FILE);
-  const hoverHostBtn = env.makeElement('button', { text: 'Settings', useChildNodes: true });
-  hoverHostBtn.appendChild(env.createTextNode('Settings'));
-  env.body.appendChild(hoverHostBtn);
-  const i18nInst = hostI18nMod.mountHostI18n({
-    root: env.window,
-    doc: env.document,
-    mode: 'on',
-    dict: { exact: { Settings: '设置' }, patterns: [] },
-  });
-  // 打开态（data-ag-pp-open="1"）下 pointerenter 触发 hoverHandler 应直接休眠早退
-  env.document.dispatchEvent(env.createEventObj('pointerenter', {}, hoverHostBtn));
-  assert.equal(hoverHostBtn.textContent, 'Settings', 'host-i18n hoverHandler must short-circuit while data-ag-pp-open="1"');
-  i18nInst.destroy();
-
   const checkSleepFiles = [
     ['ui-runtime.js', "ga(de(), 'data-ag-pp-open') === '1'"],
     ['dual-mascot-rig.js', "const PP_OPEN = 'data-ag-pp-open'"],

@@ -14,11 +14,8 @@ const cdp = require(path.join(ROOT, 'cdp.js'));
 const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
 const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
 const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
-const hostI18nRuntime = require(path.join(ROOT, 'vendor/host-i18n/host-i18n-runtime.js'));
-const reversePatterns = require(path.join(ROOT, 'vendor/host-i18n/reverse-patterns.js'));
-const zhDict = JSON.parse(fs.readFileSync(path.join(ROOT, 'vendor/host-i18n/zh-CN.json'), 'utf8'));
 
-const SUPPORTED_8 = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'];
+const SUPPORTED_2 = ['th', 'en'];
 const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf]/;
 
 function createMiniDom(htmlLang = 'en') {
@@ -306,90 +303,86 @@ function createMiniDom(htmlLang = 'en') {
   return { doc, win, rootEl, body, observers, MiniNode };
 }
 
-test('Battle 2: 8-language contract, zero yue in UI/VALIDATORS, and smooth legacy yue -> zh-CN migration', () => {
-  assert.deepEqual(i18nCore.SUPPORTED_LANG_IDS, SUPPORTED_8);
+test('Battle 2: 2-language contract (th/en), zero legacy languages in UI/VALIDATORS, and smooth legacy -> th migration', () => {
+  assert.deepEqual(i18nCore.SUPPORTED_LANG_IDS, SUPPORTED_2);
   assert.deepEqual(
     i18nCore.LANG_OPTIONS.map((o) => o.id),
-    SUPPORTED_8
+    SUPPORTED_2
   );
-  assert.equal(i18nCore.LANG_OPTIONS.some((o) => o.id === 'yue'), false);
-  assert.deepEqual(cdp.VALIDATORS.language, ['auto', ...SUPPORTED_8]);
-  assert.deepEqual(cdp.VALIDATORS.lang, ['auto', ...SUPPORTED_8]);
-  assert.equal(cdp.validateConfigEntry('language', 'yue'), false);
-  assert.equal(cdp.validateConfigEntry('lang', 'yue'), false);
-  for (const l of SUPPORTED_8) {
+  assert.equal(i18nCore.LANG_OPTIONS.some((o) => o.id === 'yue' || o.id === 'zh-CN'), false);
+  assert.deepEqual(cdp.VALIDATORS.language, ['auto', ...SUPPORTED_2]);
+  assert.deepEqual(cdp.VALIDATORS.lang, ['auto', ...SUPPORTED_2]);
+  for (const removed of ['yue', 'zh-CN', 'zh-TW', 'ja', 'ko', 'es', 'fr', 'de']) {
+    assert.equal(cdp.validateConfigEntry('language', removed), false, `VALIDATORS must reject ${removed}`);
+    assert.equal(cdp.validateConfigEntry('lang', removed), false, `VALIDATORS.lang must reject ${removed}`);
+  }
+  for (const l of SUPPORTED_2) {
     assert.equal(cdp.validateConfigEntry('language', l), true, `VALIDATORS must accept ${l}`);
   }
 
-  // Smooth legacy yue migration
-  for (const legacy of ['yue', 'yue-HK', 'zh-yue', 'cantonese']) {
+  // Smooth legacy language migration -> th
+  for (const legacy of ['yue', 'yue-HK', 'zh-CN', 'zh-TW', 'ja', 'ko', 'es', 'fr', 'de']) {
     const rec = cdp.reconcileConfigAliases({ language: legacy });
-    assert.equal(rec.language, 'zh-CN', `reconcileConfigAliases(${legacy}) -> zh-CN`);
-    assert.equal(rec.lang, 'zh-CN');
-    assert.equal(i18nCore.normalizeLanguage(legacy), 'zh-CN', `normalizeLanguage(${legacy}) -> zh-CN`);
+    assert.equal(rec.language, 'th', `reconcileConfigAliases(${legacy}) -> th`);
+    assert.equal(rec.lang, 'th');
+    assert.equal(i18nCore.normalizeLanguage(legacy), 'th', `normalizeLanguage(${legacy}) -> th`);
   }
-  const recLangOnly = cdp.reconcileConfigAliases({ lang: 'yue' });
-  assert.equal(recLangOnly.language, 'zh-CN');
-  assert.equal(recLangOnly.lang, 'zh-CN');
+  const recLangOnly = cdp.reconcileConfigAliases({ lang: 'zh-CN' });
+  assert.equal(recLangOnly.language, 'th');
+  assert.equal(recLangOnly.lang, 'th');
 
-  // New locales & zh-HK/zh-MO normalization
-  assert.equal(i18nCore.normalizeLanguage('zh-HK'), 'zh-TW');
-  assert.equal(i18nCore.normalizeLanguage('zh-MO'), 'zh-TW');
-  assert.equal(i18nCore.normalizeLanguage('ko-KR'), 'ko');
-  assert.equal(i18nCore.normalizeLanguage('es-MX'), 'es');
-  assert.equal(i18nCore.normalizeLanguage('fr-CA'), 'fr');
-  assert.equal(i18nCore.normalizeLanguage('de-AT'), 'de');
+  // Locale normalization for th/en & explicit fallback
+  assert.equal(i18nCore.normalizeLanguage('th-TH'), 'th');
+  assert.equal(i18nCore.normalizeLanguage('thai'), 'th');
+  assert.equal(i18nCore.normalizeLanguage('en-US'), 'en');
+  assert.equal(i18nCore.normalizeLanguage('english'), 'en');
   assert.equal(i18nCore.normalizeLanguage('pt-BR', 'en'), 'en');
+  assert.equal(i18nCore.normalizeLanguage('pt-BR'), 'th');
 
-  // isCjkLanguage strictly true only for zh-CN / zh-TW / ja / ko
-  for (const cjk of ['zh-CN', 'zh-TW', 'ja', 'ko']) {
-    assert.equal(i18nCore.isCjkLanguage(cjk), true, `${cjk} should be CJK`);
-  }
-  for (const latin of ['en', 'es', 'fr', 'de']) {
-    assert.equal(i18nCore.isCjkLanguage(latin), false, `${latin} must NOT be CJK`);
+  // isCjkLanguage is false for all supported languages (th / en)
+  for (const lang of SUPPORTED_2) {
+    assert.equal(i18nCore.isCjkLanguage(lang), false, `${lang} must NOT be CJK`);
   }
 });
 
-test('Battle 2 CI Guard: 100% 8-locale parity in i18n-locales.js and 0 CJK leakage in en/es/fr/de', () => {
-  assert.deepEqual(i18nLocales.LANG_IDS, SUPPORTED_8);
+test('Battle 2 CI Guard: 100% 2-locale parity in i18n-locales.js and 0 CJK leakage in th/en', () => {
+  assert.deepEqual(i18nLocales.LANG_IDS, SUPPORTED_2);
   const keys = Object.keys(i18nLocales.UI_TABLE);
-  assert.ok(keys.length >= 270, `Expected >=270 UI_TABLE keys, got ${keys.length}`);
+  assert.ok(keys.length >= 200, `Expected >=200 UI_TABLE keys, got ${keys.length}`);
 
   for (const key of keys) {
     const row = i18nLocales.UI_TABLE[key];
-    assert.ok(Array.isArray(row) && row.length === 8, `UI_TABLE.${key} must have exactly 8 locales`);
-    for (let i = 0; i < 8; i++) {
+    assert.ok(Array.isArray(row) && row.length === 2, `UI_TABLE.${key} must have exactly 2 locales [th, en]`);
+    for (let i = 0; i < 2; i++) {
       assert.equal(typeof row[i], 'string', `UI_TABLE.${key}[${i}] must be string`);
       assert.ok(row[i].trim().length > 0, `UI_TABLE.${key}[${i}] must be non-empty`);
-    }
-    // Pure EN / ES / FR / DE must never leak CJK characters
-    for (const [idx, code] of [[2, 'en'], [5, 'es'], [6, 'fr'], [7, 'de']]) {
       assert.equal(
-        CJK_RE.test(row[idx]),
+        CJK_RE.test(row[i]),
         false,
-        `CJK leakage detected in UI_TABLE.${key} (${code}): ${JSON.stringify(row[idx])}`
+        `CJK leakage detected in UI_TABLE.${key} (${SUPPORTED_2[i]}): ${JSON.stringify(row[i])}`
       );
     }
   }
 
-  for (const lang of ['en', 'es', 'fr', 'de']) {
+  for (const lang of SUPPORTED_2) {
     const ui = i18nLocales.getUiStrings(lang);
     assert.equal(CJK_RE.test(ui.swarmSplitSub(68, 32)), false, `swarmSplitSub leaked CJK in ${lang}`);
     assert.equal(CJK_RE.test(ui.showMoreN(4)), false, `showMoreN leaked CJK in ${lang}`);
   }
 
-  // Unknown language falls back to EN, never zh-CN
+  // Unknown language falls back to TH default
   const unknownUi = i18nLocales.getUiStrings('pt-BR');
-  const enUi = i18nLocales.getUiStrings('en');
-  assert.equal(unknownUi.sectionTitle, enUi.sectionTitle);
+  const thUi = i18nLocales.getUiStrings('th');
+  assert.equal(unknownUi.sectionTitle, thUi.sectionTitle);
+  assert.equal(unknownUi.foldExpandHint, thUi.foldExpandHint);
   assert.equal(CJK_RE.test(unknownUi.foldExpandHint), false);
 
-  // Runtime slice budget < 4 KB per language
-  for (const lang of SUPPORTED_8) {
+  // Runtime slice budget < 6 KB per language (Thai UTF-8 uses 3 bytes/char)
+  for (const lang of SUPPORTED_2) {
     const slice = i18nLocales.getRuntimeUiSlice(lang);
     assert.equal(slice.lang, lang);
     const bytes = Buffer.byteLength(JSON.stringify(slice), 'utf8');
-    assert.ok(bytes < 4096, `Runtime slice for ${lang} exceeded 4096 B: ${bytes}`);
+    assert.ok(bytes < 6144, `Runtime slice for ${lang} exceeded 6144 B: ${bytes}`);
   }
 });
 
@@ -410,8 +403,8 @@ test('Battle 2 Channel 1 Slimming (< 550 KB across all 9 language modes), SYNC_R
     assert.equal(cdp.SYNC_ROOT_FILES.includes(mod), true, `${mod} MUST remain in SYNC_ROOT_FILES for installer/updater`);
   }
 
-  // Channel 1 strict < 550,000 B across all 9 language settings
-  for (const lang of ['auto', ...SUPPORTED_8]) {
+  // Channel 1 strict < 550,000 B across all 3 language settings (auto, th, en)
+  for (const lang of ['auto', ...SUPPORTED_2]) {
     const expr = cdp.buildInjectExpression({ ...cdp.DEFAULT_CONFIG, language: lang });
     const bytes = Buffer.byteLength(expr, 'utf8');
     assert.ok(bytes < 550_000, `Channel 1 (${lang}) exceeded 550,000 B budget: ${bytes} B`);
@@ -453,109 +446,19 @@ test('Battle 2 Channel 1 Slimming (< 550 KB across all 9 language modes), SYNC_R
   }
 });
 
-test('Battle 2 hostLocalization="off": reverse English restoration, 3-tier gentle suppression, Prism zh-CN isolation & lossless rollback', async () => {
-  // Channel 4 gating: off -> true (mounts reverse mode), on -> true, auto+en -> false (0 B)
-  assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'off', language: 'zh-CN' }), true);
-  assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'on', language: 'en' }), true);
-  assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'auto', language: 'en' }), false);
-  assert.equal(cdp.buildHostI18nExpression({ hostLocalization: 'auto', language: 'en' }), '');
-  const offExpr = cdp.buildHostI18nExpression({ hostLocalization: 'off', language: 'zh-CN' });
-  assert.ok(offExpr.length > 50_000, 'hostLocalization=off must build Channel 4 reverse expression');
-  assert.ok(offExpr.includes('"off"'));
-
-  const env = createMiniDom('zh-CN');
-  let extLangCalls = [];
-  env.win.__antigravityZhSetLang = (l) => { extLangCalls.push(l); };
-
-  // Build host UI nodes localized by an external plugin + protected Prism zh-CN UI + user prose
-  const hostBtn1 = env.doc.createElement('button');
-  hostBtn1.textContent = '应用设置';
-  const hostBtn2 = env.doc.createElement('button');
-  hostBtn2.textContent = '操作';
-  const hostThought = env.doc.createElement('span');
-  hostThought.textContent = '已思考 2 分 15 秒';
-  const hostTime = env.doc.createElement('span');
-  hostTime.textContent = '5 分钟前';
-  env.body.appendChild(hostBtn1);
-  env.body.appendChild(hostBtn2);
-  env.body.appendChild(hostThought);
-  env.body.appendChild(hostTime);
-
-  // Protected Prism UI (in zh-CN!) must remain untouched even when hostLocalization='off'
-  const prismSec = env.doc.createElement('section');
-  prismSec.id = 'ag-cs-settings-sec';
-  const prismTitle = env.doc.createElement('span');
-  prismTitle.textContent = '设置';
-  prismSec.appendChild(prismTitle);
-  env.body.appendChild(prismSec);
-
-  // Protected User Chat Prose must remain untouched
-  const userMsg = env.doc.createElement('div');
-  userMsg.setAttribute('data-testid', 'user-message');
-  const userText = env.doc.createElement('p');
-  userText.textContent = '应用设置';
-  userMsg.appendChild(userText);
-  env.body.appendChild(userMsg);
-
-  const inst = hostI18nRuntime.mountHostI18n({
-    root: env.win,
-    doc: env.doc,
-    mode: 'off',
-    dict: zhDict,
-    reversePatterns,
-  });
-
-  // Allow rAF / initial scan to complete
-  await new Promise((r) => setTimeout(r, 30));
-
-  const st = inst.getStatus();
-  assert.equal(st.mode, 'off');
-  assert.equal(st.active, true);
-  assert.equal(st.status, 'off-enforced');
-  assert.equal(env.rootEl.getAttribute('data-ag-prism-host-i18n'), 'off-enforced');
-
-  // Verify host UI restored to clean English
-  assert.equal(hostBtn1.textContent, 'App Settings');
-  assert.equal(hostBtn2.textContent, 'Action');
-  assert.equal(hostThought.textContent, 'Thought for 2m 15s');
-  assert.equal(hostTime.textContent, '5 minutes ago');
-
-  // Verify Tier 1 cooperative switch & html[lang] restoration
-  assert.ok(extLangCalls.includes('en'), 'Tier 1 must cooperatively request en on __antigravityZhSetLang');
-  assert.equal(env.rootEl.getAttribute('lang'), 'en');
-
-  // Verify Tier 2 reversible skip attributes stamped on restored host parents
-  assert.equal(hostBtn1.getAttribute('data-ag-localization-skip'), 'true');
-  assert.equal(hostBtn1.getAttribute('data-antigravity-zh-skip'), '1');
-
-  // Verify strict Prism UI & User Prose isolation (ZERO damage!)
-  assert.equal(prismTitle.textContent, '设置', 'Prism zh-CN UI must NEVER be reverse-translated');
-  assert.equal(userText.textContent, '应用设置', 'User chat message must NEVER be reverse-translated');
-
-  // Verify Tier 3 anti-ping-pong circuit breaker on aggressive external overwrites
-  const mo = env.observers.find((o) => o._connected);
-  assert.ok(mo, 'Expected active MutationObserver');
-  const tNode = hostBtn1.firstChild;
-  for (let i = 0; i < 4; i++) {
-    tNode.nodeValue = '应用设置';
-    mo._emit([{ type: 'characterData', target: tNode, addedNodes: [], removedNodes: [] }]);
-    await new Promise((r) => setTimeout(r, 28));
+test('Battle 2 host-i18n removed: vendor/host-i18n is deleted and Channel 4/Swarm i18n always return false / ""', () => {
+  assert.equal(fs.existsSync(path.join(ROOT, 'vendor', 'host-i18n')), false);
+  for (const mode of ['auto', 'on', 'off']) {
+    for (const lang of ['auto', 'th', 'en', 'zh-CN']) {
+      assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: mode, language: lang }), false);
+      assert.equal(cdp.buildHostI18nExpression({ hostLocalization: mode, language: lang }), '');
+      assert.equal(cdp.shouldEnableSwarmI18n({ hostLocalization: mode, language: lang }), false);
+      assert.equal(cdp.buildSwarmI18nExpression({ hostLocalization: mode, language: lang }), '');
+    }
   }
-  const stBlocked = inst.getStatus();
-  assert.equal(stBlocked.status, 'off-blocked');
-  assert.equal(env.rootEl.getAttribute('data-ag-prism-host-i18n'), 'off-blocked');
-
-  // Verify lossless destroy() rollback (restores snapshots, removes skip attrs, restores html[lang], removes status attr)
-  inst.destroy();
-  assert.equal(hostBtn1.getAttribute('data-ag-localization-skip'), null);
-  assert.equal(hostBtn1.getAttribute('data-antigravity-zh-skip'), null);
-  assert.equal(env.rootEl.getAttribute('lang'), 'zh-CN');
-  assert.equal(env.rootEl.getAttribute('data-ag-prism-host-i18n'), null);
-  assert.equal(inst.getStatus().active, false);
-  assert.equal(inst.getStatus().status, 'off');
 });
 
-test('Battle 2 Settings Panel: displays off-enforced chip and off-blocked amber notice without CJK leak in EN', () => {
+test('Battle 2 Settings Panel: renders 2 language buttons (th/en), removes hostLocalization row, and has 0 CJK leak in EN', () => {
   const env = createMiniDom('en');
   const dlg = env.doc.createElement('div');
   dlg.setAttribute('role', 'dialog');
@@ -575,11 +478,10 @@ test('Battle 2 Settings Panel: displays off-enforced chip and off-blocked amber 
   globalThis.document = env.doc;
   globalThis.window = env.win;
 
-  const mountWithStatus = (statusAttr) => {
-    if (statusAttr) env.rootEl.setAttribute('data-ag-prism-host-i18n', statusAttr);
-    else env.rootEl.removeAttribute('data-ag-prism-host-i18n');
-    const sec = env.doc.getElementById('ag-cs-settings-sec');
-    if (sec) sec.remove();
+  const stripAllowedProperNouns = (txt) =>
+    String(txt || '').replace(/月上寒/g, '');
+
+  try {
     settingsPanel.mountOrSyncSettingsSection({
       version: cdp.PLUGIN_VERSION,
       getLang: () => 'en',
@@ -587,113 +489,31 @@ test('Battle 2 Settings Panel: displays off-enforced chip and off-blocked amber 
       isZh: () => false,
       i18nCore,
       formatSettingsSummary: () => 'Obsidian · Daylight Crystal · Ultra',
-      resolveSettingRowActiveValue: (k) => (k === 'hostLocalization' ? 'off' : k === 'language' ? 'en' : undefined),
+      resolveSettingRowActiveValue: (k) => (k === 'language' ? 'en' : undefined),
       isSettingButtonMatch: (k, btnValJson, curVal) => JSON.stringify(curVal) === btnValJson,
       saveSetting: () => {},
       saveSettingsBatch: () => {},
-      getConfig: () => ({ ...cdp.DEFAULT_CONFIG, language: 'en', hostLocalization: 'off' }),
+      getConfig: () => ({ ...cdp.DEFAULT_CONFIG, language: 'en' }),
       getThoughtTranslateMode: () => 'off',
       handledGroupClicks: new WeakSet(),
       runSettingsGroupGlide: () => {},
       runGuardedMut: (fn) => fn(),
     });
-    env.doc.getElementById('ag-cs-settings-sec')?.__ensureFoldBody?.();
-  };
-
-  const stripAllowedProperNouns = (txt) =>
-    String(txt || '')
-      .replace(/简体中文|繁體中文|日本語|한국어|月上寒/g, '');
-
-  try {
-    mountWithStatus('off-enforced');
-    const secEnforced = env.doc.getElementById('ag-cs-settings-sec');
-    assert.ok(secEnforced, 'Settings section must mount');
+    const sec = env.doc.getElementById('ag-cs-settings-sec');
+    assert.ok(sec, 'Settings section must mount');
+    sec.__ensureFoldBody?.();
     assert.equal(
-      CJK_RE.test(stripAllowedProperNouns(secEnforced.textContent)),
+      CJK_RE.test(stripAllowedProperNouns(sec.textContent)),
       false,
-      `EN settings panel leaked CJK: ${stripAllowedProperNouns(secEnforced.textContent)}`
+      `EN settings panel leaked CJK: ${stripAllowedProperNouns(sec.textContent)}`
     );
-    const langBtns = secEnforced.querySelectorAll('button[data-ag-cs-key="language"]');
-    assert.equal(langBtns.length, 8, 'Must render exactly 8 language buttons (no yue)');
-    assert.ok(
-      secEnforced.textContent.includes(i18nLocales.getUiStrings('en').hostLocStatusEnforced),
-      'Must show off-enforced status text'
-    );
-
-    mountWithStatus('off-blocked');
-    const secBlocked = env.doc.getElementById('ag-cs-settings-sec');
-    assert.ok(
-      secBlocked.textContent.includes(i18nLocales.getUiStrings('en').hostLocStatusBlocked),
-      'Must show off-blocked amber notice text'
-    );
-    assert.equal(
-      CJK_RE.test(stripAllowedProperNouns(secBlocked.textContent)),
-      false,
-      'EN settings panel (off-blocked) must have 0 CJK'
-    );
+    const langBtns = sec.querySelectorAll('button[data-ag-cs-key="language"]');
+    assert.equal(langBtns.length, 2, 'Must render exactly 2 language buttons (th, en)');
+    assert.equal(sec.querySelector('[data-ag-cs-row="hostLocalization"]'), null, 'hostLocalization row must be removed');
   } finally {
     globalThis.document = origDoc;
     globalThis.window = origWin;
   }
-});
-
-test('Battle 2 Regression: hostLocalization="off" restores under data-ag-cs-win-blur="1" & restores sidebar chrome while protecting Chinese conversation titles', () => {
-  const env = createMiniDom('en');
-  // Simulate visible but unfocused window (data-ag-cs-win-blur="1")
-  env.rootEl.setAttribute('data-ag-cs-win-blur', '1');
-
-  const topBtn = env.doc.createElement('button');
-  topBtn.setAttribute('data-testid', 'title-menu-bar-item');
-  topBtn.textContent = '工作区';
-
-  const sidebarList = env.doc.createElement('div');
-  sidebarList.setAttribute('data-testid', 'conversation-list-sidebar');
-
-  const pinnedHdr = env.doc.createElement('div');
-  pinnedHdr.setAttribute('data-testid', 'pinned-section-header');
-  pinnedHdr.textContent = '置顶会话';
-
-  const projHdr = env.doc.createElement('div');
-  projHdr.setAttribute('data-testid', 'section-header');
-  projHdr.textContent = '项目列表';
-
-  const convRow = env.doc.createElement('button');
-  convRow.setAttribute('data-testid', 'conversation-row-sidebar');
-  convRow.textContent = '设置与工作区性能优化会话';
-
-  const collapseBtn = env.doc.createElement('button');
-  collapseBtn.textContent = '收起';
-
-  const seeAllBtn = env.doc.createElement('button');
-  seeAllBtn.textContent = '查看全部 (24)';
-
-  sidebarList.append(pinnedHdr, projHdr, convRow, collapseBtn, seeAllBtn);
-  env.body.append(topBtn, sidebarList);
-
-  const inst = hostI18nRuntime.mountHostI18n({
-    root: env.win,
-    doc: env.doc,
-    mode: 'off',
-    dict: zhDict,
-    reversePatterns,
-  });
-
-  const st = inst.getStatus();
-  assert.equal(st.status, 'off-enforced');
-  assert.ok(st.restoredCount >= 5, `Expected >=5 restored nodes under win-blur, got ${st.restoredCount}`);
-  assert.equal(topBtn.textContent, 'Workspace');
-  assert.equal(pinnedHdr.textContent, 'Pinned');
-  assert.equal(projHdr.textContent, 'Projects');
-  assert.equal(collapseBtn.textContent, 'Collapse');
-  assert.equal(seeAllBtn.textContent, 'See all (24)');
-  assert.equal(convRow.textContent, '设置与工作区性能优化会话', 'User Chinese conversation title must NEVER be altered');
-
-  // Switching back to auto / destroy restores everything losslessly
-  inst.destroy();
-  assert.equal(topBtn.textContent, '工作区');
-  assert.equal(pinnedHdr.textContent, '置顶会话');
-  assert.equal(collapseBtn.textContent, '收起');
-  assert.equal(seeAllBtn.textContent, '查看全部 (24)');
 });
 
 test('Battle 2 Regression: Channel 1 hot-reload never clobbers full UI_TABLE with 43-key lite shim & requests Ch9 if stale settingsPanel has only lite shim', () => {
@@ -703,7 +523,7 @@ test('Battle 2 Regression: Channel 1 hot-reload never clobbers full UI_TABLE wit
   const panel = env.doc.createElement('div');
   panel.className = 'p-6';
   const h2 = env.doc.createElement('h2');
-  h2.textContent = '外观';
+  h2.textContent = 'Appearance';
   const anchor = env.doc.createElement('div');
   anchor.className = 'space-y-2';
   panel.append(h2, anchor);
@@ -714,7 +534,7 @@ test('Battle 2 Regression: Channel 1 hot-reload never clobbers full UI_TABLE wit
   const sandbox = {
     document: env.doc,
     location: env.win.location,
-    navigator: { language: 'zh-CN', languages: ['zh-CN'] },
+    navigator: { language: 'th-TH', languages: ['th-TH'] },
     localStorage: { _m: new Map(), getItem(k) { return this._m.get(k) ?? null; }, setItem(k, v) { this._m.set(k, String(v)); }, removeItem(k) { this._m.delete(k); } },
     MutationObserver: env.win.MutationObserver,
     ResizeObserver: class { observe() {} disconnect() {} },
@@ -737,7 +557,7 @@ test('Battle 2 Regression: Channel 1 hot-reload never clobbers full UI_TABLE wit
   sandbox.top = sandbox;
   sandbox.globalThis = sandbox;
 
-  const ch1Expr = cdp.buildInjectExpression({ ...cdp.DEFAULT_CONFIG, language: 'zh-CN' });
+  const ch1Expr = cdp.buildInjectExpression({ ...cdp.DEFAULT_CONFIG, language: 'th' });
   vm.runInNewContext(ch1Expr, sandbox);
 
   // Must NOT mount broken English settings panel with only 43-key lite shim; MUST request Channel 9!
@@ -747,17 +567,17 @@ test('Battle 2 Regression: Channel 1 hot-reload never clobbers full UI_TABLE wit
     'Must request Channel 9 when stale __agPrismSettingsPanel lacks full locales'
   );
 
-  // Delivering Channel 9 mounts full Chinese settings panel immediately
+  // Delivering Channel 9 mounts full Thai settings panel immediately
   vm.runInNewContext(cdp.buildSettingsChannelExpression(), sandbox);
   const sec = env.doc.getElementById('ag-cs-settings-sec');
   assert.ok(sec, 'Settings panel must mount once Channel 9 delivers full locales');
   sec.__ensureFoldBody?.();
-  assert.equal(sec.querySelector('[data-ag-cs-row="language"] [data-k="t"]')?.textContent, '界面语言');
+  assert.equal(sec.querySelector('[data-ag-cs-row="language"] [data-k="t"]')?.textContent, 'ภาษาอินเทอร์เฟซ');
 
   // Subsequent Channel 1 hot-reload must NEVER overwrite full locales (UI_TABLE) with lite shim!
   vm.runInNewContext(ch1Expr, sandbox);
   assert.equal(Boolean(sandbox.__agCsLocales.__isFullLocales || sandbox.__agCsLocales.UI_TABLE), true);
-  assert.equal(sandbox.__agCsLocales.getUiStrings('zh-CN').setLanguageTitle, '界面语言');
+  assert.equal(sandbox.__agCsLocales.getUiStrings('th').setLanguageTitle, 'ภาษาอินเทอร์เฟซ');
 });
 
 test('Battle 2 Regression: Isolated Context pause/resume expressions reversibly mute yiheng8023 __AGY_CACHE__ without mutating Map.prototype or entries', () => {
@@ -821,67 +641,6 @@ test('Battle 2 Regression: Isolated Context pause/resume expressions reversibly 
   assert.equal('__agPrismIsoHostI18nState' in cleanSandbox, false);
 });
 
-test('Battle 2 Regression: Main World Tier 1 pauses yiheng8023 __AGY_CACHE__, forceReboot recovers from off-blocked, off-blocked calls __agPrism.sync(), and <style> never gets Tier 2 skip attrs', () => {
-  const env = createMiniDom('en');
-  const styleEl = env.doc.createElement('style');
-  styleEl.textContent = '.x { content: "设置"; }';
-  (env.doc.head || env.body).appendChild(styleEl);
-
-  const btn = env.doc.createElement('button');
-  btn.textContent = '工作区';
-  env.body.appendChild(btn);
-
-  let syncCalls = 0;
-  env.win.__agPrism = { sync: () => { syncCalls += 1; } };
-
-  const mainCache = new Map([['Workspace', '工作区']]);
-  let mainRescans = 0;
-  env.win.__AGY_I18N_INITIALIZED__ = true;
-  env.win.__AGY_CACHE__ = mainCache;
-  env.win.__AGY_RUN_FULL_SCAN__ = () => { mainRescans += 1; };
-
-  let now = 1000;
-  const timers = [];
-  const inst = hostI18nRuntime.mountHostI18n({
-    root: env.win,
-    doc: env.doc,
-    mode: 'off',
-    dict: zhDict,
-    reversePatterns,
-    nowFn: () => now,
-    setTimeoutFn: (fn) => { timers.push(fn); return timers.length; },
-    clearTimeoutFn: () => {},
-  });
-
-  assert.equal(btn.textContent, 'Workspace');
-  assert.equal(mainCache.get('Workspace'), null, 'Main World yiheng8023 cache must be muted in off mode');
-  assert.equal(styleEl.getAttribute('data-ag-localization-skip'), null, '<style> must never get Tier 2 skip attrs');
-
-  // Simulate hostile external observer forcing 3 conflicts to trigger off-blocked
-  const mo = env.observers.find((o) => o._connected);
-  assert.ok(mo, 'Expected active MutationObserver');
-  const tn = btn.firstChild;
-  for (let i = 0; i < 3; i++) {
-    now += 20;
-    tn.nodeValue = '工作区';
-    mo._emit([{ type: 'characterData', target: tn, addedNodes: [], removedNodes: [] }]);
-    while (timers.length) timers.shift()();
-  }
-  assert.equal(inst.getStatus().status, 'off-blocked');
-  assert.ok(syncCalls >= 1, 'Transition to off-blocked must notify window.__agPrism.sync()');
-
-  // setMode('off', true) forceReboot must clear off-blocked & exemptElements and restore English cleanly
-  btn.textContent = '工作区';
-  const rebootSt = inst.setMode('off', true);
-  assert.equal(rebootSt.status, 'off-enforced');
-  assert.equal(btn.textContent, 'Workspace');
-
-  // destroy() must restore Main World __AGY_CACHE__ and trigger __AGY_RUN_FULL_SCAN__
-  inst.destroy();
-  assert.equal(mainCache.get('Workspace'), '工作区');
-  assert.ok(mainRescans >= 1);
-});
-
 test('Battle 2 Regression: Daemon _syncIsolatedHostI18n strictly targets main-frame isolated contexts only (never default or subframe)', async () => {
   const daemonMod = await import('../sidecars/daemon/main.mjs');
   const DaemonCls = daemonMod.PrismDaemon;
@@ -927,7 +686,7 @@ test('Battle 2 Regression: Daemon _syncIsolatedHostI18n strictly targets main-fr
   assert.deepEqual(evaluated.map((e) => [e.contextId, e.isPause]), [[2, true], [2, false]]);
 });
 
-test('PR #50 Integration: _resolveStorageGuardLanguage honors Windows UI Display Language & installers default to auto while CdpClient.cs keeps off reverse channel', async () => {
+test('PR #50 Integration: _resolveStorageGuardLanguage honors Windows UI Display Language (th/en) & installers default to auto and destroy legacy host-i18n', async () => {
   const daemonMod = await import('../sidecars/daemon/main.mjs');
   const { PrismDaemon } = daemonMod;
   const prevLcAll = process.env.LC_ALL;
@@ -939,18 +698,22 @@ test('PR #50 Integration: _resolveStorageGuardLanguage honors Windows UI Display
     process.env.LC_MESSAGES = '';
     process.env.LANG = '';
     Intl.DateTimeFormat = function () {
-      return { resolvedOptions: () => ({ locale: 'zh-CN' }) };
+      return { resolvedOptions: () => ({ locale: 'th-TH' }) };
     };
     cdp._setWindowsUiLocaleReaderForTest(() => 'en-US');
 
     const daemon = new PrismDaemon({ rootDir: ROOT, silent: true, enableStorageGuardTimer: false, enableAutoUpdateTimer: false });
     daemon.cdp = cdp;
     const langEn = await daemon._resolveStorageGuardLanguage(null, { language: 'auto' });
-    assert.equal(langEn, 'en', '_resolveStorageGuardLanguage must prefer Windows UI language en-US over Intl zh-CN');
+    assert.equal(langEn, 'en', '_resolveStorageGuardLanguage must prefer Windows UI language en-US over Intl th-TH');
+
+    cdp._setWindowsUiLocaleReaderForTest(() => 'th-TH');
+    const langTh = await daemon._resolveStorageGuardLanguage(null, { language: 'auto' });
+    assert.equal(langTh, 'th', '_resolveStorageGuardLanguage must resolve Windows UI language th-TH');
 
     cdp._setWindowsUiLocaleReaderForTest(() => 'zh-Hans-CN');
-    const langZh = await daemon._resolveStorageGuardLanguage(null, { language: 'auto' });
-    assert.equal(langZh, 'zh-CN', '_resolveStorageGuardLanguage must resolve Windows UI language zh-Hans-CN');
+    const langFallback = await daemon._resolveStorageGuardLanguage(null, { language: 'auto' });
+    assert.equal(langFallback, 'th', '_resolveStorageGuardLanguage must fall back unsupported locales to th');
   } finally {
     Intl.DateTimeFormat = origIntl;
     cdp._setWindowsUiLocaleReaderForTest(null);
@@ -961,12 +724,10 @@ test('PR #50 Integration: _resolveStorageGuardLanguage honors Windows UI Display
 
   // Installer C# / Swift source contracts
   const cdpCs = fs.readFileSync(path.join(ROOT, 'installer/common/CdpClient.cs'), 'utf8');
-  assert.ok(cdpCs.includes("navigator.languages && navigator.languages[0]"), 'CdpClient.cs must prioritize navigator.languages[0]');
-  assert.ok(cdpCs.includes("if (hiMode === 'off') window.__agPrismHostI18n?.setMode?.('off')"), 'CdpClient.cs must preserve hostLocalization="off" setMode("off") reverse channel');
+  assert.ok(cdpCs.includes("window.__agPrismHostI18n?.destroy?.()"), 'CdpClient.cs must clean up legacy __agPrismHostI18n');
 
   const cdpSwift = fs.readFileSync(path.join(ROOT, 'installer/macos/Common/CdpClient.swift'), 'utf8');
-  assert.ok(cdpSwift.includes("navigator.languages && navigator.languages[0]"), 'CdpClient.swift must prioritize navigator.languages[0]');
-  assert.ok(cdpSwift.includes("if (hiMode === 'off') window.__agPrismHostI18n?.setMode?.('off')"), 'CdpClient.swift must preserve hostLocalization="off" setMode("off") reverse channel');
+  assert.ok(cdpSwift.includes("window.__agPrismHostI18n?.destroy?.()"), 'CdpClient.swift must clean up legacy __agPrismHostI18n');
 
   const winSetup = fs.readFileSync(path.join(ROOT, 'installer/setup/Program.cs'), 'utf8');
   assert.ok(winSetup.includes('activeCfg.ContainsKey("language") ? activeCfg["language"] : "auto"'), 'Windows Setup Program.cs must fallback language to "auto"');

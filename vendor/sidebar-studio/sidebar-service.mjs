@@ -96,7 +96,7 @@ const WIN_PICK_FOLDER_ENCODED = Buffer.from(WIN_PICK_FOLDER_PS, 'utf16le').toStr
 // macOS 选目录静态 AppleScript（通过 system attribute 读取环境变量）
 const MAC_PICK_FOLDER_AS = [
   'set pTitle to system attribute "AG_PRISM_PICK_TITLE"',
-  'if pTitle is "" then set pTitle to "选择文件夹"',
+  'if pTitle is "" then set pTitle to "เลือกโฟลเดอร์"',
   'POSIX path of (choose folder with prompt pTitle)',
 ].join('\n');
 
@@ -244,14 +244,14 @@ export function isPathInsideDir(baseDir, targetPath, allowEqual = false) {
  */
 export function validateSparkBoxName(rawName) {
   if (typeof rawName !== 'string') {
-    return { ok: false, error: '文件夹名称必须为字符串' };
+    return { ok: false, error: 'ชื่อโฟลเดอร์ต้องเป็นข้อความ' };
   }
   const trimmed = rawName.trim();
   if (!trimmed) {
-    return { ok: false, error: '文件夹名称不能为空' };
+    return { ok: false, error: 'ชื่อโฟลเดอร์ต้องไม่ว่างเปล่า' };
   }
   if (trimmed.length > MAX_BOX_NAME_LEN) {
-    return { ok: false, error: `文件夹名称不能超过 ${MAX_BOX_NAME_LEN} 个字符` };
+    return { ok: false, error: `ชื่อโฟลเดอร์ต้องไม่เกิน ${MAX_BOX_NAME_LEN} ตัวอักษร` };
   }
   if (
     trimmed === '.' ||
@@ -264,17 +264,17 @@ export function validateSparkBoxName(rawName) {
     hasControlChars(trimmed) ||
     path.basename(trimmed) !== trimmed
   ) {
-    return { ok: false, error: '文件夹名称包含非法路径字符' };
+    return { ok: false, error: 'ชื่อโฟลเดอร์มีอักขระเส้นทางที่ไม่ถูกต้อง' };
   }
   if (trimmed.startsWith('.') || trimmed.endsWith('.')) {
-    return { ok: false, error: '文件夹名称不能以点号开头或结尾' };
+    return { ok: false, error: 'ชื่อโฟลเดอร์ต้องไม่ขึ้นต้นหรือลงท้ายด้วยจุด' };
   }
   if (!/^[\p{L}\p{N}_ .-]+$/u.test(trimmed)) {
-    return { ok: false, error: '文件夹名称包含不支持的特殊字符' };
+    return { ok: false, error: 'ชื่อโฟลเดอร์มีอักขระพิเศษที่ไม่รองรับ' };
   }
   const upperStem = trimmed.split('.')[0].toUpperCase();
   if (RESERVED_WIN_NAMES.has(upperStem)) {
-    return { ok: false, error: '文件夹名称为系统保留名称' };
+    return { ok: false, error: 'ชื่อโฟลเดอร์เป็นชื่อสงวนของระบบ' };
   }
   return { ok: true, name: trimmed };
 }
@@ -1175,7 +1175,7 @@ export class SidebarStudioService {
 
     this._backupLegacyV1Bytes(rawBuf);
     this._saveStateAtomic(migrated.state);
-    this.logger(`[sidebar-studio] 已备份 v1 原始文件并无损迁移至 v2: ${this._lastV1BackupPath}`);
+    this.logger(`[sidebar-studio] Backed up v1 state and migrated to v2: ${this._lastV1BackupPath}`);
     return migrated.state;
   }
 
@@ -1896,19 +1896,19 @@ export class SidebarStudioService {
       fs.mkdirSync(sparkRoot, { recursive: true, mode: 0o700 });
       const rootLstat = fs.lstatSync(sparkRoot);
       if (rootLstat.isSymbolicLink()) {
-        return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, '拒绝在符号链接根目录内创建沙盒') };
+        return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, 'ปฏิเสธการสร้างแซนด์บ็อกซ์ภายในรูทที่เป็น symlink') };
       }
       realSparkRoot = fs.realpathSync(sparkRoot);
     } catch (err) {
       return {
         ok: false,
-        error: makeRpcError(ERROR_CODES.PERSISTENCE_FAILED, '无法初始化灵感沙盒根目录'),
+        error: makeRpcError(ERROR_CODES.PERSISTENCE_FAILED, 'ไม่สามารถสร้างรูทโฟลเดอร์ Spark ได้'),
       };
     }
 
     const candidatePath = path.resolve(realSparkRoot, safeName);
     if (!isPathInsideDir(realSparkRoot, candidatePath, false)) {
-      return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, '目标路径越界，已拦截') };
+      return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, 'เส้นทางปลายทางออกนอกขอบเขต ถูกบล็อกแล้ว') };
     }
 
     let created = false;
@@ -1916,14 +1916,14 @@ export class SidebarStudioService {
       if (fs.existsSync(candidatePath)) {
         const lstat = fs.lstatSync(candidatePath);
         if (lstat.isSymbolicLink()) {
-          return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, '拒绝操作符号链接目标') };
+          return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, 'ปฏิเสธการดำเนินการกับปลายทางที่เป็น symlink') };
         }
         const realExisting = fs.realpathSync(candidatePath);
         if (!isPathInsideDir(realSparkRoot, realExisting, false)) {
-          return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, '目标真实路径越出沙盒根目录，已拦截') };
+          return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, 'เส้นทางจริงออกนอกรูทแซนด์บ็อกซ์ ถูกบล็อกแล้ว') };
         }
         if (!lstat.isDirectory()) {
-          return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, '同名文件已存在且不是目录') };
+          return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, 'มีไฟล์ชื่อเดียวกันอยู่แล้วและไม่ใช่โฟลเดอร์') };
         }
         const selectionToken = this._issueSelectionToken(realExisting, safeName);
         return {
@@ -1938,7 +1938,7 @@ export class SidebarStudioService {
       const realCreated = fs.realpathSync(candidatePath);
       if (postLstat.isSymbolicLink() || !isPathInsideDir(realSparkRoot, realCreated, false)) {
         try { fs.rmdirSync(candidatePath); } catch {}
-        return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, '创建的目录越出沙盒根目录，已回滚') };
+        return { ok: false, error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, 'โฟลเดอร์ที่สร้างออกนอกรูทแซนด์บ็อกซ์ ย้อนกลับแล้ว') };
       }
 
       const selectionToken = this._issueSelectionToken(realCreated, safeName);
@@ -1949,7 +1949,7 @@ export class SidebarStudioService {
     } catch (err) {
       return {
         ok: false,
-        error: makeRpcError(ERROR_CODES.PERSISTENCE_FAILED, '创建沙盒目录失败'),
+        error: makeRpcError(ERROR_CODES.PERSISTENCE_FAILED, 'สร้างโฟลเดอร์แซนด์บ็อกซ์ไม่สำเร็จ'),
       };
     }
   }
@@ -2390,7 +2390,7 @@ export class SidebarStudioService {
       return {
         ok: false,
         rev: this._state.rev,
-        error: makeRpcError(ERROR_CODES.BUSY, 'SidebarStudioService 已释放'),
+        error: makeRpcError(ERROR_CODES.BUSY, 'SidebarStudioService ถูกปิดใช้งานแล้ว'),
       };
     }
 
@@ -2887,7 +2887,7 @@ export class SidebarStudioService {
           }
           files.sort((a, b) => {
             if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
-            return b.updatedAt - a.updatedAt || a.name.localeCompare(b.name, 'zh-CN');
+            return b.updatedAt - a.updatedAt || a.name.localeCompare(b.name, 'th-TH');
           });
           return {
             ok: true,
@@ -4067,7 +4067,7 @@ export class SidebarStudioService {
         return {
           ok: false,
           rev: this._state.rev,
-          error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, `未知的 sidebar-studio 动作: ${action}`),
+          error: makeRpcError(ERROR_CODES.INVALID_ARGUMENT, `ไม่รู้จักคำสั่ง sidebar-studio: ${action}`),
           snapshot: this._buildSnapshot(),
         };
     }
@@ -4127,7 +4127,7 @@ export class SidebarStudioService {
       };
     }
     const rawTitle = typeof params?.title === 'string' ? params.title.trim() : '';
-    const safeTitle = (rawTitle || '选择工作区文件夹').replace(/[\u0000-\u001f]/g, '').slice(0, 120);
+    const safeTitle = (rawTitle || 'เลือกโฟลเดอร์พื้นที่ทำงาน').replace(/[\u0000-\u001f]/g, '').slice(0, 120);
     let safeInitDir = '';
     if (typeof params?.initialDir === 'string' && params.initialDir.trim() && !params.initialDir.includes('\0') && !isBlockedUncPath(params.initialDir)) {
       const candidateInitDir = path.resolve(params.initialDir.trim());
@@ -4193,7 +4193,7 @@ export class SidebarStudioService {
       if (msg.includes('-128') || msg.toLowerCase().includes('user canceled')) {
         return { ok: true, canceled: true, path: null };
       }
-      return { ok: false, error: `打开目录选择框失败: ${err?.message || err}` };
+      return { ok: false, error: `เปิดหน้าต่างเลือกโฟลเดอร์ไม่สำเร็จ: ${err?.message || err}` };
     }
   }
 
@@ -4206,22 +4206,22 @@ export class SidebarStudioService {
     }
     const rawPath = params?.path;
     if (typeof rawPath !== 'string' || !rawPath.trim() || rawPath.length > MAX_PATH_LEN || rawPath.includes('\0') || isBlockedUncPath(rawPath)) {
-      return { ok: false, error: '无效的目录路径' };
+      return { ok: false, error: 'เส้นทางโฟลเดอร์ไม่ถูกต้อง' };
     }
 
     const candidatePath = path.resolve(rawPath.trim());
     if (isBlockedUncPath(candidatePath)) {
-      return { ok: false, error: '无效的目录路径' };
+      return { ok: false, error: 'เส้นทางโฟลเดอร์ไม่ถูกต้อง' };
     }
 
     let realPath;
     try {
       realPath = fs.realpathSync(candidatePath);
       if (isBlockedUncPath(realPath) || !fs.statSync(realPath).isDirectory()) {
-        return { ok: false, error: '目标路径不是有效目录' };
+        return { ok: false, error: 'เส้นทางปลายทางไม่ใช่โฟลเดอร์ที่ถูกต้อง' };
       }
     } catch {
-      return { ok: false, error: '目标目录不存在或无法访问' };
+      return { ok: false, error: 'ไม่พบโฟลเดอร์ปลายทางหรือไม่สามารถเข้าถึงได้' };
     }
 
     try {
@@ -4238,7 +4238,7 @@ export class SidebarStudioService {
       }
       return { ok: true, path: realPath };
     } catch (err) {
-      return { ok: false, error: `打开目录失败: ${err?.message || err}` };
+      return { ok: false, error: `เปิดโฟลเดอร์ไม่สำเร็จ: ${err?.message || err}` };
     }
   }
 

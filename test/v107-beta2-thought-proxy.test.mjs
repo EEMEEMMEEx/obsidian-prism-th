@@ -1141,7 +1141,7 @@ test('4) Issue #27 five root-cause regressions: streaming wakeup without flags.l
     await new Promise((r) => setTimeout(r, 120));
     assert.equal(panelFail.getAttribute('data-op-zh-failed'), '1');
     const errBar = panelFail.querySelector('.ag-prism-thought-error-bar');
-    assert.ok(errBar && errBar.textContent.includes('代理'), 'Error bar should classify proxy failure clearly');
+    assert.ok(errBar && errBar.textContent.includes('พร็อกซี'), 'Error bar should classify proxy failure clearly');
     assert.equal(errBar.title.includes('secretPass'), false, 'Error tooltip must redact proxy credentials');
 
     const trigBadge = btnFail.querySelector('[data-testid="thought-trigger-status-badge"]');
@@ -1422,17 +1422,11 @@ test('6) thought-settings-ui.js: custom proxy URL live validation, 8-locale sync
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(savedPayloads[savedPayloads.length - 1].customProxyUrl, 'socks5h://127.0.0.1:1080');
 
-  // 8-locale sync check + yue->zh-CN migration
+  // 2-locale sync check (th, en + removed locales fallback to th)
   for (const [loc, expectProxyWord] of [
-    ['zh-CN', '自定义代理地址'],
-    ['zh-TW', '自訂代理位址'],
-    ['yue', '自定义代理地址'],
+    ['th', 'URL พร็อกซีกำหนดเอง'],
+    ['zh-CN', 'URL พร็อกซีกำหนดเอง'],
     ['en', 'Custom Proxy URL'],
-    ['ja', 'カスタムプロキシ URL'],
-    ['ko', '사용자 프록시 URL'],
-    ['es', 'URL de proxy personalizada'],
-    ['fr', 'URL de proxy personnalisée'],
-    ['de', 'Eigene Proxy-URL'],
   ]) {
     docEl.setAttribute('data-ag-cs-lang', loc);
     uiHandle.onLanguageChanged(loc);
@@ -2408,23 +2402,23 @@ test('14) Conversation titles auto-translation: config persistence, safe filteri
       assert.equal(titlesRow.getAttribute(k), v, `titles row must carry anti-translation attr ${k}=${v}`);
     }
 
-    // 8-locale label & description verification (+ yue->zh-CN migration)
+    // 2-locale label & description verification (th, en + removed fallback to th)
     const seenDescs = new Set();
-    for (const loc of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+    for (const loc of ['th', 'en']) {
       curLang = loc;
       uiHandle.onLanguageChanged(loc);
       assert.ok(titlesDesc.textContent.length > 15, `titles desc must be non-empty for ${loc}`);
       seenDescs.add(titlesDesc.textContent);
     }
-    assert.equal(seenDescs.size, 8, 'All 8 locales must have distinct localized title-translation descriptions');
-    const zhDesc = (() => {
-      curLang = 'zh-CN';
-      uiHandle.onLanguageChanged('zh-CN');
+    assert.equal(seenDescs.size, 2, 'Both locales (th, en) must have distinct localized title-translation descriptions');
+    const thDesc = (() => {
+      curLang = 'th';
+      uiHandle.onLanguageChanged('th');
       return titlesDesc.textContent;
     })();
-    curLang = 'yue';
-    uiHandle.onLanguageChanged('yue');
-    assert.equal(titlesDesc.textContent, zhDesc, 'Legacy yue must migrate smoothly to zh-CN');
+    curLang = 'zh-CN';
+    uiHandle.onLanguageChanged('zh-CN');
+    assert.equal(titlesDesc.textContent, thDesc, 'Removed locale zh-CN must fall back cleanly to th');
 
     // Switch to machine mode -> companion card still exposes thought-titles-toggle
     curMode = 'machine';
@@ -2972,15 +2966,15 @@ test('17) Red-team #230 regressions: sidebarStudio attr, breadcrumb last-segment
     sbRow1.appendChild(sbSubtitle);
     rootBody.appendChild(sbRow1);
 
-    // 5) Sidebar row whose primary title is already Chinese + English subtitle -> MUST NOT fall through to translate subtitle
-    const sbRowZh = doc.createElement('div', { 'data-testid': 'conversation-row-sidebar' });
-    const sbZhPrimary = doc.createElement('span');
-    sbZhPrimary.textContent = '优化登录重定向流程';
-    const sbZhSubtitle = doc.createElement('span');
-    sbZhSubtitle.textContent = 'Working on payment gateway webhook';
-    sbRowZh.appendChild(sbZhPrimary);
-    sbRowZh.appendChild(sbZhSubtitle);
-    rootBody.appendChild(sbRowZh);
+    // 5) Sidebar row whose primary title is already Thai + English subtitle -> MUST NOT fall through to translate subtitle
+    const sbRowTh = doc.createElement('div', { 'data-testid': 'conversation-row-sidebar' });
+    const sbThPrimary = doc.createElement('span');
+    sbThPrimary.textContent = 'ปรับปรุงระบบเปลี่ยนเส้นทางล็อกอิน';
+    const sbThSubtitle = doc.createElement('span');
+    sbThSubtitle.textContent = 'Working on payment gateway webhook';
+    sbRowTh.appendChild(sbThPrimary);
+    sbRowTh.appendChild(sbThSubtitle);
+    rootBody.appendChild(sbRowTh);
 
     // 6) History row with explicit data-testid="conversation-title" & subtitle -> ONLY explicit title translated
     const histRow = doc.createElement('div', { 'data-testid': 'conversation-row-history' });
@@ -2995,7 +2989,7 @@ test('17) Red-team #230 regressions: sidebarStudio attr, breadcrumb last-segment
     histRow.appendChild(histSub);
     rootBody.appendChild(histRow);
 
-    api.sync({ thoughtTranslate: 'machine', thoughtTrigger: 'expand', language: 'zh-CN' });
+    api.sync({ thoughtTranslate: 'machine', thoughtTrigger: 'expand', language: 'th' });
     api.setTranslateTitles(true);
     api.scanImmediate();
     await new Promise((r) => setTimeout(r, 40));
@@ -3008,8 +3002,8 @@ test('17) Red-team #230 regressions: sidebarStudio attr, breadcrumb last-segment
     assert.equal(sbStatus.textContent, 'Active');
     assert.equal(sbPrimary.textContent, '[译] Optimize project performance', 'Sidebar primary title must be translated');
     assert.equal(sbSubtitle.textContent, 'Updated auth middleware in Client Portal', 'Sidebar subtitle line must never be translated');
-    assert.equal(sbZhPrimary.textContent, '优化登录重定向流程');
-    assert.equal(sbZhSubtitle.textContent, 'Working on payment gateway webhook', 'English subtitle under Chinese primary title must never be translated');
+    assert.equal(sbThPrimary.textContent, 'ปรับปรุงระบบเปลี่ยนเส้นทางล็อกอิน');
+    assert.equal(sbThSubtitle.textContent, 'Working on payment gateway webhook', 'English subtitle under Thai primary title must never be translated');
     assert.equal(histWs.textContent, 'Client Portal');
     assert.equal(histTitle.textContent, '[译] Debug memory leak in daemon');
     assert.equal(histSub.textContent, 'Modified five files yesterday');

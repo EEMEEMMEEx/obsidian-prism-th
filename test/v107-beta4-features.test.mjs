@@ -12,7 +12,6 @@ const cdp = require(path.join(ROOT, 'cdp.js'));
 const locales = require(path.join(ROOT, 'i18n-locales.js'));
 const sliderCoexist = require(path.join(ROOT, 'vendor', 'effort-slider', 'slider-coexist.js'));
 const upstreamSlider = require(path.join(ROOT, 'vendor', 'effort-slider', 'upstream-client.js'));
-const hostI18nFactory = require(path.join(ROOT, 'vendor', 'host-i18n', 'host-i18n-runtime.js'));
 const dualMascotRig = require(path.join(ROOT, 'dual-mascot-rig.js'));
 
 function createFakeDom() {
@@ -559,35 +558,13 @@ test('v1.0.7-beta.4: effortMemory guard remembers per-model & Orchestrator effor
   ctl.destroy();
 });
 
-test('v1.0.7-beta.4: host-i18n rollbackAllSnapshots restores detached-then-reattached nodes without leaks', () => {
-  const { doc, win } = createFakeDom();
-  const btn = doc.createElement('button');
-  btn.setAttribute('aria-label', 'Settings');
-  const txt = doc.createTextNode('Settings');
-  btn.appendChild(txt);
-  doc.body.appendChild(btn);
-
-  const inst = hostI18nFactory.mountHostI18n({
-    root: win,
-    doc,
-    mode: 'on',
-    dict: { exact: { Settings: '设置' } },
-  });
-  assert.equal(txt.nodeValue, '设置');
-  assert.equal(btn.getAttribute('aria-label'), '设置');
-
-  // Simulate React temporarily detaching node while tracker prunes, then reattaching same node
-  doc.body.removeChild(btn);
-  inst.getStatus(); // triggers countTranslatedUnits -> prune()
-  doc.body.appendChild(btn);
-
-  // Destroy must STILL roll back both text and aria-label!
-  inst.destroy();
-  assert.equal(txt.nodeValue, 'Settings');
-  assert.equal(btn.getAttribute('aria-label'), 'Settings');
+test('v1.0.7-beta.4: host-i18n channel is disabled and vendor/host-i18n is removed', () => {
+  assert.equal(fs.existsSync(path.join(ROOT, 'vendor', 'host-i18n')), false);
+  assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'on', language: 'th' }), false);
+  assert.equal(cdp.buildHostI18nExpression({ hostLocalization: 'on', language: 'th' }), '');
 });
 
-test('v1.0.7-beta.4: effort slider settings popup & new i18n keys have complete English translations', () => {
+test('v1.0.7-beta.4: effort slider settings popup & new i18n keys have complete th/en translations', () => {
   const { doc, win } = createFakeDom();
   doc.documentElement.setAttribute('data-ag-cs-lang', 'en');
   const close = upstreamSlider.openSettingsPanel({ document: doc, window: win });
@@ -599,14 +576,13 @@ test('v1.0.7-beta.4: effort slider settings popup & new i18n keys have complete 
   assert.ok(dlg.textContent.includes('Close'));
   close();
 
-  for (const lang of ['zh-CN', 'zh-TW', 'yue', 'en', 'ja']) {
+  for (const lang of ['th', 'en']) {
     const ui = locales.getUiStrings(lang);
     assert.ok(ui.setEffortMemoryTitle, `missing setEffortMemoryTitle for ${lang}`);
     assert.ok(ui.setEffortMemoryDesc, `missing setEffortMemoryDesc for ${lang}`);
-    assert.ok(ui.hostI18nOffExtHint, `missing hostI18nOffExtHint for ${lang}`);
   }
   const enUi = locales.getUiStrings('en');
-  assert.ok(!/[\u4e00-\u9fff]/.test(enUi.setEffortMemoryTitle + enUi.setEffortMemoryDesc + enUi.hostI18nOffExtHint));
+  assert.ok(!/[\u4e00-\u9fff]/.test(enUi.setEffortMemoryTitle + enUi.setEffortMemoryDesc));
 });
 
 test('v1.0.7-beta.4: Issue #38 macOS relaunch normalizes .app bundle, strips ELECTRON_RUN_AS_NODE, waits for Helpers & SingletonLock, uses open -na', () => {
@@ -758,16 +734,11 @@ test('v1.0.7-beta.4: ui-runtime switches host-i18n to off reverse-restore on off
     sandbox.__agPrism.sync();
     assert.equal(crab.getAttribute('data-ag-mascot-peek'), null, 'closing overlays must exit peek');
 
-    // Toggle hostLocalization to 'off' -> immediately calls window.__agPrismHostI18n.setMode('off') (reverse English restore)
-    const beforeDestroy = hostI18nDestroyed;
-    const beforeModesLen = hostI18nModes.length;
-    sandbox.__agPrism.saveSettingsBatch({ hostLocalization: 'off' });
-    sandbox.__agPrism.sync();
-    assert.equal(hostI18nDestroyed, beforeDestroy, 'switching hostLocalization to off must call setMode("off") instead of destroy()');
-    assert.equal(hostI18nModes.slice(beforeModesLen).at(-1), 'off', 'switching hostLocalization to off must call setMode("off")');
-    assert.equal(doc.documentElement.getAttribute('data-ag-prism-host-i18n'), 'off-enforced');
+    // ui-runtime unconditionally tears down any legacy window.__agPrismHostI18n instance and strips data-ag-prism-host-i18n
+    assert.ok(hostI18nDestroyed >= 1, 'ui-runtime must destroy legacy window.__agPrismHostI18n');
+    assert.equal(doc.documentElement.getAttribute('data-ag-prism-host-i18n'), null);
 
-    // Settings panel (Channel 9 on-demand) in hostLocalization === 'off' with [data-agy-hans-ui] shows external localization notice
+    // Settings panel (Channel 9 on-demand) mounts cleanly with th/en language options and no hostLocalization row
     const dlg = doc.createElement('div');
     dlg.setAttribute('role', 'dialog');
     const pane = doc.createElement('div');
@@ -791,27 +762,13 @@ test('v1.0.7-beta.4: ui-runtime switches host-i18n to off reverse-restore on off
       toggleBtn.dispatchEvent({ type: 'click', target: toggleBtn });
     }
     sandbox.__agPrism.sync();
-    const hiDesc = sec.querySelector('[data-ag-cs-row="hostLocalization"] [data-k="d"]');
-    assert.ok(hiDesc);
-    assert.equal(hiDesc.textContent, locales.getUiStrings('zh-CN').hostI18nOffExtHint);
-    assert.equal(hiDesc.getAttribute('data-ag-cs-hi-warn'), 'ext');
+    assert.equal(sec.querySelector('[data-ag-cs-row="hostLocalization"]'), null, 'hostLocalization row must be removed from settings panel');
+    assert.equal(sec.querySelectorAll('button[data-ag-cs-key="language"]').length, 2, 'settings panel must render exactly 2 language buttons (th, en)');
 
-    // Switching to auto + English immediately calls window.__agPrismHostI18n.destroy() and shows the external-i18n warning pill
-    const beforeAutoEnDestroy = hostI18nDestroyed;
-    sandbox.__agPrism.saveSettingsBatch({ hostLocalization: 'auto', language: 'en' });
+    // Switching language to en updates settings panel cleanly without touching host-i18n
+    sandbox.__agPrism.saveSettingsBatch({ language: 'en' });
     sandbox.__agPrism.sync();
-    assert.ok(hostI18nDestroyed > beforeAutoEnDestroy, 'switching hostLocalization to auto + en must immediately call destroy()');
     assert.equal(doc.documentElement.getAttribute('data-ag-prism-host-i18n'), null);
-    const secEn = doc.getElementById('ag-cs-settings-sec');
-    const toggleBtnEn = secEn?.querySelector('button[aria-expanded]');
-    if (toggleBtnEn && toggleBtnEn.getAttribute('aria-expanded') === 'false') {
-      toggleBtnEn.dispatchEvent({ type: 'click', target: toggleBtnEn });
-    }
-    sandbox.__agPrism.sync();
-    const hiDescEn = secEn?.querySelector('[data-ag-cs-row="hostLocalization"] [data-k="d"]');
-    assert.ok(hiDescEn);
-    assert.equal(hiDescEn.textContent, locales.getUiStrings('en').hostI18nOffExtHint);
-    assert.equal(hiDescEn.getAttribute('data-ag-cs-hi-warn'), 'ext');
   } finally {
     sandbox.__agPrism?.destroy?.();
   }

@@ -469,11 +469,14 @@ test('真实 Antigravity .lnk 只读复制往返验证（绝不触碰用户原�
       const origExtra = origBytes.subarray(info.parsed.offsets.extraDataStart);
 
       // 剥离 -> 追加 -> 验证与纯 Node 读写和原 ExtraData 100% 一致
-      const stripped = cdp.stripCdpFlagFromArguments(info.arguments).args;
+      // 注意：stripCdpFlagFromArguments 仅剥离 Prism 注入的 --remote-debugging-port=0，绝不破坏用户自定义端口（如 =9222）
+      const stripRes = cdp.stripCdpFlagFromArguments(info.arguments);
+      const stripped = stripRes.args;
+      const hadCustomPort = cdp.hasRemoteDebuggingPortSwitch(info.arguments) && !stripRes.changed;
       cdp.writeWindowsLnkArgumentsSync(copyPath, stripped);
       const afterStrip = cdp.readWindowsLnkFileSync(copyPath);
       assert.equal(afterStrip.arguments, stripped);
-      assert.equal(cdp.hasRemoteDebuggingPortSwitch(afterStrip.arguments), false);
+      assert.equal(cdp.hasRemoteDebuggingPortSwitch(afterStrip.arguments), hadCustomPort);
       assert.equal(
         fs.readFileSync(copyPath).subarray(afterStrip.parsed.offsets.extraDataStart).equals(origExtra),
         true,
@@ -493,6 +496,23 @@ test('真实 Antigravity .lnk 只读复制往返验证（绝不触碰用户原�
       );
       if (info.arguments === reAdded) {
         assert.equal(fs.readFileSync(copyPath).equals(origBytes), true, 'Exact round-trip on real .lnk must match original bytes');
+      }
+      if (hadCustomPort) {
+        // 即使宿主机真实 .lnk 已配置自定义端口（如 =9222），仍在副本上额外验证 =0 追加与剥离往返及 ExtraData 完好
+        cdp.writeWindowsLnkArgumentsSync(copyPath, '');
+        const cleanAdded = cdp.appendCdpFlagToArguments('').args;
+        cdp.writeWindowsLnkArgumentsSync(copyPath, cleanAdded);
+        const afterCleanAdd = cdp.readWindowsLnkFileSync(copyPath);
+        assert.equal(cdp.hasRemoteDebuggingPortSwitch(afterCleanAdd.arguments), true);
+        const cleanStripped = cdp.stripCdpFlagFromArguments(afterCleanAdd.arguments).args;
+        cdp.writeWindowsLnkArgumentsSync(copyPath, cleanStripped);
+        const afterCleanStrip = cdp.readWindowsLnkFileSync(copyPath);
+        assert.equal(cdp.hasRemoteDebuggingPortSwitch(afterCleanStrip.arguments), false);
+        assert.equal(
+          fs.readFileSync(copyPath).subarray(afterCleanStrip.parsed.offsets.extraDataStart).equals(origExtra),
+          true,
+          'Real .lnk ExtraData must remain intact after clean =0 add/strip round-trip'
+        );
       }
     }
   } finally {

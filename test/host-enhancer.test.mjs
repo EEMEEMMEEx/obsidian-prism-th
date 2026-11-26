@@ -515,7 +515,7 @@ test('Code block enhancer marks sticky header, never auto-folds, protects active
   const ctl = enhancerMod.createHostEnhancerController({
     doc: env.doc,
     win: env.win,
-    getLang: () => 'zh-CN',
+    getLang: () => 'th',
     isConvRunning: () => running,
   });
 
@@ -526,7 +526,7 @@ test('Code block enhancer marks sticky header, never auto-folds, protects active
 
   const foldBtn = tallDoneBlk.header.querySelector('.ag-cs-code-fold-btn');
   assert.ok(foldBtn, 'Completed >=48L block must mount manual fold button');
-  assert.equal(foldBtn.textContent, '折叠 (64行)');
+  assert.equal(foldBtn.textContent, 'พับ (64บรรทัด)');
   assert.equal(tallDoneBlk.card.hasAttribute('data-ag-cs-code-folded'), false, 'Must NEVER auto-fold code blocks');
 
   assert.equal(
@@ -544,14 +544,14 @@ test('Code block enhancer marks sticky header, never auto-folds, protects active
   foldBtn.click();
   assert.equal(tallDoneBlk.card.getAttribute('data-ag-cs-code-folded'), '1');
   assert.equal(foldBtn.getAttribute('aria-expanded'), 'false');
-  assert.equal(foldBtn.textContent, '展开 (64行)');
+  assert.equal(foldBtn.textContent, 'ขยาย (64บรรทัด)');
   // Initial scrollTop 900 + (-350 - 100 - 12) = 438
   assert.equal(viewport.scrollTop, 438, 'Manual fold must anchor scrollTop back to block header');
 
   // Click again -> expands cleanly
   foldBtn.click();
   assert.equal(tallDoneBlk.card.hasAttribute('data-ag-cs-code-folded'), false);
-  assert.equal(foldBtn.textContent, '折叠 (64行)');
+  assert.equal(foldBtn.textContent, 'พับ (64บรรทัด)');
 
   ctl.destroy();
   assert.equal(env.doc.querySelectorAll('.ag-cs-code-fold-btn').length, 0);
@@ -620,13 +620,13 @@ test('Navigator rail outline indexes chapters + prompts without permanent bottom
   env.win.__agPrismInlineDiff = inlineDiffMod.createInlineDiffClient({
     win: env.win,
     doc: env.doc,
-    getLang: () => 'zh-CN',
+    getLang: () => 'th',
   });
 
   const ctl = enhancerMod.createHostEnhancerController({
     doc: env.doc,
     win: env.win,
-    getLang: () => 'zh-CN',
+    getLang: () => 'th',
   });
   ctl.sync();
 
@@ -637,7 +637,7 @@ test('Navigator rail outline indexes chapters + prompts without permanent bottom
   navRail.dispatchEvent({ type: 'pointerenter' });
   const pop = env.doc.querySelector('.ag-cs-nav-outline-popover');
   assert.ok(pop && !pop.hidden, 'Hovering rail opens outline popover');
-  assert.equal(pop.querySelector('.ag-cs-nav-outline-title')?.textContent, '提问导航 · 72 轮');
+  assert.equal(pop.querySelector('.ag-cs-nav-outline-title')?.textContent, 'คำถาม · 72 รอบ');
   assert.equal(pop.querySelectorAll('.ag-cs-nav-outline-chapter').length, 1);
   assert.equal(pop.querySelectorAll('.ag-cs-nav-outline-item').length, 3);
   assert.equal(pop.querySelector('.ag-cs-nav-outline-item')?.getAttribute('data-turn-num'), '70');
@@ -978,8 +978,8 @@ test('style.css covers all 6 Wave-2 config hooks, eliminates double borders & en
   );
 });
 
-// ── Test 6: #153 8-Language Live Refresh + yue->zh-CN Migration, Warm-Light Sidecar Parity, Mid-History Turn Math & Group-Card Yield ─
-test('Host enhancer supports 8 languages + yue->zh-CN migration + live switch, aligns warm-light sidecar to prism-alabaster, resolves mid-history turn numbers, and yields to host group-card', () => {
+// ── Test 6: #153 2-Language Live Refresh (th default/fallback + en) + removed locale fallback, Warm-Light Sidecar Parity, Mid-History Turn Math & Group-Card Yield ─
+test('Host enhancer supports 2 languages (th/en) + removed locale fallback to th + live switch, aligns warm-light sidecar to prism-alabaster, resolves mid-history turn numbers, and yields to host group-card', () => {
   const env = createMockEnv();
   let curLang = 'yue';
 
@@ -1058,25 +1058,28 @@ test('Host enhancer supports 8 languages + yue->zh-CN migration + live switch, a
 
   const foldBtn = hdr.querySelector('.ag-cs-code-fold-btn');
   assert.ok(foldBtn);
-  assert.equal(foldBtn.textContent, '折叠 (52行)', 'Legacy yue must migrate smoothly to zh-CN label instead of English fallback');
+  assert.equal(foldBtn.textContent, 'พับ (52บรรทัด)', 'Removed legacy yue must fall back cleanly to th label');
 
-  // Open outline -> verify migrated zh-CN texts and mid-history turn numbers (#27, #28, #29)
+  // Open outline -> verify fallback th texts and mid-history turn numbers (#27, #28, #29)
   navRail.dispatchEvent({ type: 'pointerenter', target: navRail });
   const pop = env.doc.querySelector('.ag-cs-nav-outline-popover');
   assert.ok(pop && !pop.hidden);
-  assert.equal(pop.querySelector('.ag-cs-nav-fold-steps-btn')?.textContent, '收起步骤');
+  assert.equal(pop.querySelector('.ag-cs-nav-fold-steps-btn')?.textContent, 'พับขั้นตอน');
   const turnNums = pop.querySelectorAll('.ag-cs-nav-outline-item').map((n) => n.getAttribute('data-turn-num'));
   assert.deepEqual(turnNums, ['27', '28', '29'], 'Mid-history virtualized slice must anchor to active turn dot #28');
 
-  // Switch across all 8 languages dynamically -> sync()/onThemeChange(false) refreshes fold button & open outline immediately
+  // Switch dynamically between en, th, and removed locales -> sync()/onThemeChange(false) refreshes fold button & open outline immediately
   for (const [nextLang, expFold, expFoldSteps] of [
-    ['zh-TW', '摺疊 (52行)', '收起步驟'],
-    ['ja', '折りたたむ (52行)', '手順を畳む'],
-    ['ko', '접기 (52줄)', '단계 접기'],
-    ['es', 'Contraer (52L)', 'Contraer pasos'],
-    ['fr', 'Replier (52L)', 'Replier étapes'],
-    ['de', 'Einklappen (52Z)', 'Schritte einklappen'],
     ['en', 'Fold (52L)', 'Fold Steps'],
+    ['th', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['en-US', 'Fold (52L)', 'Fold Steps'],
+    ['zh-CN', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['zh-TW', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['ja', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['ko', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['es', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['fr', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
+    ['de', 'พับ (52บรรทัด)', 'พับขั้นตอน'],
   ]) {
     curLang = nextLang;
     ctl.onThemeChange(false);
@@ -1354,7 +1357,7 @@ test('D11: vertical flex-row->flex-col inline diff (no header bar + floating SVG
     assert.equal(navBtns[2].getAttribute('data-ag-sb-more-hidden'), '1', 'Index 2 must be folded when sidebarNavFold=on');
     const moreBtn = navBox.querySelector('.ag-cs-sb-more-btn');
     assert.ok(moreBtn, 'Must mount More button when sidebarNavFold=on');
-    assert.equal(moreBtn.querySelector('.ag-cs-sb-more-lbl')?.textContent, '更多 (2)');
+    assert.equal(moreBtn.querySelector('.ag-cs-sb-more-lbl')?.textContent, 'เพิ่มเติม (2)');
 
     // Expand More -> reveals index >= 1 with rail marker
     moreBtn.dispatchEvent({ type: 'click', preventDefault() {}, stopPropagation() {} });
@@ -1558,7 +1561,7 @@ test('D11-1: async inline diff extracts Fiber fileDiff.uri, displays loading pul
     });
     await new Promise((r) => setImmediate(r));
     const boxB = rowB.nextElementSibling;
-    assert.ok(boxB.querySelector('.ag-cs-inline-diff-empty')?.textContent.includes('二进制'), 'Binary response must show concise binary hint');
+    assert.ok(boxB.querySelector('.ag-cs-inline-diff-empty')?.textContent.includes('ไบนารี'), 'Binary response must show concise binary hint');
   } finally {
     ctl.destroy();
     assert.equal(env.win.__agPrismInlineDiff.getDebugState().destroyed, false, 'Channel 1 destroy must NOT kill Channel 6');
@@ -2123,21 +2126,21 @@ test('Navigator outline mounts dedicated trigger, yields to Base UI turn tooltip
   conv.appendChild(vp);
   env.body.appendChild(conv);
 
-  let curLang = 'zh-CN';
+  let curLang = 'th';
   const ctl = enhancerMod.createHostEnhancerController({ doc: env.doc, win: env.win, getLang: () => curLang });
   try {
     ctl.sync();
     const trig = rail.querySelector('.ag-cs-nav-outline-trigger');
     assert.ok(trig, 'nav rail must mount dedicated .ag-cs-nav-outline-trigger button');
     assert.equal(trig.getAttribute('data-ag-owned'), '1');
-    // #193 [P2-3]: localized aria-label on mount & live language switch
-    assert.equal(trig.getAttribute('aria-label'), '提问导航', 'trigger aria-label must follow getStrings() on mount');
+    // #193 [P2-3]: localized aria-label on mount & live language switch (th, en, and removed locale fallback to th)
+    assert.equal(trig.getAttribute('aria-label'), 'โครงร่างคำถาม', 'trigger aria-label must follow getStrings() on mount');
     curLang = 'en';
     ctl.sync();
     assert.equal(trig.getAttribute('aria-label'), 'Outline', 'trigger aria-label must update when language switches to en');
     curLang = 'ja';
     ctl.onThemeChange(false);
-    assert.equal(trig.getAttribute('aria-label'), 'プロンプト目次', 'trigger aria-label must update on onThemeChange language switch');
+    assert.equal(trig.getAttribute('aria-label'), 'โครงร่างคำถาม', 'removed locale must fall back to th on onThemeChange language switch');
 
     // On Base UI rails, hovering turn dot, gap wrapper, OR rail padding must NEVER flash/open outline
     rail.dispatchEvent({ type: 'pointerenter', target: rail });

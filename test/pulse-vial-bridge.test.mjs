@@ -1499,7 +1499,7 @@ test('inline-fallback mounts isolated #ag-prism-pulse-bar invisible to external 
 
   const ctrl = inlineMod.createTelemetryController({ window: env.win, document: env.doc });
   try {
-    const st = ctrl.sync({ telemetryModule: 'on', language: 'zh-CN' });
+    const st = ctrl.sync({ telemetryModule: 'on', language: 'th' });
     assert.equal(st.mountedFallback, true);
     assert.equal(extBar.getAttribute('data-ag-prism-hidden'), '1', 'telemetryModule=on must hide external bar');
 
@@ -1530,7 +1530,7 @@ test('inline-fallback mounts isolated #ag-prism-pulse-bar invisible to external 
       shadowStyle.includes('.card{position:absolute;right:0;left:auto;bottom:calc(100% + 10px);width:min(304px'),
       'Fallback .card must anchor right:0 inward above the trigger bar instead of viewport right:18px'
     );
-    assert.equal(prismBar.shadowRoot.getElementById('context-card')?.querySelector('[data-fb-i18n="ctxHeading"]')?.textContent, '上下文窗口');
+    assert.equal(prismBar.shadowRoot.getElementById('context-card')?.querySelector('[data-fb-i18n="ctxHeading"]')?.textContent, 'หน้าต่างบริบท');
     assert.equal(prismBar.shadowRoot.getElementById('context-note')?.hidden, true, '#256: meaningless "Prism 实时遥测同步" footnote must stay hidden');
 
     // Switch route to New Conversation ('/' + .agy-home) -> must unmount #ag-prism-pulse-bar & suppress external bar

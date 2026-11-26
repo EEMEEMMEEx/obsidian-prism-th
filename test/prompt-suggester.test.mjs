@@ -766,51 +766,37 @@ test('PromptSuggesterService shares profiles bidirectionally while keeping indep
   }
 });
 
-test('parseSingleSuggestion cleans output and detectConversationLang supports 8 languages without yue', () => {
+test('parseSingleSuggestion cleans output and detectConversationLang supports th and en only', () => {
   assert.equal(
-    parseSingleSuggestion('太厉害了！帮我跑一下单元测试看看'),
-    '帮我跑一下单元测试看看'
+    parseSingleSuggestion('เยี่ยมมาก! ช่วยรันยูนิตเทสต์ให้หน่อย'),
+    'ช่วยรันยูนิตเทสต์ให้หน่อย'
   );
   assert.equal(
     parseSingleSuggestion('Awesome! Run the test suite next\nSecond unwanted line'),
     'Run the test suite next'
   );
-  assert.equal(parseSingleSuggestion('[实验数据或运行结果]'), '');
+  assert.equal(parseSingleSuggestion('[placeholder output]'), '');
   assert.equal(
-    parseSingleSuggestion('我去设置里看下现在Beta内容里的配置是不是清爽多了。'),
+    parseSingleSuggestion('เดี๋ยวฉันไปเปิดดูหน้าตั้งค่าเองนะ'),
     '',
     'Self-action monologue MUST be rejected — suggestions must be prompts for the AI'
   );
   assert.equal(
+    detectConversationLang([{ role: 'user', text: 'ช่วยตรวจสอบการตั้งค่าและรันเทสต์ให้หน่อย' }], 'en'),
+    'th'
+  );
+  assert.equal(
+    detectConversationLang([{ role: 'user', text: 'Run the unit tests and inspect failures' }], 'th'),
+    'en'
+  );
+  assert.equal(
     detectConversationLang([{ role: 'user', text: '你认为哪种模型提供方案好' }], 'zh-CN'),
-    'zh-CN',
-    'Simplified Chinese containing 方案 must NEVER be misclassified as zh-TW'
+    'th',
+    'Removed languages must normalize/fallback to th'
   );
   assert.equal(
-    detectConversationLang([{ role: 'user', text: '請幫我檢查這個設定與驗證結果' }], 'zh-CN'),
-    'zh-TW'
-  );
-  assert.equal(detectConversationLang([{ role: 'user', text: 'テストを実行してください' }]), 'ja');
-  assert.equal(detectConversationLang([{ role: 'user', text: '단위 테스트를 실행해 주세요' }]), 'ko');
-  assert.equal(
-    detectConversationLang([{ role: 'user', text: 'Ejecuta las pruebas unitarias ahora' }], 'es'),
-    'es',
-    'Spanish fallback must NOT be overwritten to en by latinWords >= 2'
-  );
-  assert.equal(
-    detectConversationLang([{ role: 'user', text: 'Lance les tests unitaires maintenant' }], 'fr'),
-    'fr',
-    'French fallback must NOT be overwritten to en by latinWords >= 2'
-  );
-  assert.equal(
-    detectConversationLang([{ role: 'user', text: 'Fuehre bitte die Tests aus' }], 'de'),
-    'de',
-    'German fallback must NOT be overwritten to en by latinWords >= 2'
-  );
-  assert.notEqual(
-    detectConversationLang([{ role: 'user', text: '咁樣做唔好意思啊喺邊度' }], 'yue'),
-    'yue',
-    'Legacy yue must NEVER be returned'
+    detectConversationLang([{ role: 'user', text: 'テストを実行してください' }], 'ja'),
+    'th'
   );
   assert.equal(sanitizeConversationTurns([{ role: 'user', text: 'hello' }]).length, 1);
 
@@ -1271,8 +1257,8 @@ test('Zero style leak: #ag-prism-model-dd-css is completely removed by UI destro
   assert.equal(fakeWin.__prismMountSuggesterUi, undefined);
 });
 
-test('8-language alignment (no yue, 0 CJK leak in en/es/fr/de) and .bundle-cache.json channels.suggester disk cache hit', async () => {
-  // Part A: 8 语词典与规范化校验
+test('2-language alignment (th, en only, 0 CJK leak) and .bundle-cache.json channels.suggester disk cache hit', async () => {
+  // Part A: 2-language dictionary & normalization check
   const dom = createFakeSuggesterDom({ lang: 'en', withComposer: false });
   const { fakeDoc, fakeWin, sgSlot } = dom;
   fakeWin.__agPrismSuggestCall = (rawPayload) => {
@@ -1292,40 +1278,35 @@ test('8-language alignment (no yue, 0 CJK leak in en/es/fr/de) and .bundle-cache
 
   const uiApi = fakeWin.__agPrismSuggesterSettingsUi;
   assert.ok(uiApi, 'Expected __agPrismSuggesterSettingsUi');
-  assert.equal(uiApi.normalizeLang('yue'), 'zh-CN', 'yue must normalize to zh-CN');
-  assert.equal(uiApi.normalizeLang('zh-HK'), 'zh-TW', 'zh-HK must normalize to zh-TW');
-  assert.equal(uiApi.normalizeLang('zh-MO'), 'zh-TW', 'zh-MO must normalize to zh-TW');
-  assert.equal(uiApi.normalizeLang('xx-ZZ'), '', 'Unknown lang normalizes to empty string');
+  assert.equal(uiApi.normalizeLang('th-TH'), 'th');
+  assert.equal(uiApi.normalizeLang('en-US'), 'en');
+  assert.equal(uiApi.normalizeLang('zh-CN'), 'th', 'Removed lang normalizes to th fallback');
+  assert.equal(uiApi.normalizeLang('xx-ZZ'), 'th', 'Unknown lang normalizes to th fallback');
   fakeDoc.documentElement.setAttribute('data-ag-cs-lang', 'xx-ZZ');
-  assert.equal(uiApi.resolveLang(fakeDoc, {}), 'en', 'Unknown language must fall back to en');
+  assert.equal(uiApi.resolveLang(fakeDoc, {}), 'th', 'Unknown language must fall back to th');
 
-  // 逐一验证全部 8 语渲染，其中 en/es/fr/de 严格 0 CJK 泄漏
-  const ALL_8_LANGS = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'];
-  const ZERO_CJK_LANGS = new Set(['en', 'es', 'fr', 'de']);
-  for (const lang of ALL_8_LANGS) {
+  // Verify both th and en render cleanly with 0 CJK leakage
+  const SUPPORTED_LANGS = ['th', 'en'];
+  for (const lang of SUPPORTED_LANGS) {
     sgSlot.__agPrismSgUiHandle.updateLang(lang);
     const cardText = sgSlot.textContent;
     assert.ok(cardText.length > 20, `Rendered card for ${lang} must be non-empty`);
-    if (ZERO_CJK_LANGS.has(lang)) {
-      assert.equal(
-        CJK_RE.test(cardText),
-        false,
-        `Language ${lang} must have 0 CJK leakage, got snippet: ${cardText.slice(0, 120)}`
-      );
-    }
+    assert.equal(
+      CJK_RE.test(cardText),
+      false,
+      `Language ${lang} must have 0 CJK leakage, got snippet: ${cardText.slice(0, 120)}`
+    );
   }
 
-  // 静态验证两份前端源码词典不含 yue 键，且 ARIA_LABELS 覆盖完整 8 语
+  // Static check: ARIA_LABELS covers th & en with 0 CJK
   const uiSrc = fs.readFileSync(path.join(ROOT_DIR, 'vendor', 'prompt-suggester', 'suggester-settings-ui.js'), 'utf8');
   const clientSrc = fs.readFileSync(path.join(ROOT_DIR, 'vendor', 'prompt-suggester', 'suggester-client.js'), 'utf8');
-  assert.equal(/^\s*['"]?yue['"]?\s*:/m.test(uiSrc), false, 'suggester-settings-ui.js must not declare yue locale key');
-  assert.equal(/^\s*['"]?yue['"]?\s*:/m.test(clientSrc), false, 'suggester-client.js must not declare yue locale key');
+  assert.equal(/^\s*['"]?(?:zh-CN|zh-TW|yue|ja|ko|es|fr|de)['"]?\s*:/m.test(uiSrc), false, 'suggester-settings-ui.js must not declare removed locale keys');
+  assert.equal(/^\s*['"]?(?:zh-CN|zh-TW|yue|ja|ko|es|fr|de)['"]?\s*:/m.test(clientSrc), false, 'suggester-client.js must not declare removed locale keys');
   const ariaMatch = clientSrc.match(/const ARIA_LABELS = \{([\s\S]*?)\};/);
   assert.ok(ariaMatch, 'Expected ARIA_LABELS in suggester-client.js');
-  for (const l of ALL_8_LANGS) {
+  for (const l of SUPPORTED_LANGS) {
     assert.ok(ariaMatch[1].includes(l), `ARIA_LABELS must cover ${l}`);
-  }
-  for (const l of ZERO_CJK_LANGS) {
     const m = new RegExp(`['"]?${l}['"]?\\s*:\\s*\\{[^}]*accept\\s*:\\s*'([^']+)'`).exec(ariaMatch[1]);
     assert.ok(m, `Expected ARIA_LABELS.${l}.accept`);
     assert.equal(CJK_RE.test(m[1]), false, `ARIA_LABELS.${l} must have 0 CJK`);
@@ -1645,16 +1626,16 @@ test('UX regression: reusing mounted Suggester card on settings sync updates lan
 
   // Simulate repeated settings-panel sync calling mountSuggesterUi on existing slot (same lang & switched lang)
   const reusedSameLang = fakeWin.__prismMountSuggesterUi(sgSlot, { lang: 'en' });
-  const reusedZh = fakeWin.__prismMountSuggesterUi(sgSlot, { lang: 'zh-CN' });
+  const reusedTh = fakeWin.__prismMountSuggesterUi(sgSlot, { lang: 'th' });
   await new Promise((r) => setTimeout(r, 25));
 
   assert.equal(reusedSameLang, firstHandle);
-  assert.equal(reusedZh, firstHandle);
+  assert.equal(reusedTh, firstHandle);
   assert.equal(getConfigCalls, callsBeforeSync, 'Reusing existingHandle must NEVER re-trigger refreshState()/get-config');
   assert.equal(urlInput.value, 'https://custom.proxy.local/v1', 'Unsaved Base URL must be preserved');
   assert.equal(modelInput.value, 'gemini-2.5-flash-draft', 'Unsaved Model must be preserved');
   assert.equal(keyInput.value, 'sk-unsaved-draft-key-999999', 'Unsaved API Key draft must be preserved');
-  assert.equal(firstHandle.root.getAttribute('data-ag-cs-lang'), 'zh-CN', 'Language update must still apply cleanly');
+  assert.equal(firstHandle.root.getAttribute('data-ag-cs-lang'), 'th', 'Language update must still apply cleanly');
 
   fakeWin.__agPrismSuggester.destroy();
 });

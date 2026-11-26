@@ -329,12 +329,12 @@ test('Wave3 P1-6b & P2-7a: Channel 2~5 share .bundle-cache.json, detect same-len
     assert.deepEqual(fs.readdirSync(cacheDir), ['.bundle-cache.json'], 'Must reuse ONE .bundle-cache.json with zero extra files');
     assert.equal(cdpCold.getBundleCacheStats().diskWrites, 1);
     assert.equal(cdpCold.getBundleCacheStats().deferredExprHashRuns, 1);
-    assert.equal(cdpCold.getBundleCacheStats().channelCompileRuns, 9);
+    assert.equal(cdpCold.getBundleCacheStats().channelCompileRuns, 8);
 
     const parsed = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
     assert.equal(parsed.schemaVersion, cdpCold.BUNDLE_CACHE_SCHEMA_VERSION);
     assert.ok(parsed.channels && typeof parsed.channels === 'object');
-    for (const ch of ['omni', 'sidebar', 'hostI18n', 'thought', 'inlineDiff', 'periodicPicker', 'settings', 'mascot', 'homeStudio']) {
+    for (const ch of ['omni', 'sidebar', 'thought', 'inlineDiff', 'periodicPicker', 'settings', 'mascot', 'homeStudio']) {
       assert.ok(parsed.channels[ch], `Expected channels.${ch} in .bundle-cache.json`);
       assert.match(parsed.channels[ch].sourceHash, /^[0-9a-f]{64}$/);
       assert.match(parsed.channels[ch].payloadSha256, /^[0-9a-f]{64}$/);
@@ -405,9 +405,9 @@ test('Wave3 P1-6b & P2-7a: Channel 2~5 share .bundle-cache.json, detect same-len
     const hitStats = cdpHit.getBundleCacheStats();
     assert.equal(hitStats.diskHits, 1);
     assert.equal(hitStats.compileUnifiedRuns, 0);
-    assert.equal(hitStats.channelDiskHits, 9);
+    assert.equal(hitStats.channelDiskHits, 8);
     assert.equal(hitStats.channelCompileRuns, 0);
-    assert.deepEqual(hitStats.channelHitsByName, { omni: 1, sidebar: 1, hostI18n: 1, thought: 1, inlineDiff: 1, wallpaper: 0, periodicPicker: 1, settings: 1, mascot: 1, suggester: 0, homeStudio: 1 });
+    assert.deepEqual(hitStats.channelHitsByName, { omni: 1, sidebar: 1, hostI18n: 0, thought: 1, inlineDiff: 1, wallpaper: 0, periodicPicker: 1, settings: 1, mascot: 1, suggester: 0, homeStudio: 1 });
     assert.ok(hitMs < coldMs, `Expected Channel 2~6 + 8~10 + 12 cache hit (${hitMs.toFixed(1)}ms) faster than cold compile (${coldMs.toFixed(1)}ms)`);
 
     // 3) P2-7a: Repeated warm-base-hit config updates defer 676KB exprSha256 until actual flush
@@ -442,7 +442,6 @@ test('Wave3 P1-6b & P2-7a: Channel 2~5 share .bundle-cache.json, detect same-len
     // 4) Same-length, same-mtime 1-byte source edits invalidate each channel cleanly via SHA-256
     const omniPath = path.join(snap.pluginDir, 'vendor', 'omni-viewer', 'omni-client.js');
     const sidebarPath = path.join(snap.pluginDir, 'vendor', 'sidebar-studio', 'sidebar-client.js');
-    const hostDictPath = path.join(snap.pluginDir, 'vendor', 'host-i18n', 'zh-CN.json');
     const thoughtClientPath = path.join(snap.pluginDir, 'vendor', 'thought-translator', 'thought-client.js');
 
     const flipFirstAsciiInLiteral = (src) => {
@@ -458,26 +457,19 @@ test('Wave3 P1-6b & P2-7a: Channel 2~5 share .bundle-cache.json, detect same-len
 
     mutateSameLengthSameMtime(omniPath, flipFirstAsciiInLiteral);
     mutateSameLengthSameMtime(sidebarPath, flipFirstAsciiInLiteral);
-    mutateSameLengthSameMtime(hostDictPath, (raw) => {
-      const idx = raw.indexOf('Settings');
-      assert.ok(idx >= 0, 'Expected Settings key in zh-CN.json');
-      return raw.slice(0, idx) + 'Settin9s' + raw.slice(idx + 8);
-    });
     mutateSameLengthSameMtime(thoughtClientPath, flipFirstAsciiInLiteral);
 
     // Same process (cdpHit) MUST invalidate via SHA-256 even though mtime & byte length are identical!
     cdpHit.resetBundleCacheStats();
     const omniAfter = cdpHit.buildOmniClientExpression({ baseUrl: 'http://127.0.0.1:43123', token: 't1' }, null, { cachePath });
     const sidebarAfter = cdpHit.buildSidebarStudioExpression({ binding: '__agPrismSidebarCall' }, null, { cachePath });
-    const hostI18nAfter = cdpHit.buildHostI18nExpression({ ...cdpHit.DEFAULT_CONFIG, hostLocalization: 'on' }, null, { cachePath });
     const thoughtAfter = cdpHit.buildThoughtExpression({ ...cdpHit.DEFAULT_CONFIG, thoughtTranslate: 'ai' }, { cachePath });
 
     assert.notEqual(omniAfter, omniCold, 'Channel 2 must invalidate on same-length/same-mtime 1-byte change');
     assert.notEqual(sidebarAfter, sidebarCold, 'Channel 3 must invalidate on same-length/same-mtime 1-byte change');
-    assert.notEqual(hostI18nAfter, hostI18nCold, 'Channel 4 must invalidate on same-length/same-mtime 1-byte change');
     assert.notEqual(thoughtAfter, thoughtCold, 'Channel 5 must invalidate on same-length/same-mtime 1-byte change');
     assert.equal(cdpHit.getBundleCacheStats().channelDiskHits, 0);
-    assert.equal(cdpHit.getBundleCacheStats().channelCompileRuns, 4);
+    assert.equal(cdpHit.getBundleCacheStats().channelCompileRuns, 3);
 
     // 5) Tampering channels.omni in .bundle-cache.json gracefully Fail-Opens and self-heals
     const objForTamper = JSON.parse(fs.readFileSync(cachePath, 'utf8'));

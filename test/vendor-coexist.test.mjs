@@ -245,14 +245,14 @@ function createLightweightDom() {
 test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, THIRD_PARTY_NOTICES.md, plugin.json, and sidecar.json contract', () => {
   const pkgJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
   assert.equal(pkgJson.name, 'obsidian-prism');
-  assert.equal(pkgJson.version, '1.0.8-beta.3');
+  assert.equal(pkgJson.version, '1.0.8-beta.4');
   assert.equal(pkgJson.license, 'GPL-3.0-only');
 
   const pluginJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'plugin.json'), 'utf8'));
   assert.deepEqual(Object.keys(pluginJson).sort(), ['description', 'displayName', 'logo', 'name', 'version']);
   assert.equal(pluginJson.name, 'obsidian-prism');
   assert.equal(pluginJson.displayName, 'Obsidian Prism');
-  assert.equal(pluginJson.version, '1.0.8-beta.3');
+  assert.equal(pluginJson.version, '1.0.8-beta.4');
   assert.equal(pluginJson.logo, 'assets/logo.svg');
   assert.ok(fs.existsSync(path.join(ROOT_DIR, 'assets', 'logo.svg')));
 
@@ -351,8 +351,8 @@ test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, TH
   }
 });
 
-test('i18n-locales.js covers all 8 languages (zh-CN, zh-TW, en, ja, ko, es, fr, de) + legacy yue fallback with Obsidian Prism brand, fold hints, coexistence & About keys', () => {
-  const langs = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'];
+test('i18n-locales.js covers th and en with Obsidian Prism brand, fold hints, coexistence & About keys', () => {
+  const langs = ['th', 'en'];
   const requiredKeys = [
     'sectionTitle',
     'sectionSubtitle',
@@ -391,19 +391,14 @@ test('i18n-locales.js covers all 8 languages (zh-CN, zh-TW, en, ja, ko, es, fr, 
     for (const k of requiredKeys) {
       assert.ok(typeof ui[k] === 'string' && ui[k].length > 0, `Missing ${k} for ${lang}`);
     }
-    assert.ok(/B[eê]ta/i.test(ui.setSidebarStudioTitle), `Chat module title must mark Beta for ${lang}`);
+    assert.ok(/Beta/i.test(ui.setSidebarStudioTitle), `Chat module title must mark Beta for ${lang}`);
   }
-  const zh = locales.getUiStrings('zh-CN');
-  assert.equal(zh.sectionTitle, 'Obsidian Prism · 黑曜棱镜');
-  assert.equal(zh.optWarm, 'Alabaster 暖岩');
-  assert.equal(zh.optClaude, 'Alabaster 暖岩');
-  assert.equal(zh.setLightPresetTitle, '浅色表面质感');
-  assert.equal(zh.optLightCrystal, '白昼冷晶');
-  assert.equal(zh.optLightAlabaster, '暖白画册');
-  assert.equal(zh.groupModules, '实用功能模块');
-  assert.equal(zh.grpBeta, 'Beta 内容');
-  assert.equal(zh.optAutoCoexist, '智能兼容');
-  assert.ok(zh.aboutDisclaimer.includes('Google LLC'));
+  const th = locales.getUiStrings('th');
+  assert.equal(th.sectionTitle, 'Obsidian Prism');
+  assert.equal(th.optWarm, 'Alabaster Warm');
+  assert.equal(th.optClaude, 'Alabaster Warm');
+  assert.ok(th.aboutDisclaimer.includes('Google LLC'));
+  assert.equal(locales.getUiStrings('zh-CN').setLanguageTitle, th.setLanguageTitle, 'Removed zh-CN must fall back to th');
 });
 
 test('vendor/pulse-dashboard/inline-fallback.js politely yields to external Pulse plugin and mounts 8+ native IDs when standalone', async () => {
@@ -963,9 +958,9 @@ test('PrismDaemon & install-plugin.cjs: obsidian-prism target, legacy antigravit
                       ready: true,
                       hasPrism: true,
                       hasRepoBridge: true,
-                      prismAttr: '1.0.8-beta.3',
+                      prismAttr: '1.0.8-beta.4',
                       hasStyle: true,
-                      version: '1.0.8-beta.3',
+                      version: '1.0.8-beta.4',
                       status: 'ok',
                     },
                   },
@@ -1091,7 +1086,7 @@ test('PrismDaemon & install-plugin.cjs: obsidian-prism target, legacy antigravit
         name: '__agPrismSetting',
         payload: JSON.stringify({
           action: 'patch-batch',
-          entries: { palette: 'warm', motionLevel: 'subtle', targetFps: '120', homeRipple: false, language: 'ja' },
+          entries: { palette: 'warm', motionLevel: 'subtle', targetFps: '120', homeRipple: false, language: 'th' },
         }),
       },
     });
@@ -1099,7 +1094,7 @@ test('PrismDaemon & install-plugin.cjs: obsidian-prism target, legacy antigravit
     const savedCfgAfterBatch = await waitUntil(() => {
       try {
         const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
-        return parsed && parsed.palette === 'warm' && parsed.language === 'ja' ? parsed : null;
+        return parsed && parsed.palette === 'warm' && parsed.language === 'th' ? parsed : null;
       } catch {
         return null;
       }
@@ -1110,8 +1105,8 @@ test('PrismDaemon & install-plugin.cjs: obsidian-prism target, legacy antigravit
     assert.equal(savedCfgAfterBatch.targetFps, '120');
     assert.equal(savedCfgAfterBatch.homeRipple, false);
     assert.equal(savedCfgAfterBatch.ripple, 'off', 'Expected legacy twin key ripple synced on disk');
-    assert.equal(savedCfgAfterBatch.language, 'ja');
-    assert.equal(savedCfgAfterBatch.lang, 'ja', 'Expected legacy twin key lang synced on disk');
+    assert.equal(savedCfgAfterBatch.language, 'th');
+    assert.equal(savedCfgAfterBatch.lang, 'th', 'Expected legacy twin key lang synced on disk');
     assert.equal(touchedForeignPreview, false, 'PrismDaemon must never connect or expose RPC bindings to non-host preview pages');
 
     // Trigger on-demand metrics request as well (reset metricsResolveExpr so only the real RPC resolve matches)
@@ -2444,137 +2439,24 @@ test('13-provider localization coexistence: slider bilingual effort/model parsin
   }
 });
 
-test('host-i18n runtime skips ag-pp- class prefix and #ag-prism-periodic-picker-root without mutating periodic picker DOM', () => {
-  const hostI18nMod = require(path.join(ROOT_DIR, 'vendor', 'host-i18n', 'host-i18n-runtime.js'));
-  const hostI18nSrc = fs.readFileSync(path.join(ROOT_DIR, 'vendor', 'host-i18n', 'host-i18n-runtime.js'), 'utf8');
-  assert.ok(hostI18nSrc.includes("'ag-pp-'"), "host-i18n-runtime.js must whitelist 'ag-pp-' class prefix");
-  assert.ok(hostI18nSrc.includes("'ag-prism-periodic-picker-root'"), "host-i18n-runtime.js must whitelist 'ag-prism-periodic-picker-root' ID");
-
-  const mkNode = (tag, text) => {
-    const attrs = new Map();
-    const el = {
-      nodeType: 1,
-      tagName: String(tag).toUpperCase(),
-      childNodes: [],
-      children: [],
-      parentNode: null,
-      parentElement: null,
-      isConnected: true,
-      className: '',
-      get id() { return attrs.get('id') || ''; },
-      set id(v) { attrs.set('id', String(v)); },
-      get firstChild() { return el.childNodes[0] || null; },
-      get nextSibling() {
-        if (!el.parentNode) return null;
-        const idx = el.parentNode.childNodes.indexOf(el);
-        return idx >= 0 ? el.parentNode.childNodes[idx + 1] || null : null;
-      },
-      getAttribute(k) { return attrs.has(k) ? attrs.get(k) : null; },
-      setAttribute(k, v) { attrs.set(k, String(v)); },
-      hasAttribute(k) { return attrs.has(k); },
-      removeAttribute(k) { attrs.delete(k); },
-      appendChild(child) {
-        child.parentNode = el;
-        child.parentElement = el;
-        child.isConnected = true;
-        el.childNodes.push(child);
-        if (child.nodeType === 1) el.children.push(child);
-        return child;
-      },
-    };
-    if (typeof text === 'string') {
-      const txt = {
-        nodeType: 3,
-        nodeValue: text,
-        parentNode: null,
-        parentElement: null,
-        isConnected: true,
-        get nextSibling() {
-          if (!this.parentNode) return null;
-          const idx = this.parentNode.childNodes.indexOf(this);
-          return idx >= 0 ? this.parentNode.childNodes[idx + 1] || null : null;
-        },
-      };
-      el.appendChild(txt);
-    }
-    return el;
-  };
-  const rootEl = mkNode('html');
-  const bodyEl = mkNode('body');
-  rootEl.appendChild(bodyEl);
-  const fakeDoc = {
-    documentElement: rootEl,
-    body: bodyEl,
-    readyState: 'complete',
-    hidden: false,
-    addEventListener() {},
-    removeEventListener() {},
-    querySelectorAll() { return []; },
-    querySelector() { return null; },
-    getElementById() { return null; },
-  };
-  const fakeWin = {
-    document: fakeDoc,
-    navigator: { language: 'zh-CN' },
-    addEventListener() {},
-    removeEventListener() {},
-    MutationObserver: class { observe() {} disconnect() {} },
-    setTimeout,
-    clearTimeout,
-  };
-
-  const ppWrap = mkNode('div');
-  ppWrap.className = 'ag-pp-stage';
-  const ppBtn = mkNode('button', 'Settings');
-  ppBtn.className = 'ag-pp-keycap';
-  ppBtn.setAttribute('aria-label', 'Settings');
-  ppWrap.appendChild(ppBtn);
-
-  const ppById = mkNode('div');
-  ppById.id = 'ag-prism-periodic-picker-root';
-  const ppInner = mkNode('span', 'Settings');
-  ppInner.setAttribute('aria-label', 'Settings');
-  ppById.appendChild(ppInner);
-
-  const hostBtn = mkNode('button', 'Settings');
-  hostBtn.setAttribute('aria-label', 'Settings');
-
-  bodyEl.appendChild(ppWrap);
-  bodyEl.appendChild(ppById);
-  bodyEl.appendChild(hostBtn);
-
-  const inst = hostI18nMod.mountHostI18n({
-    root: fakeWin,
-    doc: fakeDoc,
-    mode: 'on',
-    dict: { exact: { Settings: '设置' } },
-  });
-  try {
-    assert.equal(hostBtn.getAttribute('aria-label'), '设置', 'Normal host chrome button aria-label must be translated');
-    assert.equal(hostBtn.childNodes[0].nodeValue, '设置', 'Normal host chrome button text must be translated');
-    assert.equal(ppBtn.getAttribute('aria-label'), 'Settings', 'Elements under ag-pp-* class prefix must NEVER have attrs translated');
-    assert.equal(ppBtn.childNodes[0].nodeValue, 'Settings', 'Elements under ag-pp-* class prefix must NEVER have text translated');
-    assert.equal(ppInner.getAttribute('aria-label'), 'Settings', 'Elements inside #ag-prism-periodic-picker-root must NEVER have attrs translated');
-    assert.equal(ppInner.childNodes[0].nodeValue, 'Settings', 'Elements inside #ag-prism-periodic-picker-root must NEVER have text translated');
-  } finally {
-    inst.destroy();
-  }
+test('host-i18n Chinese overlay has been cleanly removed (shouldEnableHostI18n is always false)', () => {
+  assert.equal(fs.existsSync(path.join(ROOT_DIR, 'vendor', 'host-i18n')), false, 'vendor/host-i18n must be removed');
+  assert.equal(cdp.shouldEnableHostI18n({ language: 'th' }), false);
+  assert.equal(cdp.shouldEnableHostI18n({ language: 'en' }), false);
+  assert.equal(cdp.buildHostI18nExpression({ language: 'th' }), '');
 });
 
-test('Battle 5: usage-core.js full 8-locale coverage (ko/es/fr/de zero zh-CN fallback, yue->zh-CN, unknown->en)', () => {
+test('Battle 5: usage-core.js full 2-locale coverage (th default/fallback, en, zero CJK leak)', () => {
   const usageCore = require(path.join(ROOT_DIR, 'usage-core.js'));
-  assert.equal(usageCore.resolveLang(true), 'zh-CN');
+  assert.equal(usageCore.resolveLang(true), 'th');
   assert.equal(usageCore.resolveLang(false), 'en');
-  assert.equal(usageCore.resolveLang(null), 'en');
-  assert.equal(usageCore.resolveLang(undefined), 'en');
-  assert.equal(usageCore.resolveLang('unknown-xx'), 'en');
-  assert.equal(usageCore.resolveLang('yue'), 'zh-CN');
-  assert.equal(usageCore.resolveLang('yue-HK'), 'zh-CN');
-  assert.equal(usageCore.resolveLang('zh-HK'), 'zh-TW');
-  assert.equal(usageCore.resolveLang('ko-KR'), 'ko');
-  assert.equal(usageCore.resolveLang('es-ES'), 'es');
-  assert.equal(usageCore.resolveLang('fr-FR'), 'fr');
-  assert.equal(usageCore.resolveLang('de-DE'), 'de');
+  assert.equal(usageCore.resolveLang(null), 'th');
+  assert.equal(usageCore.resolveLang(undefined), 'th');
+  assert.equal(usageCore.resolveLang('unknown-xx'), 'th');
+  assert.equal(usageCore.resolveLang('zh-CN'), 'th');
+  assert.equal(usageCore.resolveLang('ja-JP'), 'th');
+  assert.equal(usageCore.resolveLang('th-TH'), 'th');
+  assert.equal(usageCore.resolveLang('en-US'), 'en');
 
   const HAN_RE = /[\u4e00-\u9fff]/;
   const now = new Date(2026, 10, 14, 12, 0, 0);
@@ -2587,7 +2469,7 @@ test('Battle 5: usage-core.js full 8-locale coverage (ko/es/fr/de zero zh-CN fal
   const nowMs = Date.UTC(2026, 10, 14, 12, 0, 0);
   const grp = { id: 'custom-pool', windows: { '5h': { available: true, remaining: 0.45, resetAt: new Date(nowMs + 2 * 3600 * 1000).toISOString() } } };
 
-  for (const lang of ['en', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const rAll = usageCore.homeRangeLabel('all', lang);
     const r30 = usageCore.homeRangeLabel('30d', lang);
     const hr = usageCore.formatHomeHour(14, lang);
@@ -2603,11 +2485,10 @@ test('Battle 5: usage-core.js full 8-locale coverage (ko/es/fr/de zero zh-CN fal
       assert.equal(HAN_RE.test(piece), false, `${lang} leaked Han CJK char in "${piece}"`);
     }
   }
-  assert.equal(usageCore.homeRangeLabel('all', 'ko'), '전체');
-  assert.equal(usageCore.homeRangeLabel('30d', 'fr'), '30j');
-  assert.equal(usageCore.homeRangeLabel('7d', 'de'), '7T');
-  assert.equal(usageCore.homeRangeLabel('all', 'es'), 'Todo');
-  assert.match(usageCore.aggregateUsageRollup(recs, 'all', 0, 'ko', now).funBook, /토큰/);
+  assert.equal(usageCore.homeRangeLabel('all', 'th'), 'ทั้งหมด');
+  assert.equal(usageCore.homeRangeLabel('30d', 'th'), '30 วัน');
+  assert.equal(usageCore.homeRangeLabel('7d', 'en'), '7d');
+  assert.match(usageCore.aggregateUsageRollup(recs, 'all', 0, 'th', now).funBook, /โทเคน/);
 });
 
 test('Battle 5: pulse-dashboard metrics.mjs BigInt/cadence drift guards & store.mjs GetUserStatus quotaInfo fallback', async () => {

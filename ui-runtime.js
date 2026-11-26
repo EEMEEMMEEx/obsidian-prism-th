@@ -2,7 +2,7 @@
   if (typeof module === 'object' && module.exports) module.exports = factory;
   else root.__agCsUiMain = factory;
 })(typeof globalThis !== 'undefined' ? globalThis : window, function (initialConfig) {
-  const VERSION = '1.0.8-beta.3';
+  const VERSION = '1.0.8-beta.4';
   const D = document, W = window, GT = globalThis, ST = setTimeout, CT = clearTimeout, O = Object, AF = Array.from, SJ = JSON.stringify, LS = typeof localStorage !== 'undefined' ? localStorage : null;
   const LEGACY_API_VERSION = 3;
   const CODE_HASH = initialConfig?.codeHash || '';
@@ -57,19 +57,19 @@
       }
     }
   };
-  const LITE_SWARM_FMT = { 'zh-CN': '主会话 {0}% · 子代理 {1}%', 'zh-TW': '主工作階段 {0}% · 子代理 {1}%', ja: 'メイン {0}% · サブ {1}%', ko: '메인 {0}% · 서브 {1}%', es: 'Principal {0}% · Sub {1}%', fr: 'Principal {0}% · Sous {1}%', de: 'Haupt {0}% · Sub {1}%' };
-  const LITE_MORE_FMT = { 'zh-CN': '再显示 {0} 个', 'zh-TW': '再顯示 {0} 個', ja: 'さらに {0} 件表示', ko: '{0}개 더 보기', es: 'Mostrar {0} más', fr: 'Afficher {0} de plus', de: '{0} weitere anzeigen' };
+  const LITE_SWARM_FMT = { th: 'แชตหลัก {0}% · ซับเอเจนต์ {1}%' };
+  const LITE_MORE_FMT = { th: 'แสดงเพิ่มอีก {0} รายการ' };
   const ensureLiteLocalesShim = (slicePayload) => {
     mergeRuntimeUiSlice(slicePayload);
     const cur = getLocalesMod();
-    // 绝不拿 43-key 迷你垫片覆写页面上已有的全量 8 语表（含热重载残留的旧全量表 UI_TABLE）
+    // Never overwrite full locale table with slim slice shim
     if (cur && (cur.__isFullLocales || cur.UI_TABLE)) return;
     if (cur && cur.__isLiteShim) return;
     const shim = {
       __isLiteShim: true,
       getUiStrings(lang) {
-        const l = typeof lang === 'string' && lang ? lang : runtimeSliceStore.active || 'en';
-        const out = { ...(runtimeSliceStore.byLang[l] || runtimeSliceStore.byLang.en || runtimeSliceStore.byLang[runtimeSliceStore.active] || {}) };
+        const l = typeof lang === 'string' && lang ? lang : runtimeSliceStore.active || 'th';
+        const out = { ...(runtimeSliceStore.byLang[l] || runtimeSliceStore.byLang.th || runtimeSliceStore.byLang.en || runtimeSliceStore.byLang[runtimeSliceStore.active] || {}) };
         if (out.optThoughtImmersive && !out.optViewImmersive) out.optViewImmersive = out.optThoughtImmersive;
         if (out.optThoughtBilingual && !out.optViewBilingual) out.optViewBilingual = out.optThoughtBilingual;
         out.swarmSplitSub = (m, s) => (LITE_SWARM_FMT[l] || 'Main {0}% · Swarm {1}%').replace('{0}', m).replace('{1}', s);
@@ -164,8 +164,9 @@
       const t = v.trim();
       if (!t) return '';
       const low = t.toLowerCase().replace(/_/g, '-');
-      if (low === 'yue' || low.startsWith('yue-') || low === 'zh-yue' || low.includes('cantonese')) return 'zh-CN';
-      return t;
+      if (low === 'en' || low.startsWith('en-') || low === 'english') return 'en';
+      if (low === 'th' || low.startsWith('th-') || low === 'thai') return 'th';
+      return 'th';
     };
     const rawLang =
       (out.language && out.language !== 'auto' ? migrateLegacyLang(out.language) : '') ||
@@ -334,18 +335,18 @@
       pickConcreteLang(currentBaseConfig?.language) ||
       pickConcreteLang(currentBaseConfig?.lang) ||
       (typeof navigator !== 'undefined' && (navigator.language || navigator.languages?.[0])) ||
-      'en';
-    if (isFn(i18nCore?.normalizeLanguage)) return i18nCore.normalizeLanguage(raw, 'en');
+      'th';
+    if (isFn(i18nCore?.normalizeLanguage)) return i18nCore.normalizeLanguage(raw, 'th');
     const low = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
-    if (/^(?:zh|yue)|cantonese/.test(low)) return /tw|hk|mo|hant/.test(low) ? 'zh-TW' : 'zh-CN';
-    return low.match(/^(en|ja|ko|es|fr|de)(?:-|$)/)?.[1] || 'en';
+    if (low === 'en' || low.startsWith('en-') || low === 'english') return 'en';
+    return 'th';
   };
 
   const uiText = (lang = getLang()) => {
     const mod = getLocalesMod();
     return isFn(mod?.getUiStrings) ? mod.getUiStrings(lang) : {};
   };
-  const isZh = () => { const l = getLang(); return l === 'zh-CN' || l === 'zh-TW'; };
+  const isZh = () => false;
 
   const isDarkTheme = () => {
     for (const l of [D.body?.[K_CL], de()?.[K_CL]]) {
@@ -1055,8 +1056,7 @@
     run(() => tel?.sync?.(cfg));
     run(() => eff?.sync?.(cfg));
     run(() => {
-      if (hiMode === 'auto' && curLang !== 'zh-CN') { hiInst?.destroy?.(); ra(de(), 'data-ag-prism-host-i18n'); }
-      else if (isFn(hiInst?.setMode)) hiInst.setMode(hiMode === 'on' ? 'on' : hiMode === 'off' ? 'off' : 'auto');
+      if (hiInst) { hiInst.destroy?.(); ra(de(), 'data-ag-prism-host-i18n'); }
     });
     run(() => th?.sync?.(cfg));
     run(() => (getOmniMode() === 'off' ? omni?.destroy?.() : omni?.sync?.(cfg, meta)));

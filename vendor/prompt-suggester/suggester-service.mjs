@@ -38,31 +38,16 @@ const MAX_TOTAL_CONTEXT_CHARS = 7200;
 const MAX_CACHE_ENTRIES = 32;
 
 const SYCOPHANTIC_PREFIX_RE =
-  /^(?:(?:太厉害了|太棒了|太好了|太强了|非常好|非常棒|很棒|好棒|真棒|牛啊|完美|好的|明白|收到|谢谢(?:你)?|非常感谢|辛苦了|Awesome|Great(?:\s+job|\s+work)?|Nice(?:\s+work)?|Looks\s+good|Perfect|Amazing|Got\s+it|Okay|Thanks(?:\s+a\s+lot)?|Thank\s+you|素晴らしい|すごい|完璧です|了解です|わかりました|ありがとう(?:ございます)?)[!！,，。.\s]+)+/i;
+  /^(?:(?:สุดยอด|เยี่ยมเลย|เยี่ยมมาก|ดีมาก|เก่งมาก|สมบูรณ์แบบ|โอเค|เข้าใจแล้ว|รับทราบ|ขอบคุณ(?:มาก)?(?:ครับ|ค่ะ)?|Awesome|Great(?:\s+job|\s+work)?|Nice(?:\s+work)?|Looks\s+good|Perfect|Amazing|Got\s+it|Okay|Thanks(?:\s+a\s+lot)?|Thank\s+you)[!！,，。.\s]+)+/i;
 
 const BRACKET_PLACEHOLDER_RE =
-  /\[[^\]\n]{1,24}(?:数据|结果|输出|日志|内容|路径|代码|data|result|output|log|path|here)[^\]\n]*\]/i;
+  /\[[^\]\n]{1,24}(?:ข้อมูล|ผลลัพธ์|เอาต์พุต|บันทึก|เนื้อหา|พาธ|โค้ด|data|result|output|log|path|here)[^\]\n]*\]/i;
 
-// 拦截用户自言自语式独白（例如“我先去看看”），仅保留面向 AI 的明确指令
+// Filter self-narration monologues, keep only direct actionable instructions for the AI
 const SELF_NARRATION_RE =
-  /^(?:我(?:先|去|先去|现在去|去打开|去看看|去看下|去试下|去试试|自己去)|让我(?:先)?(?:去|自己去)|(?:let\s+me|i\s+will|i'll)\s+go\s+(?:check|look|test|try|open)\b)/i;
+  /^(?:(?:เดี๋ยว)?(?:ผม|ฉัน|เรา)(?:ไป|ขอไป|ลองไป)(?:ดู|เช็ค|เปิด|ลอง)|(?:let\s+me|i\s+will|i'll)\s+go\s+(?:check|look|test|try|open)\b)/i;
 
-// 严格互斥的简/繁高频特征字集合（不含简繁共用字）
-const SIMP_ONLY_RE = /[这们个说请让给对发会时过还开关验证设档实际显处点线与为么仅没记认种现动页选闭体国语]/g;
-const TRAD_ONLY_RE = /[這們個說請讓給對發會時過還開關驗證設檔實際顯處點線與為麼僅沒記認種現動頁選閉體國語]/g;
-
-// 西/法/德拉丁语系特征字符与常用词，避免西/法/德对话被误判覆写为英文
-const DE_DIACRITIC_RE = /[äöüßÄÖÜ]/g;
-const DE_WORD_RE =
-  /\b(?:der|die|das|und|oder|nicht|bitte|für|mit|von|den|dem|ein|eine|einen|ist|sind|wir|ich|kann|prüfe|prüfen|führe|ausführen|behebe|beheben|fehler|datei|änderungen|weiter)\b/gi;
-const FR_DIACRITIC_RE = /[çœæàâèêëîïôùûüÇŒÆÀÂÈÊËÎÏÔÙÛÜ]/g;
-const FR_WORD_RE =
-  /\b(?:le|la|les|des|du|une|pour|avec|dans|sur|pas|est|sont|nous|vous|merci|vérifie|vérifier|exécute|exécuter|corrige|corriger|fichier|erreur|cette|ceci|continue|continuer)\b/gi;
-const ES_DIACRITIC_RE = /[¿¡ñÑáéíóúÁÉÍÓÚ]/g;
-const ES_WORD_RE =
-  /\b(?:el|la|los|las|del|una|para|por|con|sin|pero|que|qué|cómo|esto|esta|este|favor|ejecuta|ejecutar|revisa|revisar|corrige|corregir|archivo|pruebas|prueba|código|errores|continúa|continuar)\b/gi;
-
-// 过滤非对话专用模型（嵌入、语音、图像/视频生成、审核等），并优先排序低延迟轻量对话模型
+// Filter non-chat models (embeddings, audio, image/video, moderation) and prioritize low-latency chat models
 const NON_CHAT_MODEL_RE = new RegExp(
   [
     '(?:^|[-_/:.])(?:embedding|embeddings|rerank|moderation|whisper|tts|transcribe|imagen|dall-e|veo|sora|lyria|aqa)(?:$|[-_/:.\\d])',
@@ -79,19 +64,12 @@ const NON_CHAT_MODEL_RE = new RegExp(
 );
 const FAST_CHAT_MODEL_RE = /(?:^|[-_/:.])(?:flash|mini|nano|haiku|deepseek-chat|turbo|lite)(?:$|[-_/:.\d])/i;
 
-// 将语言码统一规范为 8 语（zh-CN/zh-TW/en/ja/ko/es/fr/de），移除 yue，未知语言兜底 en
-function normalizeSuggesterLang(raw, defaultLang = 'en') {
+// Normalize language code to 'th' or 'en' (default/fallback: 'th')
+function normalizeSuggesterLang(raw, defaultLang = 'th') {
   const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
   if (!s || s === 'auto') return defaultLang;
-  if (s === 'yue' || s.startsWith('yue-') || s === 'zh-yue' || s.includes('cantonese')) return 'zh-CN';
-  if (/^zh-(tw|hk|mo|hant)/.test(s) || s === 'tw' || s === 'hant') return 'zh-TW';
-  if (/^zh(?:\b|-)/.test(s)) return 'zh-CN';
-  if (/^(ja|jp)(?:\b|-)/.test(s) || s === 'japanese') return 'ja';
-  if (/^(ko|kr)(?:\b|-)/.test(s) || s === 'korean') return 'ko';
-  if (/^es(?:\b|-)/.test(s) || s === 'spanish') return 'es';
-  if (/^fr(?:\b|-)/.test(s) || s === 'french') return 'fr';
-  if (/^de(?:\b|-)/.test(s) || s === 'german') return 'de';
-  if (/^en(?:\b|-)/.test(s) || s === 'english') return 'en';
+  if (s === 'en' || s.startsWith('en-') || s === 'english') return 'en';
+  if (s === 'th' || s.startsWith('th-') || s === 'thai') return 'th';
   return defaultLang;
 }
 
@@ -217,8 +195,8 @@ export function sanitizeSuggesterConfig(raw = {}) {
   };
 }
 
-export function detectConversationLang(turns = [], fallbackLang = 'en') {
-  const normFallback = normalizeSuggesterLang(fallbackLang, 'en');
+export function detectConversationLang(turns = [], fallbackLang = 'th') {
+  const normFallback = normalizeSuggesterLang(fallbackLang, 'th');
   for (let i = turns.length - 1; i >= 0; i--) {
     const t = turns[i];
     if (!t || t.role !== 'user') continue;
@@ -229,46 +207,13 @@ export function detectConversationLang(turns = [], fallbackLang = 'en') {
       .trim();
     if (!s) continue;
 
-    // 1) 日文假名检测
-    const kana = (s.match(/[\u3040-\u30ff]/g) || []).length;
-    if (kana >= 2) return 'ja';
+    // 1) Thai script detection
+    const thaiChars = (s.match(/[\u0e00-\u0e7f]/g) || []).length;
+    if (thaiChars >= 2) return 'th';
 
-    // 2) 韩文谚文检测
-    const hangul = (s.match(/[\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/g) || []).length;
-    if (hangul >= 2) return 'ko';
-
-    // 3) 汉字简繁检测（不返回 yue）
-    const cjk = (s.match(/[\u4e00-\u9fff]/g) || []).length;
-    if (cjk >= 2) {
-      const simpHits = (s.match(SIMP_ONLY_RE) || []).length;
-      const tradHits = (s.match(TRAD_ONLY_RE) || []).length;
-      if (tradHits >= 2 && tradHits > simpHits * 2) return 'zh-TW';
-      if (simpHits >= 1) return 'zh-CN';
-      if (normFallback === 'zh-TW') return 'zh-TW';
-      return 'zh-CN';
-    }
-
-    // 4) 拉丁语系检测：识别西/法/德特征，并避免把 es/fr/de 兜底强行覆写为 en
-    const latinWords = (s.match(/[A-Za-z\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff]{2,}/g) || []).length;
-    if (latinWords >= 2) {
-      const deScore = (s.match(DE_DIACRITIC_RE) || []).length * 2 + (s.match(DE_WORD_RE) || []).length;
-      const frScore = (s.match(FR_DIACRITIC_RE) || []).length * 2 + (s.match(FR_WORD_RE) || []).length;
-      const esScore = (s.match(ES_DIACRITIC_RE) || []).length * 2 + (s.match(ES_WORD_RE) || []).length;
-      const scores = [
-        ['de', deScore],
-        ['fr', frScore],
-        ['es', esScore],
-      ].sort((a, b) => b[1] - a[1]);
-      if (scores[0][1] >= 2) {
-        if (scores[0][1] > scores[1][1]) return scores[0][0];
-        if (normFallback === scores[0][0] || normFallback === scores[1][0]) return normFallback;
-        return scores[0][0];
-      }
-      if (normFallback === 'es' || normFallback === 'fr' || normFallback === 'de') {
-        return normFallback;
-      }
-      return 'en';
-    }
+    // 2) English / Latin word detection
+    const latinWords = (s.match(/[A-Za-z]{2,}/g) || []).length;
+    if (latinWords >= 2) return 'en';
   }
   return normFallback;
 }
@@ -346,7 +291,7 @@ export function parseSingleSuggestion(rawText = '') {
 
   const isAcceptable = (s) => {
     if (!s || s.length < 2 || s.length > 120) return false;
-    if (/^(?:suggestion|output|none|null|nothing|n\/a|empty|silence|无|暂无)\s*:?\.?$/i.test(s)) return false;
+    if (/^(?:suggestion|output|none|null|nothing|n\/a|empty|silence|ไม่มี|ว่าง)\s*:?\.?$/i.test(s)) return false;
     if (s.startsWith('{') || s.startsWith('[')) return false;
     if (BRACKET_PLACEHOLDER_RE.test(s)) return false;
     if (SELF_NARRATION_RE.test(s)) return false;
@@ -376,19 +321,13 @@ export function parseSingleSuggestion(rawText = '') {
   return '';
 }
 
-function buildSamplingInstruction(lang = 'en') {
+function buildSamplingInstruction(lang = 'th') {
   const langLabelMap = {
-    'zh-CN': 'Simplified Chinese (简体中文 — strictly Simplified characters, NEVER Traditional Chinese)',
-    'zh-TW': 'Traditional Chinese (繁體中文)',
+    th: 'Thai (ภาษาไทย)',
     en: 'English',
-    ja: 'Japanese (日本語)',
-    ko: 'Korean (한국어)',
-    es: 'Spanish (Español)',
-    fr: 'French (Français)',
-    de: 'German (Deutsch)',
   };
-  const normLang = normalizeSuggesterLang(lang, 'en');
-  const langLabel = langLabelMap[normLang] || langLabelMap.en;
+  const normLang = normalizeSuggesterLang(lang, 'th');
+  const langLabel = langLabelMap[normLang] || langLabelMap.th;
 
   return [
     '[SUGGESTION MODE: Predict what the user might naturally type next into the coding agent.]',
@@ -396,8 +335,8 @@ function buildSamplingInstruction(lang = 'en') {
     'THE TEST: Would the user see it and think "I was just about to type that"?',
     '',
     'WHEN TO SUGGEST (be specific, crisp, and natural):',
-    '- Assistant asked a confirmation/choice question at the end -> phrase the natural decision aligned with the user\'s prior intent (e.g., "按这个方案改", "好，把这部分补齐").',
-    '- User asked for a multi-step goal and an earlier step just finished -> prompt the remaining step they already asked for (e.g., user asked "fix bug and run tests", bug is fixed -> "跑一下测试验证"; diagnosis finished -> "按这个原因修复").',
+    '- Assistant asked a confirmation/choice question at the end -> phrase the natural decision aligned with the user\'s prior intent (e.g., "ทำตามแนวทางนี้เลย", "Go ahead with this approach").',
+    '- User asked for a multi-step goal and an earlier step just finished -> prompt the remaining step they already asked for (e.g., user asked "fix bug and run tests", bug is fixed -> "รันเทสต์ตรวจสอบเลย" / "Run the tests now").',
     '- Code was just written/modified but not yet verified or committed -> suggest the immediate verification or commit only if clearly expected in this workflow.',
     '',
     'WHEN TO STAY SILENT (reply with NOTHING):',
@@ -405,12 +344,12 @@ function buildSamplingInstruction(lang = 'en') {
     '- After an ambiguous error or open-ended design trade-off where the user needs to think or inspect -> reply NOTHING.',
     '',
     'NEVER SUGGEST:',
-    '- New feature ideas, extra audits, or tangential checks the user never asked about (e.g., do NOT invent "检查不同分辨率适配" or "优化性能").',
-    '- Self-action monologues ("我去设置里看下", "我先试试", "Let me check").',
-    '- Evaluative/flattery filler ("太棒了", "好的谢谢", "looks good", "thanks").',
-    '- Assistant-voice ("我来...", "Let me...", "I\'ll...") or multiple sentences.',
+    '- New feature ideas, extra audits, or tangential checks the user never asked about (e.g., do NOT invent extra responsive checks or performance optimizations).',
+    '- Self-action monologues ("เดี๋ยวผมไปดูเอง", "Let me check").',
+    '- Evaluative/flattery filler ("ยอดเยี่ยมมาก", "ขอบคุณครับ", "looks good", "thanks").',
+    '- Assistant-voice ("Let me...", "I\'ll...") or multiple sentences.',
     '',
-    `Format: ONE short, direct phrase in ${langLabel} (4-22 CJK characters or 2-12 Latin words), matching the user's concise tone, with no quotes and no trailing period. Or reply with NOTHING.`,
+    `Format: ONE short, direct phrase in ${langLabel} (concise Thai phrase or 2-12 English words), matching the user's concise tone, with no quotes and no trailing period. Or reply with NOTHING.`,
   ].join('\n');
 }
 
@@ -817,7 +756,7 @@ export class PromptSuggesterService {
       return { ok: false, reason: 'empty-conversation', error: 'No conversation history yet' };
     }
 
-    const detectedLang = detectConversationLang(turns, input?.lang || 'en');
+    const detectedLang = detectConversationLang(turns, input?.lang || 'th');
     const forceRefresh = Boolean(input?.forceRefresh);
     const cacheSeed = JSON.stringify({
       v: 8,

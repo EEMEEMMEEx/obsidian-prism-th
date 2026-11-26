@@ -1,7 +1,7 @@
 // Obsidian Prism Native Sidecar Daemon (sidecars/daemon/main.mjs)
 // - Auto-discovers DevToolsActivePort across Windows/macOS/Linux + fast Target.setDiscoverTargets push
 // - Registers Page.addScriptToEvaluateOnNewDocument + Runtime.evaluate (survives Ctrl+Shift+R reloads with zero app.asar touch!)
-// - Hot-upgrades legacy instances to Obsidian Prism v1.0.8-beta.3
+// - Hot-upgrades legacy instances to Obsidian Prism v1.0.8-beta.4
 // - Lazily serves real MetricsStore + DesktopUsage snapshots over __agPrismMetricsCall only when requested (0 idle CPU)
 // - Registers __agPrismRepoCall (paired with window.__agPrismRepoBridge) for live Git status & safe git pull --ff-only + hot-reload!
 
@@ -2229,7 +2229,7 @@ export class PrismDaemon {
     this.updateService =
       _testUpdateService ||
       new UpdateService({
-        currentVersion: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.3',
+        currentVersion: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.4',
         channel: initialUpdateChannel,
       });
     if (_testUpdateService && typeof _testUpdateService.setChannel === 'function') {
@@ -3180,27 +3180,20 @@ export class PrismDaemon {
     try {
       i18nCore = require(path.join(this.rootDir, 'i18n-core.js'));
     } catch {}
-    const normalizeLang = (raw, fallback = 'en') => {
+    const normalizeLang = (raw, fallback = 'th') => {
       if (typeof i18nCore?.normalizeLanguage === 'function') {
         return i18nCore.normalizeLanguage(raw, fallback);
       }
       const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-').split(/[.@]/)[0];
       if (!s) return fallback;
-      if (s === 'en' || s.startsWith('en-')) return 'en';
-      if (s === 'ja' || s.startsWith('ja-')) return 'ja';
-      if (s === 'ko' || s.startsWith('ko-')) return 'ko';
-      if (s === 'es' || s.startsWith('es-')) return 'es';
-      if (s === 'fr' || s.startsWith('fr-')) return 'fr';
-      if (s === 'de' || s.startsWith('de-')) return 'de';
-      if (s === 'yue' || s.startsWith('yue-') || s === 'zh-yue') return 'zh-CN';
-      if (/^zh-(?:tw|hk|mo|hant)(?:-|$)/.test(s)) return 'zh-TW';
-      if (s === 'zh' || s.startsWith('zh-')) return 'zh-CN';
+      if (s === 'en' || s.startsWith('en-') || s === 'english') return 'en';
+      if (s === 'th' || s.startsWith('th-') || s === 'thai') return 'th';
       return fallback;
     };
 
     const rawCfgLang = String((cfg && (cfg.language || cfg.lang)) || '').trim();
     if (rawCfgLang && rawCfgLang.toLowerCase() !== 'auto') {
-      return normalizeLang(rawCfgLang, 'en');
+      return normalizeLang(rawCfgLang, 'th');
     }
 
     // language 为 'auto' 或缺省时，按与 ui-runtime.js 一致的优先级探测目标页面：
@@ -3257,7 +3250,7 @@ export class PrismDaemon {
         }
       }
     }
-    return normalizeLang(sysLocale, 'en');
+    return normalizeLang(sysLocale, 'th');
   }
 
   async _checkStorageGuardAndNotify(_testOverrides = null) {
@@ -3312,20 +3305,14 @@ export class PrismDaemon {
       .replace(/\{3\}/g, health.lsMemoryMb ? fmtMb(health.lsMemoryMb) : '—');
 
     const closeLabels = {
-      'zh-CN': '关闭',
-      'zh-TW': '關閉',
+      th: 'ปิด',
       en: 'Close',
-      ja: '閉じる',
-      ko: '닫기',
-      es: 'Cerrar',
-      fr: 'Fermer',
-      de: 'Schließen',
     };
     const expr = buildStorageGuardBannerExpression({
       autoArchiveOnExit: Boolean(health.autoArchiveOnExit),
       copy: {
         title: ui.storageGuardTitle || 'Memory & Conversation DB Guard',
-        close: closeLabels[resolvedLang] || 'Close',
+        close: closeLabels[resolvedLang] || closeLabels.th,
         summary: summaryText,
         archiveRestartBtn: ui.storageArchiveRestartBtn || 'Archive & Restart',
         enableAutoExitBtn: ui.storageGuardEnableAutoExitBtn || 'Enable Auto-Archive on Exit',
@@ -3758,7 +3745,7 @@ export class PrismDaemon {
   }
 
   _buildCombinedUpdateStatus({ relState = null, gitState = null, action = 'update-status', channelOverride = null } = {}) {
-    const currentVersion = this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.3';
+    const currentVersion = this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.4';
     const rel = relState || this.updateService?.getStatus?.() || {};
     const autoUpdate = this._getAutoUpdateSetting();
     const explicitChannel = channelOverride === 'beta' || channelOverride === 'stable' ? channelOverride : null;
@@ -4043,7 +4030,7 @@ export class PrismDaemon {
         ...applyRes,
         action: 'apply-update',
         channel,
-        currentVersion: this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.3',
+        currentVersion: this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.4',
       };
     }
 
@@ -5908,7 +5895,7 @@ export class PrismDaemon {
   _getSidebarServerMeta() {
     return {
       binding: SIDEBAR_BINDING,
-      version: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.3',
+      version: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.4',
       schemaVersion: 2,
       serviceReady: !this._sidebarStopped && typeof this.sidebarService?.handleRpc === 'function' &&
         !this.sidebarService.getBootDiagnostic?.(),

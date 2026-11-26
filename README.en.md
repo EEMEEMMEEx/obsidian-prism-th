@@ -12,7 +12,7 @@ Four dark & daylight themes · A living 512K context vial · Reasoning effort sl
 
 <p>
   <a href="https://github.com/RMvdesi/obsidian-prism/releases"><img src="https://img.shields.io/github/v/release/RMvdesi/obsidian-prism?style=flat-square&color=3186ff&label=Release" alt="Latest Release" /></a>
-  <img src="https://img.shields.io/badge/Version-1.0.8--beta.3-0f172a?style=flat-square" alt="Version 1.0.8-beta.3" />
+  <img src="https://img.shields.io/badge/Version-1.0.8--beta.3-0f172a?style=flat-square" alt="Version 1.0.8-beta.4" />
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20Universal-1e293b?style=flat-square" alt="Platform" />
   <a href="https://github.com/RMvdesi/obsidian-prism/actions"><img src="https://img.shields.io/github/actions/workflow/status/RMvdesi/obsidian-prism/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-2563eb?style=flat-square" alt="License: GPL-3.0" /></a>
@@ -22,7 +22,7 @@ Four dark & daylight themes · A living 512K context vial · Reasoning effort sl
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/hero-dark.webp" />
   <source media="(prefers-color-scheme: light)" srcset="assets/screenshots/hero-light.webp" />
-  <img src="assets/screenshots/hero-dark.webp" width="100%" alt="Obsidian Prism v1.0.8-beta.3 showcase" />
+  <img src="assets/screenshots/hero-dark.webp" width="100%" alt="Obsidian Prism v1.0.8-beta.4 showcase" />
 </picture>
 
 <sub>Footage is rendered frame by frame by an offline stage that runs this repository's front-end source directly. All workspaces and conversations shown are fictional.</sub>
@@ -100,7 +100,7 @@ Off by default — enable it under **Settings → Appearance → Beta**. A switc
 <details>
 <summary><strong>Technical details: performance, security, telemetry & configuration (click to expand)</strong></summary>
 
-**Obsidian Prism (`v1.0.8-beta.3`)** provides Smoked Obsidian dark/daylight themes, host workbench & inline diff enhancements, a built-in side-pane browser and streaming multi-format file viewer, live quota telemetry, chain-of-thought translation, and experimental static/video wallpapers (Beta) for the Antigravity desktop client through a modular on-demand local plugin architecture — without altering host business logic or conflicting with external plugins:
+**Obsidian Prism (`v1.0.8-beta.4`)** provides Smoked Obsidian dark/daylight themes, host workbench & inline diff enhancements, a built-in side-pane browser and streaming multi-format file viewer, live quota telemetry, chain-of-thought translation, and experimental static/video wallpapers (Beta) for the Antigravity desktop client through a modular on-demand local plugin architecture — without altering host business logic or conflicting with external plugins:
 
 - **Four Dark/Daylight Themes & Fine-Grained Controls**: Includes two dark palettes (**Obsidian Dark** & **Warm Charcoal**) and two daylight presets (**Daylight Crystal** & **Warm Alabaster**) with automatic host light/dark tracking, unified Smoked Obsidian faceted surfaces (message bubbles, file-change strips, Artifact cards, graphite keycaps, and single-frame inline file chips), plus 5 accent tones (Follow Model, Cobalt, Iris, Amber, and Graphite Monochrome `mono`), 3 corner radius scales, 4 code monospace font stacks with ligature toggle, and ambient glow intensity controls.
 - **300Hz Split-Rate Pipeline, 5-Step Ink Streaming & `0fps` Semantic Afterglow**: Removes persistent multi-layer `backdrop-filter` blur passes and reclaims Canvas VRAM (`0x0`) during sleep; renders streaming responses with a `CSS.highlights`-based **5-step ink fade-in** (zero wrapper nodes, zero forced layout reflow, maintaining smooth high-refresh frame pacing even in `34k+`-node long sessions); caps steady-state background aurora rendering to `~30fps` on 300Hz displays and enters `0fps` idle sleep `1.2s` after activity ends. Provides non-intrusive three-state semantic edge cues (awaiting user decision, error halted, and background long-task completion) that freeze into `0fps` static snapshots.
@@ -181,10 +181,36 @@ npm run build:installer        # Build standalone Windows installer (.exe)
 npm run build:macos            # Build standalone macOS Universal bundle (.dmg)
 ```
 
+#### Windows Installer Version Metadata & Signing
+
+`npm run build:installer` stamps real Win32 version info (`FileVersion`, `ProductVersion`,
+`ProductName`, `CompanyName`) from `cdp.js` `PLUGIN_VERSION`, so Explorer → Properties → Details
+and SmartScreen reputation lookups see a proper product instead of `0.0.0.0`.
+
+Authenticode signing runs only when a certificate is supplied, so unsigned local builds still work:
+
+```bash
+# CLI flags (override the env vars below)
+node scripts/build-installer.mjs --out dist/obsidian-prism-installer.exe \
+  --sign-cert ./certs/prism.pfx --sign-password "$PRISM_SIGN_PASSWORD"
+
+# or environment variables
+PRISM_SIGN_CERT=./certs/prism.pfx \
+PRISM_SIGN_PASSWORD=... \
+PRISM_SIGN_TIMESTAMP_URL=http://timestamp.digicert.com \
+PRISM_SIGNTOOL="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe" \
+npm run build:installer
+```
+
+> [!IMPORTANT]
+> Signing alone does not remove SmartScreen warnings. Reputation accrues per certificate and
+> publisher name over time; only an EV code-signing certificate clears warnings immediately.
+> Publishing a SHA256 checksum alongside the release also reduces download friction.
+
 #### Core Repository Layout
 ```text
 obsidian-prism/
-├── plugin.json                         # Antigravity native plugin manifest (obsidian-prism@1.0.8-beta.3)
+├── plugin.json                         # Antigravity native plugin manifest (obsidian-prism@1.0.8-beta.4)
 ├── LICENSE / NOTICE / CITATION.cff     # GPL-3.0 license, attribution terms & citation metadata
 ├── THIRD_PARTY_NOTICES.md              # Preserved copyright & license notices for MIT upstreams
 ├── assets/                             # Vector plugin icon & documentation screenshots
@@ -205,7 +231,7 @@ obsidian-prism/
 ├── host-workbench-enhancer.js          # Controller 6: Extension panel theme bridge, code fold & rail outline
 ├── ui-runtime.js                       # Frontend microkernel: fast config sync & lifecycle orchestration
 ├── sidecars/daemon/                    # Persistent local daemon (settings/metrics/usage/repo/archiver/thought/omni/inline-diff/wallpaper-beta)
-├── vendor/                             # Telemetry (v0.9.1), effort-slider, thought-translator, inline-diff, wallpaper-beta, omni-viewer, sidebar-studio & host-i18n
+├── vendor/                             # Telemetry (v0.9.1), effort-slider, thought-translator, inline-diff, wallpaper-beta, omni-viewer & sidebar-studio
 └── installer/ & tools/                 # Windows (C#) / macOS (Swift) native-plugin installers & scripts
 ```
 </details>
@@ -233,7 +259,7 @@ Any fork, modification, port, or redistribution must comply with all three requi
   author       = {RMvdesi},
   title        = {{Obsidian Prism: Modular Optical UI, Workbench Enhancements, Omni File Viewer, Quota Telemetry & Thought Translator for Antigravity}},
   year         = {2026},
-  version      = {1.0.8-beta.3},
+  version      = {1.0.8-beta.4},
   license      = {GPL-3.0-only},
   url          = {https://github.com/RMvdesi/obsidian-prism}
 }
@@ -248,7 +274,7 @@ Absorbed and adapted third-party components were originally released under the *
 1. **[0DNANCY/agy-claude-style](https://github.com/0DNANCY/agy-claude-style)** — `MIT License`, `Copyright (c) 2026 0DNANCY` (Base palette tokens, spring physics foundation, WebGL2 horizon/glyph wavefield, pixel mascot foundation, and initial bundler).
 2. **[ATtacK030130/antigrative-dashboard](https://github.com/ATtacK030130/antigrative-dashboard)** (`v0.9.1`) — `MIT License`, `Copyright (c) 2026 AG Pulse contributors` (Absorbed and adapted in `vendor/pulse-dashboard/` for live token throughput, cache hit rate, 5h/weekly quota forecasting, main/subagent token attribution, and CDP process-lineage discovery).
 3. **[LLYSH-HANNARI/antigravity-Codex-Claude-effort-slider](https://github.com/LLYSH-HANNARI/antigravity-Codex-Claude-effort-slider)** — `MIT License`, `Copyright (c) 2026 LLYSH-HANNARI` (Absorbed and adapted in `vendor/effort-slider/` for model-menu reasoning effort slider and smart coexistence yielding).
-4. **[yiheng8023/antigravity-chinese](https://github.com/yiheng8023/antigravity-chinese)** (`v3.3.63`) — `MIT License`, `Copyright (c) 2026 Antigravity Chinese Localization Contributors` (Upstream `zh-CN` dictionary source & UI localization pattern reference; re-architected in `vendor/host-i18n/` as an on-demand runtime localization module without modifying host packages, featuring universal 4-layer auto-yield, ping-pong circuit breaker, and `WeakMap` lossless `destroy()`).
+4. **[yiheng8023/antigravity-chinese](https://github.com/yiheng8023/antigravity-chinese)** (`v3.3.63`) — `MIT License`, `Copyright (c) 2026 Antigravity Chinese Localization Contributors` (Upstream `zh-CN` dictionary source & UI localization pattern reference; the on-demand Chinese host-UI overlay built from it was removed in `v1.0.8-beta.4` under the two-language `th`/`en` architecture).
 5. **[Nwflower/dsh-claude-style](https://github.com/Nwflower/dsh-claude-style)** — Minimalist Studio layout, composer framing, and warm alabaster daylight palette reference.
 6. **[Microqian2th/dsh-codex-effort-slider](https://github.com/Microqian2th/dsh-codex-effort-slider)** — Detent track snapping, hysteresis thresholds, and damped motion curve reference.
 7. **[mobius/dsh-performance-slider](https://github.com/mobius/dsh-performance-slider)** — Performance tier slider interaction and live visual feedback reference.

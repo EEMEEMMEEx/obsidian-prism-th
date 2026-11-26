@@ -391,7 +391,7 @@ test('Issue #62 Multi-Pane Telemetry & Single-Vial Follow: independent bars/RO/c
 
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'vendor', 'pulse-dashboard', 'inline-fallback.js'), 'utf8'), sb);
   const tel = sb.__agPrismTelemetry;
-  tel.sync({ telemetryModule: 'on', language: 'zh-CN' });
+  tel.sync({ telemetryModule: 'on', language: 'th' });
   await new Promise((r) => setTimeout(r, 30));
 
   const bars = tel.getBars();
@@ -423,7 +423,7 @@ test('Issue #62 Multi-Pane Telemetry & Single-Vial Follow: independent bars/RO/c
   await tel.refresh();
   const subBadgeTxt = bars[0].shadowRoot.getElementById('subagent-badge').textContent;
   assert.equal(subBadgeTxt.startsWith('·'), false, `subagent-badge must not have leading dot (got ${JSON.stringify(subBadgeTxt)})`);
-  assert.equal(subBadgeTxt, '2代理');
+  assert.equal(subBadgeTxt, '2 ย่อย');
 
   // Independent ResizeObserver folding with 0 getBoundingClientRect calls
   p1.footer._rectReads = 0;
@@ -481,7 +481,7 @@ test('Issue #62 Multi-Pane Telemetry & Single-Vial Follow: independent bars/RO/c
 
   // Remove Pane 2 -> bar 2 & its RO cleanly torn down
   p2.pane.remove();
-  tel.sync({ telemetryModule: 'on', language: 'zh-CN' });
+  tel.sync({ telemetryModule: 'on', language: 'th' });
   assert.equal(tel.getBars().length, 1);
   assert.ok(roList.some((r) => r.disconnected), 'Removed pane ResizeObserver must be disconnected');
   tel.destroy();
@@ -612,7 +612,7 @@ test('Issue #62 ui-runtime Multi-Pane Wiring: all visible prism-box, single masc
   vm.runInNewContext(streamChoreoSrc, sb);
   vm.runInNewContext(modelGlyphSrc, sb);
 
-  const bootSrc = `(${uiMainFactory.toString()})(${JSON.stringify({ ...cdp.DEFAULT_CONFIG, motionLevel: 'ultra', smoothCaret: false })}, { version: '1.0.8-beta.3', codeHash: 'split-test' });`;
+  const bootSrc = `(${uiMainFactory.toString()})(${JSON.stringify({ ...cdp.DEFAULT_CONFIG, motionLevel: 'ultra', smoothCaret: false })}, { version: '1.0.8-beta.4', codeHash: 'split-test' });`;
   vm.runInNewContext(bootSrc, sb);
   const api = sb.__agPrism;
 

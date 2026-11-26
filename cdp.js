@@ -8,7 +8,7 @@ const { execFile, execFileSync, spawn } = require('child_process');
 
 const STYLE_ID = 'ag-prism-css';
 const LEGACY_STYLE_ID = 'ag-claude-style-css';
-const PLUGIN_VERSION = '1.0.8-beta.3';
+const PLUGIN_VERSION = '1.0.8-beta.4';
 const SETTING_BINDING = '__agPrismSetting';
 const LEGACY_SETTING_BINDING = '__agClaudeStyleSetting';
 const OMNI_BINDING = '__agPrismOmniCall';
@@ -72,7 +72,6 @@ const DEFAULT_CONFIG = {
   omniModule: 'on',
   linkTarget: 'builtin',
   sidebarStudio: 'off',
-  hostLocalization: 'auto',
   autoUpdate: 'off',
   updateChannel: 'stable',
   autoArchiveOnExit: false,
@@ -80,8 +79,8 @@ const DEFAULT_CONFIG = {
 };
 
 const VALIDATORS = {
-  language: ['auto', 'zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'],
-  lang: ['auto', 'zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'],
+  language: ['auto', 'th', 'en'],
+  lang: ['auto', 'th', 'en'],
   palette: ['host', 'obsidian', 'warm', 'claude'],
   lightPreset: ['crystal', 'alabaster'],
   darkAuraStyle: ['prism', 'neon'],
@@ -121,7 +120,6 @@ const VALIDATORS = {
   omniModule: ['on', 'off'],
   linkTarget: ['builtin', 'external'],
   sidebarStudio: ['on', 'off'],
-  hostLocalization: ['auto', 'on', 'off'],
   autoUpdate: ['on', 'off'],
   updateChannel: ['stable', 'beta'],
   autoArchiveOnExit: 'boolean',
@@ -194,9 +192,15 @@ function reconcileConfigAliases(raw) {
   }
   if (typeof out.language === 'string') {
     const lowLang = out.language.trim().toLowerCase().replace(/_/g, '-');
-    if (lowLang === 'yue' || lowLang.startsWith('yue-') || lowLang === 'zh-yue' || lowLang.includes('cantonese')) {
-      out.language = 'zh-CN';
-      out.lang = 'zh-CN';
+    if (lowLang === 'auto') {
+      out.language = 'auto';
+      out.lang = 'auto';
+    } else if (lowLang === 'en' || lowLang.startsWith('en-') || lowLang === 'english') {
+      out.language = 'en';
+      out.lang = 'en';
+    } else {
+      out.language = 'th';
+      out.lang = 'th';
     }
   }
 
@@ -8013,25 +8017,18 @@ function loadLocalesModuleFresh() {
   }
 }
 
-function normalizeLangIdNode(rawLang, fallback = 'en') {
+function normalizeLangIdNode(rawLang, fallback = 'th') {
   const raw = typeof rawLang === 'string' ? rawLang.trim().toLowerCase().replace(/_/g, '-') : '';
   if (!raw || raw === 'auto') return fallback;
   if (raw === 'en' || raw.startsWith('en-') || raw === 'english') return 'en';
-  if (raw === 'ja' || raw.startsWith('ja-') || raw === 'jp' || raw === 'japanese') return 'ja';
-  if (raw === 'ko' || raw.startsWith('ko-') || raw === 'kr' || raw === 'korean') return 'ko';
-  if (raw === 'es' || raw.startsWith('es-') || raw === 'spanish') return 'es';
-  if (raw === 'fr' || raw.startsWith('fr-') || raw === 'french') return 'fr';
-  if (raw === 'de' || raw.startsWith('de-') || raw === 'german') return 'de';
-  if (raw === 'yue' || raw.startsWith('yue-') || raw === 'zh-yue' || raw.includes('cantonese')) return 'zh-CN';
-  if (raw === 'zh-tw' || raw === 'zh-hk' || raw.startsWith('zh-hk-') || raw === 'zh-mo' || raw === 'zh-hant' || raw.startsWith('zh-hant-') || raw === 'tw' || raw === 'hant') return 'zh-TW';
-  if (raw === 'zh' || raw === 'zh-cn' || raw === 'zh-hans' || raw.startsWith('zh-')) return 'zh-CN';
+  if (raw === 'th' || raw.startsWith('th-') || raw === 'thai') return 'th';
   return fallback;
 }
 
 function resolveSystemLangNode(hostLocaleHint = null) {
   const sysLocale = hostLocaleHint || detectSystemUiLocale();
   const stripped = String(sysLocale || '').trim().split(/[.@]/)[0];
-  return normalizeLangIdNode(stripped, 'en');
+  return normalizeLangIdNode(stripped, 'th');
 }
 
 function extractSingleLangRuntimeSlice(mod, langId) {
@@ -8051,18 +8048,19 @@ function extractSingleLangRuntimeSlice(mod, langId) {
   return out;
 }
 
-// 为 Channel 1 bootCfg 生成当前活跃语言（及 auto 模式下的 en 兜底）迷你运行时词典（列式编码消除双语重复键名），避免打包完整 8 语设置词典
+// Build Channel 1 bootCfg slim runtime UI slice (th + en)
 function buildRuntimeUiSlicePayload(config) {
   const mod = loadLocalesModuleFresh();
   if (!mod) return null;
   const rawLang = (config && (config.language || config.lang)) || 'auto';
   const isAuto = String(rawLang).trim().toLowerCase() === 'auto';
-  const primary = isAuto ? resolveSystemLangNode() : normalizeLangIdNode(rawLang, 'en');
+  const primary = isAuto ? resolveSystemLangNode() : normalizeLangIdNode(rawLang, 'th');
   const pObj = extractSingleLangRuntimeSlice(mod, primary);
-  const enObj = isAuto && primary !== 'en' ? extractSingleLangRuntimeSlice(mod, 'en') : null;
-  const keys = CH1_RUNTIME_UI_KEYS.filter((k) => typeof pObj[k] === 'string' || typeof enObj?.[k] === 'string');
+  const secondary = primary === 'en' ? 'th' : 'en';
+  const secObj = isAuto ? extractSingleLangRuntimeSlice(mod, secondary) : null;
+  const keys = CH1_RUNTIME_UI_KEYS.filter((k) => typeof pObj[k] === 'string' || typeof secObj?.[k] === 'string');
   const vals = { [primary]: keys.map((k) => pObj[k] ?? '') };
-  if (enObj) vals.en = keys.map((k) => enObj[k] ?? '');
+  if (secObj) vals[secondary] = keys.map((k) => secObj[k] ?? '');
   return { active: primary, keys, vals };
 }
 
@@ -8096,13 +8094,7 @@ function getConfigRefreshTemplate() {
         try { window.__agPrismSidebar?.sync?.(effectiveCfg, window.__agPrismSidebarMeta || null); } catch {}
       }
       try {
-        const hiMode = effectiveCfg?.hostLocalization;
-        const hiLang = effectiveCfg?.language;
-        const navL = String((typeof navigator !== 'undefined' && ((navigator.languages && navigator.languages[0]) || navigator.language)) || '').trim();
-        if (hiMode === 'off') window.__agPrismHostI18n?.setMode?.('off');
-        else if (hiMode === 'on') window.__agPrismHostI18n?.setMode?.('on');
-        else if ((hiLang && hiLang !== 'zh-CN' && hiLang !== 'auto') || ((!hiLang || hiLang === 'auto') && navL && !/^zh(?:$|-(?:cn|hans|sg)(?:-|$))/i.test(navL))) window.__agPrismHostI18n?.destroy?.();
-        else window.__agPrismHostI18n?.setMode?.('auto');
+        window.__agPrismHostI18n?.destroy?.();
       } catch {}
       if (effectiveCfg?.mascot === 'off' || effectiveCfg?.mascot === false) {
         try {
@@ -9926,20 +9918,7 @@ function buildSidebarStudioExpression(serverMeta = null, customClientSource = nu
 
 let _hostI18nCache = { sig: '', sourceHash: '', minRuntime: '', dictRaw: '', codeHash: '', cachedPaths: new Set() };
 
-function shouldEnableHostI18n(config, hostLocaleHint = null) {
-  const cfg = config && typeof config === 'object' ? reconcileConfigAliases(config) : readConfig();
-  const mode = cfg.hostLocalization || 'auto';
-  // off 模式挂载第四通道进入反向英文还原（温和压制外部运行时 DOM 汉化，零 app.asar 修改）
-  if (mode === 'off') return true;
-  if (mode === 'on') return true;
-  const lang = cfg.language || cfg.lang || 'auto';
-  if (lang === 'zh-CN') return true;
-  if (lang === 'auto') {
-    const sysLocale = hostLocaleHint || detectSystemUiLocale();
-    const stripped = String(sysLocale || '').trim().split(/[.@]/)[0];
-    const norm = stripped.toLowerCase().replace(/_/g, '-');
-    return norm === 'zh' || /^zh-(?:cn|hans|sg)(?:-|$)/.test(norm);
-  }
+function shouldEnableHostI18n() {
   return false;
 }
 
@@ -10285,12 +10264,8 @@ function buildHostI18nExpression(config = null, hostLocaleHint = null, opts = nu
 
 let _swarmI18nCache = { sig: '', sourceHash: '', minRuntime: '', dictRaw: '', codeHash: '', cachedPaths: new Set() };
 
-function shouldEnableSwarmI18n(config, hostLocaleHint = null) {
-  const cfg = config && typeof config === 'object' ? reconcileConfigAliases(config) : readConfig();
-  const mode = cfg.hostLocalization || 'auto';
-  // 原生 Swarm 面板本身为英文：off 模式或非简体中文 auto 模式严格 0 附着 / 立即卸载还原英文
-  if (mode === 'off') return false;
-  return shouldEnableHostI18n(cfg, hostLocaleHint);
+function shouldEnableSwarmI18n() {
+  return false;
 }
 
 function readCompiledSwarmI18nAssets(opts = null) {

@@ -58,24 +58,12 @@
     'ttlFmt',
   ];
 
-  // 8 语词典（zh-CN / zh-TW / en / ja / ko / es / fr / de，移除 yue，en/es/fr/de 严格 0 CJK）
+  // Bilingual dictionary (th / en)
   const I18N_ROWS = {
-    'zh-CN':
-      '建议下一条提示词 (Beta)|实验性功能，默认关闭。开启后每轮回复完成时（含后台完成的会话），结合上下文在空输入框中预测下一条消息，按 Tab 使用它。|开启|关闭|OpenAI 兼容渠道预设|OpenAI 兼容主力渠道|自定义渠道|+ 新增渠道|删除当前|渠道名称|例如：Gemini AI Studio / 主力网关|接口地址 (Base URL)|接口密钥 (API Key)|模型 ID (Model)|拉取模型列表|保存渠道配置|发送测试消息|清空缓存|清除密钥|待保存清除|本地渠道可留空免密|本地免密|已保存 {0}（留空保持不变）|▾ 从已拉取的 {0} 个上游模型中快速选择…|缓存 {0} 条|正在拉取上游模型列表…|✓ 成功拉取 {0} 个模型 · {1}ms|拉取模型失败|正在保存配置…|✓ 已保存（{0} · {1}）|保存失败|正在保存并发送测试消息…|✓ 连通正常 · {0}ms · {1} 回复: 「{2}」|测试连接失败|✓ 已清空提示词建议缓存|仅同步渠道提供商（名称、地址、API 密钥）；同一渠道下选择的「模型 ID」与「思考转译」完全独立保存，互不覆盖。|有效时长限制|{0} 分钟',
-    'zh-TW':
-      '建議下一條提示詞 (Beta)|實驗性功能，預設關閉。開啟後每輪回覆完成時（含背景完成的對話），結合上下文在空輸入框中預測下一條訊息，按 Tab 使用它。|開啟|關閉|OpenAI 相容管道預設|OpenAI 相容主力管道|自訂管道|+ 新增管道|刪除目前|管道名稱|例如：Gemini AI Studio / 主力閘道|介面位址 (Base URL)|介面金鑰 (API Key)|模型 ID (Model)|擷取模型清單|儲存管道設定|傳送測試訊息|清除快取|清除金鑰|待儲存清除|本機管道可留空免密|本機免密|已儲存 {0}（留空維持不變）|▾ 從已擷取的 {0} 個上游模型中快速選擇…|快取 {0} 筆|正在擷取上游模型清單…|✓ 成功擷取 {0} 個模型 · {1}ms|擷取模型失敗|正在儲存設定…|✓ 已儲存（{0} · {1}）|儲存失敗|正在儲存並傳送測試訊息…|✓ 連線正常 · {0}ms · {1} 回覆: 「{2}」|測試連線失敗|✓ 已清除提示詞建議快取|僅同步管道提供者（名稱、位址、API 金鑰）；同一管道下選擇的「模型 ID」與「思考轉譯」完全獨立儲存，互不覆蓋。|有效時長限制|{0} 分鐘',
+    th:
+      'แนะนำพรอมต์ถัดไป (Beta)|ฟีเจอร์ทดลอง ปิดเป็นค่าเริ่มต้น คาดเดาข้อความถัดไปในช่องพิมพ์ว่างหลังคำตอบเสร็จสิ้น (รวมงานเบื้องหลัง) กด Tab เพื่อใช้|เปิด|ปิด|โปรไฟล์ OpenAI Endpoint|โปรไฟล์ OpenAI หลัก|โปรไฟล์กำหนดเอง|+ เพิ่มใหม่|ลบ|ชื่อโปรไฟล์|เช่น Gemini AI Studio / เกตเวย์หลัก|Base URL|API Key|Model ID|ดึงรายชื่อโมเดล|บันทึกการตั้งค่า|ส่งข้อความทดสอบ|ล้างแคช|ล้างคีย์|รอล้างเมื่อบันทึก|เว้นว่างได้สำหรับเซิร์ฟเวอร์ในเครื่อง|ไม่ต้องใช้คีย์|บันทึกแล้ว {0} (เว้นว่างเพื่อคงเดิม)|▾ เลือกด่วนจาก {0} โมเดล…|แคช: {0}|กำลังดึงรายการ /models…|✓ โหลด {0} โมเดลแล้ว · {1}ms|ดึงรายชื่อโมเดลไม่สำเร็จ|กำลังบันทึกการตั้งค่า…|✓ บันทึกแล้ว ({0} · {1})|บันทึกไม่สำเร็จ|กำลังทดสอบการเชื่อมต่อ…|✓ เชื่อมต่อสำเร็จ · {0}ms · {1} ตอบกลับ: "{2}"|ทดสอบการเชื่อมต่อไม่สำเร็จ|✓ ล้างแคชคำแนะนำพรอมต์แล้ว|ซิงค์เฉพาะข้อมูลผู้ให้บริการ (ชื่อ, Base URL, API Key) โดย Model ID ของแต่ละโปรไฟล์จะบันทึกแยกจากตัวแปลความคิดอย่างอิสระ|อายุคำแนะนำ|{0} นาที',
     en:
       'Suggest next prompt (Beta)|Experimental, off by default. Predicts your next message in an empty composer after each completed reply (including background tasks). Press Tab to use it.|On|Off|OpenAI Endpoint Profiles|Primary OpenAI Profile|Profile|+ New|Delete|Profile Name|e.g. Gemini AI Studio / Primary Gateway|Base URL|API Key|Model ID|Fetch Models|Save Config|Send Test Message|Clear Cache|Clear|Pending clear|Optional for local endpoint|Keyless OK|Saved {0} (leave blank to keep)|▾ Quick-select from {0} models…|Cache: {0}|Fetching upstream /models…|✓ Loaded {0} models · {1}ms|Failed to fetch models|Saving configuration…|✓ Saved ({0} · {1})|Save failed|Testing endpoint latency…|✓ Connected · {0}ms · {1} Reply: "{2}"|Connection test failed|✓ Cleared prompt suggestion cache|Syncs provider credentials (Name, Base URL, API Key) only; the selected Model ID per profile is saved independently from Thought Translator.|Suggestion Expiry|{0} min',
-    ja:
-      '次のプロンプトを提案 (Beta)|実験的機能（初期状態はオフ）。有効化すると応答完了後（バックグラウンド完了タスクを含む）に空の入力欄へ次のメッセージを予測します。Tab で使用します。|オン|オフ|OpenAI 互換接続先プリセット|OpenAI 互換メインプロファイル|カスタム接続先|+ 追加|削除|接続先名|例: Gemini AI Studio / メインGW|Base URL|API Key|Model ID|モデル一覧取得|設定を保存|接続テスト送信|キャッシュ消去|キー消去|保存時に消去|ローカル接続先は空欄可|キー不要|保存済み {0}（空欄で維持）|▾ 取得した {0} 個のモデルから選択…|キャッシュ {0} 件|上流のモデル一覧を取得中…|✓ {0} 個のモデルを取得 · {1}ms|モデル一覧の取得に失敗しました|設定を保存中…|✓ 保存完了（{0} · {1}）|保存失敗|保存して接続テストを送信中…|✓ 接続正常 · {0}ms · {1} 応答: 「{2}」|接続テストに失敗しました|✓ 提案キャッシュを消去しました|接続先情報（名前・URL・APIキー）のみ共有され、選択したモデルIDは「思考翻訳」とは完全に独立して保存されます。|有効期限|{0} 分',
-    ko:
-      '다음 프롬프트 제안 (Beta)|실험적 기능(기본 꺼짐). 활성화하면 각 응답 완료 후(백그라운드 완료 작업 포함) 문맥을 바탕으로 빈 입력창에 다음 메시지를 예측하며 Tab 키로 입력할 수 있습니다.|켜짐|꺼짐|OpenAI 호환 프로필 프리셋|OpenAI 호환 기본 프로필|사용자 지정 프로필|+ 추가|삭제|프로필 이름|예: Gemini AI Studio / 메인 게이트웨이|Base URL|API Key|Model ID|모델 목록 가져오기|설정 저장|테스트 전송|캐시 비우기|키 지우기|저장 시 삭제|로컬 엔드포인트는 비워 둘 수 있음|키 불필요|{0} 저장됨 (비우면 유지)|▾ 가져온 {0}개 모델 중 빠른 선택…|캐시 {0}개|모델 목록을 불러오는 중…|✓ {0}개 모델 로드 · {1}ms|모델 목록 가져오기 실패|설정을 저장하는 중…|✓ 저장됨 ({0} · {1})|저장 실패|저장 후 연결 테스트 중…|✓ 연결 정상 · {0}ms · {1} 응답: "{2}"|연결 테스트 실패|✓ 프롬프트 제안 캐시를 비웠습니다|공급자 자격 증명(이름, Base URL, API 키)만 동기화되며, 프로필별 선택 모델 ID는 사고 번역과 완전히 독립적으로 저장됩니다.|제안 유효 시간|{0}분',
-    es:
-      'Sugerir siguiente prompt (Beta)|Función experimental, desactivada por defecto. Al activarla, predice tu siguiente mensaje en el editor vacío tras cada respuesta (incluidas tareas en segundo plano). Pulsa Tab para usarlo.|Activado|Desactivado|Perfiles OpenAI compatibles|Perfil OpenAI principal|Perfil personalizado|+ Nuevo|Eliminar|Nombre del perfil|ej. Gemini AI Studio / Pasarela principal|Base URL|API Key|Model ID|Obtener modelos|Guardar config.|Enviar prueba|Limpiar caché|Borrar clave|Pendiente borrar|Opcional para servidor local|Sin clave|Guardado {0} (vacío para mantener)|▾ Selección rápida de {0} modelos…|Caché: {0}|Obteniendo /models…|✓ {0} modelos cargados · {1}ms|Error al obtener modelos|Guardando configuración…|✓ Guardado ({0} · {1})|Error al guardar|Probando latencia del endpoint…|✓ Conectado · {0}ms · {1} Respuesta: "{2}"|Error de conexión|✓ Caché de sugerencias limpiada|Solo sincroniza credenciales del proveedor (Nombre, Base URL, API Key); el Model ID elegido por perfil se guarda de forma independiente al Traductor de pensamiento.|Vigencia de sugerencia|{0} min',
-    fr:
-      'Suggérer le prompt suivant (Beta)|Fonction expérimentale, désactivée par défaut. Prédit votre prochain message dans la zone de saisie vide après chaque réponse (tâches en arrière-plan incluses). Appuyez sur Tab pour l’utiliser.|Activé|Désactivé|Profils OpenAI compatibles|Profil OpenAI principal|Profil personnalisé|+ Nouveau|Supprimer|Nom du profil|ex. Gemini AI Studio / Passerelle principale|Base URL|API Key|Model ID|Charger les modèles|Enregistrer|Tester l’envoi|Vider le cache|Effacer clé|Suppression en attente|Facultatif en local|Sans clé|Enregistré {0} (laisser vide pour garder)|▾ Choisir parmi {0} modèles…|Cache : {0}|Récupération de /models…|✓ {0} modèles chargés · {1}ms|Échec de récupération des modèles|Enregistrement…|✓ Enregistré ({0} · {1})|Échec d’enregistrement|Test de connexion en cours…|✓ Connecté · {0}ms · {1} Réponse : « {2} »|Échec du test de connexion|✓ Cache de suggestions vidé|Synchronise uniquement les identifiants du fournisseur (Nom, Base URL, API Key) ; le Model ID par profil reste indépendant du Traducteur de réflexion.|Durée de validité|{0} min',
-    de:
-      'Nächsten Prompt vorschlagen (Beta)|Experimentell, standardmäßig aus. Sagt nach jeder abgeschlossenen Antwort (auch bei Hintergrundaufgaben) deine nächste Nachricht im leeren Eingabefeld voraus. Mit Tab übernehmen.|Ein|Aus|OpenAI-kompatible Profile|Primäres OpenAI-Profil|Benutzerdefiniertes Profil|+ Neu|Löschen|Profilname|z. B. Gemini AI Studio / Haupt-Gateway|Base URL|API Key|Model ID|Modelle abrufen|Speichern|Test senden|Cache leeren|Löschen|Löschen vorgemerkt|Für lokal optional|Ohne Schlüssel|{0} gespeichert (leer lassen zum Behalten)|▾ Schnellauswahl aus {0} Modellen…|Cache: {0}|Rufe /models ab…|✓ {0} Modelle geladen · {1}ms|Modellabruf fehlgeschlagen|Speichere Konfiguration…|✓ Gespeichert ({0} · {1})|Speichern fehlgeschlagen|Teste Endpunktlatenz…|✓ Verbunden · {0}ms · {1} Antwort: „{2}“|Verbindungstest fehlgeschlagen|✓ Prompt-Vorschlagscache geleert|Synchronisiert nur Anbieterdaten (Name, Base URL, API-Schlüssel); die gewählte Modell-ID pro Profil wird unabhängig vom Denk-Übersetzer gespeichert.|Gültigkeitsdauer|{0} Min.',
   };
 
   const fmt = (tpl, args) => String(tpl || '').replace(/\{(\d)\}/g, (_, i) => String(args[i] ?? ''));
@@ -89,44 +77,37 @@
     })
   );
 
-  // 对齐 wallpaper-settings-ui.js 8 语规范（yue -> zh-CN，zh-HK/MO -> zh-TW，未知返回空字符串交由调用方兜底 en）
-  function normalizeLang(raw) {
+  // Normalize language to 'th' or 'en' (default/fallback: 'th')
+  function normalizeLang(raw, fallback = 'th') {
     const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
-    if (!s || s === 'auto') return '';
-    if (s === 'yue' || s.startsWith('yue-') || s === 'zh-yue' || s.includes('cantonese')) return 'zh-CN';
-    if (/^zh-(tw|hk|mo|hant)/.test(s) || s === 'tw' || s === 'hant') return 'zh-TW';
-    if (/^zh(?:\b|-)/.test(s)) return 'zh-CN';
-    if (/^(ja|jp)(?:\b|-)/.test(s) || s === 'japanese') return 'ja';
-    if (/^(ko|kr)(?:\b|-)/.test(s) || s === 'korean') return 'ko';
-    if (/^es(?:\b|-)/.test(s) || s === 'spanish') return 'es';
-    if (/^fr(?:\b|-)/.test(s) || s === 'french') return 'fr';
-    if (/^de(?:\b|-)/.test(s) || s === 'german') return 'de';
-    if (/^en(?:\b|-)/.test(s) || s === 'english') return 'en';
-    return '';
+    if (!s || s === 'auto') return fallback;
+    if (s === 'en' || s.startsWith('en-') || s === 'english') return 'en';
+    if (s === 'th' || s.startsWith('th-') || s === 'thai') return 'th';
+    return fallback;
   }
 
   function resolveLang(doc, ctx) {
     if (ctx && ctx.lang) {
-      const l = normalizeLang(ctx.lang);
+      const l = normalizeLang(ctx.lang, '');
       if (l) return l;
     }
     if (ctx && typeof ctx.getLang === 'function') {
-      const l = normalizeLang(ctx.getLang());
+      const l = normalizeLang(ctx.getLang(), '');
       if (l) return l;
     }
     try {
       const de = doc && doc.documentElement;
       if (de && typeof de.getAttribute === 'function') {
-        const l1 = normalizeLang(de.getAttribute('data-ag-cs-lang'));
+        const l1 = normalizeLang(de.getAttribute('data-ag-cs-lang'), '');
         if (l1) return l1;
-        const l2 = normalizeLang(de.getAttribute('data-ag-prism-lang'));
+        const l2 = normalizeLang(de.getAttribute('data-ag-prism-lang'), '');
         if (l2) return l2;
       }
       const navObj = G && 'navigator' in G ? G.navigator : typeof navigator !== 'undefined' ? navigator : null;
-      const navLang = normalizeLang(navObj?.language || '');
+      const navLang = normalizeLang(navObj?.language || '', '');
       if (navLang) return navLang;
     } catch {}
-    return 'en';
+    return 'th';
   }
 
   function isLocalKeylessUrl(rawUrl) {
@@ -253,7 +234,7 @@
     const segBtnCls =
       (ctx && ctx.btnClass) || 'ag-cs-seg-btn data-[pressed]:bg-secondary data-[pressed]:text-foreground';
     let curLang = resolveLang(doc, ctx);
-    let pack = SUGGESTER_I18N[curLang] || SUGGESTER_I18N.en;
+    let pack = SUGGESTER_I18N[curLang] || SUGGESTER_I18N.th;
     let reloadPromise = null;
     let uiDestroyed = false;
 
@@ -964,10 +945,10 @@
     }
 
     function updateLang(nextLang) {
-      const resolved = normalizeLang(nextLang) || curLang || 'en';
+      const resolved = normalizeLang(nextLang, '') || curLang || 'th';
       if (resolved === curLang && card.getAttribute('data-ag-cs-lang') === resolved) return;
       curLang = resolved;
-      pack = SUGGESTER_I18N[curLang] || SUGGESTER_I18N.en;
+      pack = SUGGESTER_I18N[curLang] || SUGGESTER_I18N.th;
       guard(() => {
         card.setAttribute('data-ag-cs-lang', curLang);
         titleEl.textContent = pack.title;

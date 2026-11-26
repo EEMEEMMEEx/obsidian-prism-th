@@ -481,7 +481,7 @@ test('security-sidecar 2: workbench-page /sandbox-init failure renders .wb-empty
         path: '/tmp/untrusted.html',
         baseUrl: 'http://127.0.0.1:43210',
         token: 'tok-test',
-        lang: 'zh-CN',
+        lang: 'th',
       });
       const scriptSrc = extractInlineWorkbenchScript(html);
       const { win, stage } = createWorkbenchMockDom({
@@ -527,7 +527,7 @@ test('security-sidecar 2: workbench-page /sandbox-init failure renders .wb-empty
       assert.ok(frameWrap, 'Sandbox frame wrapper must exist');
       const emptyErr = frameWrap.querySelector('.wb-empty');
       assert.ok(emptyErr, 'showSandboxFail must render div.wb-empty');
-      assert.equal(emptyErr.textContent, '加载失败');
+      assert.equal(emptyErr.textContent, 'โหลดไฟล์ไม่สำเร็จ');
       assert.equal(frameWrap.querySelector('iframe'), null, 'Iframe must be replaced on sandbox failure');
     } finally {
       process.off('unhandledRejection', onUnhandled);
@@ -737,7 +737,7 @@ test('security-sidecar 3: sidebar-service disables pick-folder in sandboxMode, r
   ]) {
     const openRes = await realSvc.revealFolder({ path: badPath });
     assert.equal(openRes.ok, false);
-    assert.match(String(openRes.error || ''), /无效/);
+    assert.match(String(openRes.error || ''), /ไม่ถูกต้อง/);
   }
 
   // 4) On Windows, _persistState retries transient EBUSY up to 4 attempts (3 retries) with backoff

@@ -78,15 +78,15 @@ var LEGACY_SETTINGS_KEY = "dsh.codexEffortSlider.settings.v1";
 var SETTINGS_EVENT = "ag:codex-effort-slider:settings";
 var SETTINGS_VERSION = 1;
 var SETTINGS_SCHEMA = _F([
-_F({ key: "motion", label: "动画效果", labelEn: "Animation", defaultValue: "fast", options: _F([
-_F({ value: "fast", label: "快速动画", labelEn: "Fast", hint: "拨过 1/3 即切档 · ~70ms 快速吸附", hintEn: "Snaps after 1/3 travel (~70ms)" }),
-_F({ value: "quick", label: "简洁动画", labelEn: "Instant", hint: "无过渡 · 直接跳档", hintEn: "No transition, immediate jump" }),
-_F({ value: "full", label: "完整动画", labelEn: "Full", hint: "匀变速追赶 + 星尘渐亮", hintEn: "Smooth physics catch-up + starfield" })
+_F({ key: "motion", label: "แอนิเมชัน", labelEn: "Animation", defaultValue: "fast", options: _F([
+_F({ value: "fast", label: "เร็ว", labelEn: "Fast", hint: "เลื่อนเกิน 1/3 เปลี่ยนระดับทันที · เกาะติดไว ~70ms", hintEn: "Snaps after 1/3 travel (~70ms)" }),
+_F({ value: "quick", label: "ทันที", labelEn: "Instant", hint: "ไม่มีทรานซิชัน · เปลี่ยนระดับทันที", hintEn: "No transition, immediate jump" }),
+_F({ value: "full", label: "เต็มรูปแบบ", labelEn: "Full", hint: "เคลื่อนไหวนุ่มนวลแบบฟิสิกส์ + ประกายดาว", hintEn: "Smooth physics catch-up + starfield" })
 ]) }),
-_F({ key: "ticks", label: "已到达档位的刻度点", labelEn: "Reached Tick Marks", defaultValue: "highlight", options: _F([
-_F({ value: "highlight", label: "亮白显示", labelEn: "Bright", hint: "默认 · 已滑过档位高亮", hintEn: "Default: highlight reached ticks" }),
-_F({ value: "dim", label: "与未到达同色", labelEn: "Muted", hint: "所有刻度点保持柔和半透明", hintEn: "Keep all ticks softly muted" }),
-_F({ value: "hidden", label: "隐藏", labelEn: "Hidden", hint: "不显示任何刻度点", hintEn: "Hide all tick marks" })
+_F({ key: "ticks", label: "จุดสเกลที่ผ่านแล้ว", labelEn: "Reached Tick Marks", defaultValue: "highlight", options: _F([
+_F({ value: "highlight", label: "สว่าง", labelEn: "Bright", hint: "ค่าเริ่มต้น · เน้นสว่างจุดที่เลื่อนผ่าน", hintEn: "Default: highlight reached ticks" }),
+_F({ value: "dim", label: "นุ่มนวล", labelEn: "Muted", hint: "ให้ทุกจุดสเกลโปร่งแสงนุ่มนวลเท่ากัน", hintEn: "Keep all ticks softly muted" }),
+_F({ value: "hidden", label: "ซ่อน", labelEn: "Hidden", hint: "ไม่แสดงจุดสเกลทั้งหมด", hintEn: "Hide all tick marks" })
 ]) })
 ]);
 function schemaDefaults() {
@@ -508,9 +508,9 @@ if (s.textContent !== SLIDER_CSS) s.textContent = SLIDER_CSS;
 return s;
 }
 // ── 右键设置面板 ────────────────────────────────────────────────────────────
-var SET_TITLE_I18N = { "zh-CN": "推理等级滑条设置", "zh-TW": "推理等級滑桿設定", en: "Effort Slider", ja: "推論スライダー設定", ko: "추론 슬라이더 설정", es: "Ajustes de esfuerzo", fr: "Réglages d’effort", de: "Aufwandsregler-Einstellungen" };
-var SET_HEAD_I18N = { "zh-CN": "推理等级滑条", "zh-TW": "推理等級滑桿", en: "Effort Slider", ja: "推論スライダー", ko: "추론 슬라이더", es: "Nivel de esfuerzo", fr: "Niveau d’effort", de: "Aufwandsregler" };
-var FIXED_I18N = { "zh-CN": "固定", "zh-TW": "固定", en: "Fixed", ja: "固定", ko: "고정", es: "Fijo", fr: "Fixe", de: "Fest" };
+var SET_TITLE_I18N = { th: "ตั้งค่าสไลเดอร์ระดับการคิด", en: "Effort Slider" };
+var SET_HEAD_I18N = { th: "สไลเดอร์ระดับการคิด", en: "Effort Slider" };
+var FIXED_I18N = { th: "คงที่", en: "Fixed" };
 function _normSliderLang(raw, win) {
 var v = String(raw || "").trim();
 if (!v || v.toLowerCase() === "auto") {
@@ -519,34 +519,28 @@ var navObj = w && "navigator" in w ? w.navigator : (typeof navigator !== "undefi
 v = String(navObj?.language || "").trim();
 }
 var s = v.toLowerCase().replace(/_/g, "-");
-if (!s || s === "auto") return "en";
-if (s === "yue" || s.startsWith("yue-") || s === "zh-yue" || s.includes("cantonese")) return "zh-CN";
-if (/^zh-(tw|hant|hk|mo)/.test(s) || s === "tw" || s === "hant") return "zh-TW";
-if (/^zh/.test(s)) return "zh-CN";
-if (/^(ja|jp)/.test(s) || s === "japanese") return "ja";
-if (/^(ko|kr)/.test(s) || s === "korean") return "ko";
-if (/^es/.test(s) || s === "spanish") return "es";
-if (/^fr/.test(s) || s === "french") return "fr";
-if (/^de/.test(s) || s === "german") return "de";
-return "en";
+if (!s || s === "auto") return "th";
+if (/^th\b/.test(s) || s === "thai") return "th";
+if (/^en\b/.test(s) || s === "english") return "en";
+return "th";
 }
-function _isZhLang(lk) { var n = _normSliderLang(lk); return n === "zh-CN" || n === "zh-TW"; }
+function _isThLang(lk) { return _normSliderLang(lk) === "th"; }
 function openSettingsPanel(options) {
 var o = options || {}, d = o.document || (typeof document !== "undefined" ? document : null);
 var w = o.window || d?.defaultView || (typeof window !== "undefined" ? window : globalRoot);
 if (!d?.body) return () => {};
 installStyles(d);
 var lk = _normSliderLang(getPrismRootAttr(d, w, "data-ag-cs-lang"), w);
-var zh = lk === "zh-CN" || lk === "zh-TW";
+var isTh = lk === "th";
 d.querySelector(".ces-set")?.remove?.();
 var mk = (t, c, tx) => { var e = d.createElement(t); if (c) e.className = c; if (tx) e.textContent = tx; return e; };
 var p = markNoTranslate(mk("div", "ces-set"));
 p.setAttribute("role", "dialog");
-p.setAttribute("aria-label", SET_TITLE_I18N[lk] || SET_TITLE_I18N.en);
+p.setAttribute("aria-label", SET_TITLE_I18N[lk] || SET_TITLE_I18N.th);
 p.style.left = Math.max(8, Math.min((w?.innerWidth || 800) - 276, typeof o.x === "number" ? o.x : 120)) + "px";
 p.style.top = Math.max(8, Math.min((w?.innerHeight || 600) - 230, typeof o.y === "number" ? o.y : 120)) + "px";
 var hd = mk("div", "ces-set-head");
-hd.appendChild(mk("span", "", SET_HEAD_I18N[lk] || SET_HEAD_I18N.en));
+hd.appendChild(mk("span", "", SET_HEAD_I18N[lk] || SET_HEAD_I18N.th));
 hd.appendChild(mk("span", "ces-set-ver", "v1.2.1"));
 p.appendChild(hd);
 var obs = [];
@@ -561,12 +555,12 @@ it.b.setAttribute("aria-pressed", String(on));
 };
 for (var sc of SETTINGS_SCHEMA) {
 var g = mk("div", "ces-set-group"), r = mk("div", "ces-set-opts");
-g.appendChild(mk("div", "ces-set-label", zh ? sc.label : (sc.labelEn || sc.label)));
+g.appendChild(mk("div", "ces-set-label", isTh ? sc.label : (sc.labelEn || sc.label)));
 for (var op of sc.options) {
 let k = sc.key, v = op.value;
-var b = mk("button", "ces-set-opt", zh ? op.label : (op.labelEn || op.label));
+var b = mk("button", "ces-set-opt", isTh ? op.label : (op.labelEn || op.label));
 b.type = "button";
-var hTxt = zh ? op.hint : (op.hintEn || op.hint);
+var hTxt = isTh ? op.hint : (op.hintEn || op.hint);
 if (hTxt) b.title = hTxt;
 b.addEventListener("click", (ev) => { ev.stopPropagation(); writeSettings({ [k]: v }, w); ref(); });
 obs.push({ k, v, b });
@@ -581,9 +575,9 @@ b.type = "button";
 b.addEventListener("click", (ev) => { ev.stopPropagation(); fn(b); });
 acts.appendChild(b);
 };
-mb(zh ? "复制诊断" : "Copy Debug", (b) => { try { w?.navigator?.clipboard?.writeText?.(JSON.stringify(dumpTrace(w), null, 2)); } catch {} b.textContent = zh ? "已复制" : "Copied"; });
-mb(zh ? "恢复默认" : "Reset", () => { resetSettings(w); ref(); });
-mb(zh ? "关闭" : "Close", () => cls());
+mb(isTh ? "คัดลอกข้อมูลดีบัก" : "Copy Debug", (b) => { try { w?.navigator?.clipboard?.writeText?.(JSON.stringify(dumpTrace(w), null, 2)); } catch {} b.textContent = isTh ? "คัดลอกแล้ว" : "Copied"; });
+mb(isTh ? "รีเซ็ตค่าเริ่มต้น" : "Reset", () => { resetSettings(w); ref(); });
+mb(isTh ? "ปิด" : "Close", () => cls());
 p.appendChild(acts);
 ref();
 var offS = onSettingsChange(ref, w);
@@ -614,7 +608,7 @@ evs.forEach((e) => d.addEventListener(e[0], e[1], true));
 return { stop: () => { clr(); ac?.(); ac = null; evs.forEach((e) => d.removeEventListener(e[0], e[1], true)); } };
 }
 // ── DOM 与 Antigravity React Fiber 解析辅助函数 ─────────────────────────────
-var INFERENCE_LABELS = ["推理等级", "Reasoning effort", "Reasoning Effort", "Thinking effort", "推理强度"];
+var INFERENCE_LABELS = ["ระดับการคิดวิเคราะห์", "Reasoning effort", "Reasoning Effort", "Thinking effort", "推理等级", "推理强度"];
 function parseModelLabel(label) {
 if (!label || typeof label !== "string") return null;
 var match = AG_MODEL_LABEL_RE.exec(label.trim());
@@ -949,7 +943,7 @@ modelOption: byEffort.get(ck) || modelObj
 };
 }
 var sP = modelObj && parseModelLabel(modelObj.label), sE = sP ? sP.effort : "fixed";
-var sL = sP ? sP.effortLabel : (FIXED_I18N[_normSliderLang(getPrismRootAttr(null, null, "data-ag-cs-lang"))] || FIXED_I18N.en);
+var sL = sP ? sP.effortLabel : (FIXED_I18N[_normSliderLang(getPrismRootAttr(null, null, "data-ag-cs-lang"))] || FIXED_I18N.th);
 var bn = baseName || modelObj?.label || "", sC = isClaudeModel(bn);
 return {
 baseName: bn, isOrchestrator: isOrch, orchestratorTunable: false,
@@ -1008,14 +1002,14 @@ if (typeof item?.label === "string" && item.label) return item.label;
 if (typeof seat?.formatEffortLabel === "function") { try { var f = seat.formatEffortLabel(effortKey); if (f) return String(f); } catch {} }
 return AG_EFFORT_LABELS[String(effortKey || "").toLowerCase()] || String(effortKey || "");
 }
-var EFFORT_TITLE_I18N = { "zh-CN": "推理等级", "zh-TW": "推理等級", en: "Reasoning Effort", ja: "推論レベル", ko: "추론 수준", es: "Nivel de razonamiento", fr: "Niveau de raisonnement", de: "Denkaufwand" };
+var EFFORT_TITLE_I18N = { th: "ระดับการคิดวิเคราะห์", en: "Reasoning Effort" };
 function resolveEffortTitle(doc, win) {
 var lang = _normSliderLang(getPrismRootAttr(doc, win, "data-ag-cs-lang"), win);
 try {
 var ui = (win?.__agCsLocales || globalRoot?.__agCsLocales)?.getUiStrings?.(lang);
 if (ui?.effortTitle) return String(ui.effortTitle);
 } catch {}
-return EFFORT_TITLE_I18N[lang] || EFFORT_TITLE_I18N.en;
+return EFFORT_TITLE_I18N[lang] || EFFORT_TITLE_I18N.th;
 }
 function _clrSibs(r) {
 for (var g of r?.querySelectorAll?.('[data-testid="model-selector-effort-group"]') || []) if (g?.nextElementSibling) delete g.nextElementSibling.__cesLastText;

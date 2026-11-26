@@ -162,8 +162,7 @@
     homeRipple: S_T,
     convRipple: mkSp(['off', 'subtle', 'medium', 'full'], 'off', { on: 'medium', true: 'medium', false: 'off' }),
     logoInk: mkSp(['accent', 'foreground']),
-    language: mkSp(['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'], 'zh-CN', { yue: 'zh-CN', 'zh-HK': 'zh-TW', 'zh-MO': 'zh-TW' }),
-    hostLocalization: S_AUTO,
+    language: mkSp(['th', 'en'], 'th'),
     composerRestyle: S_T,
     placeholderStyle: mkSp(['studio', 'host']),
     smoothCaret: S_T,
@@ -1553,24 +1552,10 @@
           : '';
       const normFn = G.__agCsI18nCore?.normalizeLanguage || G.__agCsI18n?.normalizeLanguage;
       if (typeof normFn === 'function' && nav) {
-        val = normFn(nav, 'en');
+        val = normFn(nav, 'th');
       } else {
         const low = String(nav || '').toLowerCase().replace(/_/g, '-');
-        val = /^ja\b/.test(low)
-          ? 'ja'
-          : /^ko\b/.test(low)
-            ? 'ko'
-            : /^es\b/.test(low)
-              ? 'es'
-              : /^fr\b/.test(low)
-                ? 'fr'
-                : /^de\b/.test(low)
-                  ? 'de'
-                  : /^zh-(?:tw|hk|mo|hant)\b/.test(low)
-                    ? 'zh-TW'
-                    : /^zh\b/.test(low)
-                      ? 'zh-CN'
-                      : 'en';
+        val = low === 'en' || low.startsWith('en-') || low === 'english' ? 'en' : 'th';
       }
     }
     if ((key === 'periodicModelPicker' || key === 'omniModule' || key === 'sidebarStudio' || key === 'autoUpdate' || key === 'sidebarNavFold') && typeof val === 'boolean') val = val ? 'on' : 'off';
@@ -1579,7 +1564,7 @@
     return spec.allowed.includes(val) ? { valid: true, value: val } : { valid: false };
   };
 
-  const buildSanitizedConfigExport = (currentSettings = {}, rawThoughtCfg = null, version = '1.0.8-beta.3') => {
+  const buildSanitizedConfigExport = (currentSettings = {}, rawThoughtCfg = null, version = '1.0.8-beta.4') => {
     const settings = {};
     for (const [k, spec] of O.entries(PRISM_SETTINGS_SCHEMA)) {
       if (k === 'language' && String(currentSettings[k] ?? '').trim().toLowerCase() === 'auto') {
@@ -1589,7 +1574,7 @@
       const c = sanitizeKeyVal(k, currentSettings[k]);
       settings[k] = c.valid ? c.value : spec.default;
     }
-    const out = { schema: 'obsidian-prism-config-v1', version: String(version || '1.0.8-beta.3'), exportedAt: new Date().toISOString(), settings };
+    const out = { schema: 'obsidian-prism-config-v1', version: String(version || '1.0.8-beta.4'), exportedAt: new Date().toISOString(), settings };
     const tSrc = isObj(rawThoughtCfg) && isObj(rawThoughtCfg.config) ? rawThoughtCfg.config : rawThoughtCfg;
     if (isObj(tSrc) && !isArr(tSrc) && !isFn(tSrc.then) && tSrc.ok !== false) {
       out.thought = {
@@ -1694,35 +1679,21 @@
     'See LICENSE, NOTICE, CITATION.cff, and THIRD_PARTY_NOTICES.md in the repository.',
   ].join('\n');
 
-  // Channel 9 内置 8 语种存储明细与归档工作台文案（0 B 进 Ch1，完整 8 语、无废弃 yue、未知语种回退 en）
+  // Channel 9 built-in 2-language Storage Details & Archive Workbench UI (th, en)
   const STORAGE_WB_UI = O.freeze({
-    'zh-CN': O.freeze({
-      summary: '存储明细与无损归档工作台',
-      oldMainBtn: '含 >14 天旧主对话',
+    th: O.freeze({
+      summary: 'รายละเอียดพื้นที่เก็บข้อมูลและคลังจัดเก็บแบบไม่สูญหาย',
+      oldMainBtn: 'รวมแชตหลัก >14 วัน',
       oldMainConfirmDesc:
-        '确认后将生成独立的离线归档脚本（archive-old-main，不覆盖默认子代理脚本），除已结束子代理外还将移动超过 14 天且在最近 20 条之外的旧主对话（只移动不删除，随时可按批次无损还原）。请先退出 Antigravity 再运行脚本。',
-      oldMainConfirmBtn: '确认生成旧主对话脚本',
-      oldMainReadyTpl: '旧主对话归档脚本就绪（可归档 {0} 项 / {1}），退出 Antigravity 后运行：{2}',
-      refreshBtn: '刷新',
-      loading: '正在扫描存储明细…',
-      batchSelectLabel: '选择还原批次：',
-      restoreSelectedDescTpl: '将温和关闭 Antigravity，把所选批次（{0}）全部文件无损移回对话库并自动重启。',
-      restoreScriptBtn: '生成离线还原脚本',
-      restoreScriptReadyTpl: '还原脚本就绪（{0}），退出 Antigravity 后运行：{1}',
-    }),
-    'zh-TW': O.freeze({
-      summary: '儲存明細與無損封存工作台',
-      oldMainBtn: '含 >14 天舊主對話',
-      oldMainConfirmDesc:
-        '確認後將產生獨立的離線封存腳本（archive-old-main，不覆蓋預設子代理腳本），除已結束子代理外還會移動超過 14 天且在最近 20 筆之外的舊主對話（只移動不刪除，隨時可按批次無損還原）。請先退出 Antigravity 再執行腳本。',
-      oldMainConfirmBtn: '確認產生舊主對話腳本',
-      oldMainReadyTpl: '舊主對話封存腳本就緒（可封存 {0} 項 / {1}），退出 Antigravity 後執行：{2}',
-      refreshBtn: '重新整理',
-      loading: '正在掃描儲存明細…',
-      batchSelectLabel: '選擇還原批次：',
-      restoreSelectedDescTpl: '將溫和關閉 Antigravity，把所選批次（{0}）全部檔案無損移回對話庫並自動重啟。',
-      restoreScriptBtn: '產生離線還原腳本',
-      restoreScriptReadyTpl: '還原腳本就緒（{0}），退出 Antigravity 後執行：{1}',
+        'ระบบจะสร้างสคริปต์ออฟไลน์แยกต่างหาก (archive-old-main ไม่ทับสคริปต์ซับเอเจนต์เดิม) เพื่อย้ายซับเอเจนต์ที่เสร็จแล้วและแชตหลักที่เก่ากว่า 14 วันนอกเหนือจาก 20 แชตล่าสุด (ย้ายเท่านั้น ไม่ลบไฟล์ กู้คืนได้ทีละชุด) กรุณาปิด Antigravity ก่อนรันสคริปต์',
+      oldMainConfirmBtn: 'ยืนยันสร้างสคริปต์แชตหลักเก่า',
+      oldMainReadyTpl: 'สคริปต์จัดเก็บแชตหลักเก่าพร้อมแล้ว ({0} รายการ / {1}) ปิด Antigravity แล้วรัน: {2}',
+      refreshBtn: 'รีเฟรช',
+      loading: 'กำลังสแกนรายละเอียดพื้นที่เก็บข้อมูล…',
+      batchSelectLabel: 'ชุดข้อมูลที่ต้องการกู้คืน:',
+      restoreSelectedDescTpl: 'จะปิด Antigravity อย่างปลอดภัย กู้คืนชุดที่เลือก ({0}) กลับมาครบถ้วน แล้วเปิดโปรแกรมใหม่',
+      restoreScriptBtn: 'สคริปต์กู้คืนแบบออฟไลน์',
+      restoreScriptReadyTpl: 'สคริปต์กู้คืนพร้อมแล้ว ({0}) ปิด Antigravity แล้วรัน: {1}',
     }),
     en: O.freeze({
       summary: 'Storage Details & Lossless Archive Workbench',
@@ -1738,88 +1709,12 @@
       restoreScriptBtn: 'Offline Restore Script',
       restoreScriptReadyTpl: 'Restore script ready ({0}). Quit Antigravity & run: {1}',
     }),
-    ja: O.freeze({
-      summary: 'ストレージ詳細・無損失アーカイブ管理',
-      oldMainBtn: '>14日前の主会話も含む',
-      oldMainConfirmDesc:
-        '専用のオフラインスクリプト（archive-old-main、既定のサブエージェント用スクリプトは上書きしません）を生成します。完了済みサブエージェントに加え、最新20件を除く14日超の主会話を削除せず移動します（バッチ別復元可）。Antigravity 終了後に実行してください。',
-      oldMainConfirmBtn: '旧主会話スクリプトを生成',
-      oldMainReadyTpl: '旧主会話アーカイブスクリプト準備完了（{0} 件 / {1}）。Antigravity 終了後に実行：{2}',
-      refreshBtn: '更新',
-      loading: 'ストレージ詳細をスキャン中…',
-      batchSelectLabel: '復元バッチ：',
-      restoreSelectedDescTpl: 'Antigravity を安全終了し、選択したバッチ（{0}）を無損失で復元して再起動します。',
-      restoreScriptBtn: 'オフライン復元スクリプト',
-      restoreScriptReadyTpl: '復元スクリプト準備完了（{0}）。Antigravity 終了後に実行：{1}',
-    }),
-    ko: O.freeze({
-      summary: '저장소 상세 및 무손실 아카이브 작업대',
-      oldMainBtn: '14일 초과 기본 대화 포함',
-      oldMainConfirmDesc:
-        '별도의 오프라인 스크립트(archive-old-main, 기본 서브에이전트 스크립트를 덮어쓰지 않음)를 생성합니다. 종료된 서브에이전트와 함께 최근 20개를 제외한 14일 초과 기본 대화를 삭제 없이 이동합니다(배치별 무손실 복원 가능). Antigravity 종료 후 실행하세요.',
-      oldMainConfirmBtn: '이전 기본 대화 스크립트 생성',
-      oldMainReadyTpl: '이전 기본 대화 스크립트 준비됨 ({0}건 / {1}). Antigravity 종료 후 실행: {2}',
-      refreshBtn: '새로고침',
-      loading: '저장소 상세 정보 스캔 중…',
-      batchSelectLabel: '복원할 배치:',
-      restoreSelectedDescTpl: 'Antigravity를 정상 종료하고 선택한 배치({0})를 무손실 복원한 뒤 자동 재시작합니다.',
-      restoreScriptBtn: '오프라인 복원 스크립트',
-      restoreScriptReadyTpl: '복원 스크립트 준비됨 ({0}). Antigravity 종료 후 실행: {1}',
-    }),
-    es: O.freeze({
-      summary: 'Detalles de almacenamiento y archivo sin pérdida',
-      oldMainBtn: 'Incluir chats >14 d',
-      oldMainConfirmDesc:
-        'Genera un script sin conexión independiente (archive-old-main, sin sobrescribir el script predeterminado de subagentes) para mover subagentes finalizados y chats principales de más de 14 días fuera de los 20 más recientes (solo mover, sin borrar y restaurable por lote). Cierra Antigravity antes de ejecutarlo.',
-      oldMainConfirmBtn: 'Confirmar script (>14 d)',
-      oldMainReadyTpl: 'Script para chats >14 d listo ({0} elem. / {1}). Cierra Antigravity y ejecuta: {2}',
-      refreshBtn: 'Actualizar',
-      loading: 'Escaneando detalles de almacenamiento…',
-      batchSelectLabel: 'Lote a restaurar:',
-      restoreSelectedDescTpl: 'Cerrará Antigravity de forma segura, restaurará el lote seleccionado ({0}) sin pérdidas y reiniciará.',
-      restoreScriptBtn: 'Script de restauración',
-      restoreScriptReadyTpl: 'Script de restauración listo ({0}). Cierra Antigravity y ejecuta: {1}',
-    }),
-    fr: O.freeze({
-      summary: 'Détails de stockage et archivage sans perte',
-      oldMainBtn: 'Inclure chats >14 j',
-      oldMainConfirmDesc:
-        'Génère un script hors ligne distinct (archive-old-main, sans écraser le script sous-agents par défaut) qui déplace les sous-agents terminés ainsi que les discussions principales de plus de 14 jours hors des 20 plus récentes (déplacement seul, sans suppression, restaurable par lot). Fermez Antigravity avant exécution.',
-      oldMainConfirmBtn: 'Confirmer le script (>14 j)',
-      oldMainReadyTpl: 'Script chats >14 j prêt ({0} élém. / {1}). Fermez Antigravity puis exécutez : {2}',
-      refreshBtn: 'Actualiser',
-      loading: 'Analyse des détails de stockage…',
-      batchSelectLabel: 'Lot à restaurer :',
-      restoreSelectedDescTpl: 'Fermera Antigravity proprement, restaurera le lot sélectionné ({0}) sans perte puis redémarrera.',
-      restoreScriptBtn: 'Script de restauration',
-      restoreScriptReadyTpl: 'Script de restauration prêt ({0}). Fermez Antigravity puis exécutez : {1}',
-    }),
-    de: O.freeze({
-      summary: 'Speicherdetails & verlustfreie Archiv-Werkbank',
-      oldMainBtn: 'Hauptchats >14 T. einschließen',
-      oldMainConfirmDesc:
-        'Erstellt ein separates Offline-Skript (archive-old-main, überschreibt nicht das Standard-Subagenten-Skript), das beendete Subagenten sowie Hauptchats älter als 14 Tage außerhalb der letzten 20 verschiebt (kein Löschen, stapelweise wiederherstellbar). Vor dem Ausführen Antigravity schließen.',
-      oldMainConfirmBtn: 'Skript (>14 T.) erstellen',
-      oldMainReadyTpl: 'Archivskript >14 T. bereit ({0} Einträge / {1}). Antigravity schließen & ausführen: {2}',
-      refreshBtn: 'Aktualisieren',
-      loading: 'Speicherdetails werden gescannt…',
-      batchSelectLabel: 'Archivstapel:',
-      restoreSelectedDescTpl: 'Beendet Antigravity sauber, stellt den ausgewählten Stapel ({0}) verlustfrei wieder her und startet neu.',
-      restoreScriptBtn: 'Offline-Wiederherstellungsskript',
-      restoreScriptReadyTpl: 'Wiederherstellungsskript bereit ({0}). Antigravity schließen & ausführen: {1}',
-    }),
   });
 
   const getStorageWbUi = (lang) => {
     const s = String(lang || '').trim().toLowerCase().replace(/_/g, '-');
-    if (s === 'zh-tw' || s === 'zh-hk' || s === 'zh-mo' || s.startsWith('zh-hant')) return STORAGE_WB_UI['zh-TW'];
-    if (s === 'zh' || s === 'zh-cn' || s === 'zh-sg' || s.startsWith('zh-hans') || s === 'yue' || s.startsWith('yue-')) return STORAGE_WB_UI['zh-CN'];
-    if (s === 'ja' || s.startsWith('ja-')) return STORAGE_WB_UI.ja;
-    if (s === 'ko' || s.startsWith('ko-')) return STORAGE_WB_UI.ko;
-    if (s === 'es' || s.startsWith('es-')) return STORAGE_WB_UI.es;
-    if (s === 'fr' || s.startsWith('fr-')) return STORAGE_WB_UI.fr;
-    if (s === 'de' || s.startsWith('de-')) return STORAGE_WB_UI.de;
-    return STORAGE_WB_UI.en;
+    if (s === 'en' || s.startsWith('en-') || s === 'english') return STORAGE_WB_UI.en;
+    return STORAGE_WB_UI.th;
   };
 
   let pendingCfgToast = null;
@@ -2172,87 +2067,6 @@
           if (rootEl.__agMascotStageApi.isOpen()) rootEl.__agMascotStageApi.renderNow();
         } catch {}
       }
-      const hiRow = qs(rootEl, '[data-ag-cs-row="hostLocalization"]');
-      const hiDescEl = hiRow ? qs(hiRow, '[data-k="d"]') : null;
-      if (hiDescEl) {
-        const hiModeNow = effVal('hostLocalization', l);
-        const hiDisabledNow = hiModeNow === 'off' || (hiModeNow === 'auto' && l !== 'zh-CN');
-        let extZhActive = false;
-        if (hiDisabledNow) {
-          try {
-            const winRef = doc.defaultView || globalThis;
-            if (
-              winRef?.__antigravityZhInstalled ||
-              winRef?.__AGY_HANS__ ||
-              qs(doc, '[data-agy-hans-ui], #agy-theme-switcher, #antigravity-translation-audit')
-            ) {
-              extZhActive = true;
-            } else {
-              for (const hn of qa(doc, '[data-testid="new-conversation-button"], [role="dialog"] h1, [role="dialog"] h2, [data-ag-cs-settings-dlg="1"] [data-ag-cs-settings-nav="1"]')) {
-                if (hn && !hn.closest?.('#' + SETTINGS_SEC_ID) && /[\u4e00-\u9fff]/.test(String(hn.textContent || ''))) {
-                  extZhActive = true;
-                  break;
-                }
-              }
-            }
-          } catch {}
-        }
-        const isOffEnforced = hiState === 'off-enforced';
-        const isOffBlocked = hiState === 'off-blocked';
-        const hiWarn =
-          hiModeNow === 'auto' && hiState === 'yielded' && u.hostI18nYieldHint
-            ? '1'
-            : !isOffBlocked && hiDisabledNow && extZhActive && u.hostI18nOffExtHint
-              ? 'ext'
-              : '';
-        const hiText =
-          hiWarn === '1'
-            ? u.hostI18nYieldHint
-            : hiWarn === 'ext'
-              ? u.hostI18nOffExtHint
-              : (u.setHostI18nDesc || '');
-        if (hiDescEl[K_TC] !== hiText) hiDescEl[K_TC] = hiText;
-        if (hiWarn) sa(hiDescEl, 'data-ag-cs-hi-warn', hiWarn);
-        else ra(hiDescEl, 'data-ag-cs-hi-warn');
-
-        const titleLine = qs(hiRow, '.ag-cs-settings-title-line');
-        let hiBadge = titleLine ? qs(titleLine, '[data-ag-cs-hi-badge="1"]') : null;
-        if (isOffEnforced && titleLine) {
-          if (!hiBadge) {
-            hiBadge = doc.createElement('span');
-            hiBadge.className = 'ag-cs-repo-chip';
-            sa(hiBadge, 'data-ag-cs-hi-badge', '1');
-            sa(hiBadge, 'data-status', 'ok');
-            ap(titleLine, hiBadge);
-          }
-          const badgeTxt = u.hostLocStatusEnforced || 'Enforcing native English UI';
-          if (hiBadge[K_TC] !== badgeTxt) hiBadge[K_TC] = badgeTxt;
-          hiBadge.hidden = false;
-          ra(hiBadge, 'hidden');
-        } else if (hiBadge) {
-          hiBadge.hidden = true;
-          sa(hiBadge, 'hidden');
-        }
-
-        const textCol = hiDescEl.parentElement;
-        let hiBlockedBar = textCol ? qs(textCol, '[data-ag-cs-hi-blocked="1"]') : null;
-        if (isOffBlocked && textCol) {
-          if (!hiBlockedBar) {
-            hiBlockedBar = doc.createElement('div');
-            hiBlockedBar.className = 'ag-cs-beta-notice';
-            if (hiBlockedBar.style) hiBlockedBar.style.marginTop = '4px';
-            sa(hiBlockedBar, 'data-ag-cs-hi-blocked', '1');
-            ap(textCol, hiBlockedBar);
-          }
-          const blkTxt = u.hostLocStatusBlocked || 'External localization override blocked by loop guard.';
-          if (hiBlockedBar[K_TC] !== blkTxt) hiBlockedBar[K_TC] = blkTxt;
-          hiBlockedBar.hidden = false;
-          ra(hiBlockedBar, 'hidden');
-        } else if (hiBlockedBar) {
-          hiBlockedBar.hidden = true;
-          sa(hiBlockedBar, 'hidden');
-        }
-      }
     };
 
     runGuardedMut(() => {
@@ -2468,14 +2282,8 @@
         runGuardedMut(() => {
           const langOpts = (
             i18nCore?.LANG_OPTIONS || [
-              { id: 'zh-CN', label: '简体中文' },
-              { id: 'zh-TW', label: '繁體中文' },
+              { id: 'th', label: 'ไทย' },
               { id: 'en', label: 'English' },
-              { id: 'ja', label: '日本語' },
-              { id: 'ko', label: '한국어' },
-              { id: 'es', label: 'Español' },
-              { id: 'fr', label: 'Français' },
-              { id: 'de', label: 'Deutsch' },
             ]
           ).map((o) => [o.id, o.label]);
 
@@ -2506,7 +2314,6 @@
             ]),
             RS('logoInk', [['accent', U('optAccent')], ['foreground', U('optForeground')]]),
             RS('language', langOpts),
-            RS('hostLocalization', [['auto', U('optHostI18nAuto', 'Auto')], ['on', U('optHostI18nOn', U('onLabel', 'On'))], ['off', U('optHostI18nOff', U('offLabel', 'Off'))]], 'HostI18n'),
             RS('composerRestyle', onOff, 'Composer'),
             RS('placeholderStyle', [['studio', 'Studio'], ['host', U('optPlaceholderHost')]], 'Placeholder'),
             RS('smoothCaret', onOff),
@@ -2547,7 +2354,7 @@
           ]) rowDefs[r.key] = r;
 
           const groups = [
-            { id: 'appearance', title: U('grpAppearance'), keys: ['palette', 'lightPreset', 'darkAuraStyle', 'accentTone', 'cornerStyle', 'ambientIntensity', 'darkAura', 'motionLevel', 'targetFps', 'homeLayout', 'homeRipple', 'convRipple', 'logoInk', 'language', 'hostLocalization'] },
+            { id: 'appearance', title: U('grpAppearance'), keys: ['palette', 'lightPreset', 'darkAuraStyle', 'accentTone', 'cornerStyle', 'ambientIntensity', 'darkAura', 'motionLevel', 'targetFps', 'homeLayout', 'homeRipple', 'convRipple', 'logoInk', 'language'] },
             { id: 'interaction', title: U('grpInteraction'), keys: ['composerRestyle', 'placeholderStyle', 'smoothCaret', 'scrollBottomMotion', 'contextMenu', 'codeFont', 'codeLigatures', 'mascot', 'sidebarRestyle', 'sidebarCompact', 'sidebarNavFold'] },
             { id: 'thought', title: U('grpThought'), keys: ['thoughtTranslate', 'thoughtTrigger', 'thoughtView'] },
             { id: 'modules', title: U('groupModules'), keys: ['telemetryModule', 'effortSliderModule', 'effortMemory', 'periodicModelPicker', 'omniModule', 'linkTarget'] },

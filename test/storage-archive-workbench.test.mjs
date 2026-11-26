@@ -17,8 +17,8 @@ const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
 const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
 const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
 
-const SUPPORTED_8 = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'];
-const NON_CJK_4 = ['en', 'es', 'fr', 'de'];
+const SUPPORTED_2 = ['th', 'en'];
+const NON_CJK_2 = ['th', 'en'];
 const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf]/;
 
 function makeTempDir(prefix) {
@@ -309,21 +309,25 @@ test('conversation-archive: topConsumers Top-5 sort, strong secret redaction (gh
     assert.equal(scan.archivableOldMainCount, 1);
     assert.equal(scan.archivableOldMainMb, 5.5);
 
-    // 3) 8-language parity, zero yue dictionary, fallback to en (NOT zh-CN), 0 CJK leak in en/es/fr/de
-    assert.deepEqual(arch.WORKBENCH_SUPPORTED_LANGS, SUPPORTED_8);
+    // 3) 2-language parity (th default/fallback + en), zero yue dictionary, removed/unknown locales fall back to th, 0 CJK leak in th/en
+    assert.deepEqual(arch.WORKBENCH_SUPPORTED_LANGS, SUPPORTED_2);
     assert.equal(arch.WORKBENCH_SUPPORTED_LANGS.includes('yue'), false);
-    assert.equal(arch.normalizeWorkbenchLang('yue'), 'zh-CN');
-    assert.equal(arch.normalizeWorkbenchLang('pt-BR'), 'en');
-    assert.equal(arch.normalizeWorkbenchLang('unknown-xx'), 'en');
+    assert.equal(arch.normalizeWorkbenchLang('th-TH'), 'th');
+    assert.equal(arch.normalizeWorkbenchLang('en-US'), 'en');
+    assert.equal(arch.normalizeWorkbenchLang('yue'), 'th');
+    assert.equal(arch.normalizeWorkbenchLang('zh-CN'), 'th');
+    assert.equal(arch.normalizeWorkbenchLang('ja'), 'th');
+    assert.equal(arch.normalizeWorkbenchLang('pt-BR'), 'th');
+    assert.equal(arch.normalizeWorkbenchLang('unknown-xx'), 'th');
 
-    for (const lang of SUPPORTED_8) {
+    for (const lang of SUPPORTED_2) {
       const labels = arch.getStorageWorkbenchLabels(lang);
       assert.ok(labels.summary && labels.archiveOldMain && labels.restoreBtn && labels.refreshBtn && labels.oldMainReadyTpl);
       const txt = arch.formatStorageDetailReport({ ...scan, batches: [] }, lang);
       assert.ok(txt.includes('Legacy Main Session'), `Detail report (${lang}) should include top consumer title`);
       assert.ok(txt.includes(labels.topTitle), `Detail report (${lang}) should include localized Top-5 heading`);
       assert.ok(txt.includes('0.5 MB'), `Detail report (${lang}) should include WAL size`);
-      if (NON_CJK_4.includes(lang)) {
+      if (NON_CJK_2.includes(lang)) {
         for (const [k, v] of Object.entries(labels)) {
           assert.equal(CJK_RE.test(v), false, `CJK leak in STORAGE_WB_I18N[${lang}].${k}: ${v}`);
         }
@@ -331,7 +335,8 @@ test('conversation-archive: topConsumers Top-5 sort, strong secret redaction (gh
       }
     }
     const fallbackTxt = arch.formatStorageDetailReport({ ...scan, batches: [] }, 'pt-BR');
-    assert.equal(CJK_RE.test(fallbackTxt), false, 'Unknown locale fallback must be en with 0 CJK');
+    assert.equal(CJK_RE.test(fallbackTxt), false, 'Unknown locale fallback must be th with 0 CJK');
+    assert.ok(fallbackTxt.includes(arch.getStorageWorkbenchLabels('th').topTitle), 'Unknown locale fallback must use th labels');
   } finally {
     fs.rmSync(tmpRoot, { recursive: true, force: true });
   }
@@ -886,8 +891,8 @@ test('settings-panel (Ch9): lazy <details> drawer, 3-way mutually exclusive conf
     assert.equal(oldBox.hidden, true);
     assert.ok(chip.textContent.includes('archive-old-main.command'));
 
-    // 3) All 8 locales mount cleanly with 0 CJK leakage in non-CJK languages (en/es/fr/de)
-    for (const lang of SUPPORTED_8) {
+    // 3) Both supported locales (th/en) mount cleanly with 0 CJK leakage
+    for (const lang of SUPPORTED_2) {
       const { doc: langDoc } = createMiniDom();
       const lStore = new Map([['ag-prism:settings-open', '1'], ['ag-prism:settings-subtab', 'about']]);
       const lStorage = {
@@ -912,7 +917,7 @@ test('settings-panel (Ch9): lazy <details> drawer, 3-way mutually exclusive conf
         version: '1.0.8',
         getLang: () => lang,
         uiText: (l) => i18nLocales.getUiStrings(l),
-        isZh: () => lang === 'zh-CN' || lang === 'zh-TW',
+        isZh: () => false,
         i18nCore,
         formatSettingsSummary: () => 'summary',
         resolveSettingRowActiveValue: (k) => lState[k],
@@ -927,7 +932,7 @@ test('settings-panel (Ch9): lazy <details> drawer, 3-way mutually exclusive conf
       await new Promise((r) => setTimeout(r, 10));
       const lSec = langDoc.getElementById(settingsPanel.SETTINGS_SEC_ID);
       assert.ok(lSec.querySelector('[data-ag-cs-storage-wb="1"]'), `Workbench drawer must mount for ${lang}`);
-      if (NON_CJK_4.includes(lang)) {
+      if (NON_CJK_2.includes(lang)) {
         const cleaned = stripAllowedProperNouns(lSec.textContent);
         assert.equal(CJK_RE.test(cleaned), false, `Settings panel (${lang}) leaked CJK: ${cleaned}`);
       }

@@ -1,4 +1,4 @@
-// Obsidian Prism — Unified Thought Translator & Polisher Client Runtime (v1.0.8-beta.3 Upgraded)
+// Obsidian Prism — Unified Thought Translator & Polisher Client Runtime (v1.0.8-beta.4 Upgraded)
 // Incorporates proven anti-jank & anti-retranslate safeguards + v1.0.1 workbench capabilities:
 // 1. Rendered-signature idempotence (`data-op-zh-sig` + `data-raw-zh`) -> 0 redundant DOM rebuilds on cache hit;
 // 2. Global `inflightBySig` flight pool across React panel remounts + pre-commit source-hash verification -> 0 duplicate requests & 0 misplacement;
@@ -90,32 +90,11 @@
   // 11:errProxy, 12:errRateLimit, 13:errAuth, 14:errTimeout, 15:errOffline,
   // 16:badgeProxy, 17:badgeRateLimit, 18:badgeAuth, 19:badgeTimeout, 20:badgeOffline, 21:badgeGeneric,
   // 22:truncFmt ({0}k/{1}k)
-  const ZH_TW_PACK =
-    '原文|收起原文|機翻降級|AI 未就緒，已降級機翻|重新轉譯|轉譯未完成|↻ 重試|機翻中…|AI 轉譯中…|思考輸出中…|收束中…|代理或網路不可達|請求限流冷卻中|金鑰或權限異常|轉譯逾時|後台服務未連線|代理失敗 · 重試|限流冷卻 · 重試|驗證失敗 · 重試|逾時 · 重試|服務離線 · 重試|轉譯失敗 · 重試|已安全分段譯前 {0}k 字（共 {1}k）'.split(
-      '|'
-    );
   const CLIENT_I18N = {
-    'zh-CN':
-      '原文|收起原文|机翻降级|AI 未就绪，已降级机翻|重新转译|转译未完成|↻ 重试|机翻中…|AI 转译中…|思考输出中…|收束中…|代理或网络不可达|请求限流冷却中|密钥或权限异常|转译超时|后台服务未连接|代理失败 · 重试|限流冷却 · 重试|鉴权失败 · 重试|超时 · 重试|服务离线 · 重试|转译失败 · 重试|已安全分段译前 {0}k 字（共 {1}k）'.split(
-        '|'
-      ),
-    'zh-TW': ZH_TW_PACK,
+    th: 'ต้นฉบับ|ซ่อนต้นฉบับ|แปลอัตโนมัติสำรอง|AI ไม่พร้อมใช้งาน สลับไปแปลอัตโนมัติแทน|แปลใหม่|การแปลไม่สมบูรณ์|↻ ลองใหม่|กำลังแปลอัตโนมัติ…|กำลังเกลาด้วย AI…|กำลังคิด…|กำลังสรุป…|ไม่สามารถเชื่อมต่อพร็อกซีหรือเครือข่ายได้|ติดจำกัดอัตราคำขอ (รอคูลดาวน์)|API Key หรือสิทธิ์การยืนยันตัวตนไม่ถูกต้อง|การแปลหมดเวลาเชื่อมต่อ|บริการพื้นหลังออฟไลน์|พร็อกซีขัดข้อง · ลองใหม่|ติดจำกัดอัตรา · ลองใหม่|ยืนยันตัวตนล้มเหลว · ลองใหม่|หมดเวลา · ลองใหม่|บริการออฟไลน์ · ลองใหม่|แปลไม่สำเร็จ · ลองใหม่|แปลส่วนแรก {0}k / {1}k ตัวอักษรแล้ว'.split(
+      '|'
+    ),
     en: 'Raw|Hide Raw|Fallback|AI unavailable; machine fallback|Retranslate|Translation incomplete|↻ Retry|Translating…|AI polishing…|Streaming…|Settling…|Proxy or network unreachable|Rate-limited (cooling down)|API key or auth error|Translation timed out|Daemon service offline|Proxy error · Retry|Rate limit · Retry|Auth error · Retry|Timed out · Retry|Offline · Retry|Failed · Retry|Translated first {0}k / {1}k chars'.split(
-      '|'
-    ),
-    ja: '原文|原文を隠す|機械翻訳代替|AI未設定・機械翻訳代替|再翻訳|翻訳未完了|↻ 再試行|翻訳中…|AI翻訳中…|出力中…|整理中…|プロキシまたは接続不可|レート制限クールダウン中|APIキーまたは認証エラー|翻訳タイムアウト|バックグラウンド未接続|プロキシ失敗 · 再試行|制限中 · 再試行|認証エラー · 再試行|タイムアウト · 再試行|オフライン · 再試行|失敗 · 再試行|先頭 {0}k 字を翻訳済（全 {1}k 字）'.split(
-      '|'
-    ),
-    ko: '원문|원문 숨기기|기계 번역 대체|AI 미준비로 기계 번역 사용|재번역|번역 미완료|↻ 재시도|번역 중…|AI 다듬는 중…|출력 중…|정리 중…|프록시 또는 네트워크 연결 불가|요청 제한 대기 중|API 키 또는 인증 오류|번역 시간 초과|백그라운드 서비스 오프라인|프록시 오류 · 재시도|요청 제한 · 재시도|인증 실패 · 재시도|시간 초과 · 재시도|오프라인 · 재시도|번역 실패 · 재시도|앞부분 {0}k / 전체 {1}k자 번역 완료'.split(
-      '|'
-    ),
-    es: 'Original|Ocultar original|Respaldo MT|IA no disponible; traducción automática|Retraducir|Traducción incompleta|↻ Reintentar|Traduciendo…|Puliendo con IA…|Transmitiendo…|Finalizando…|Proxy o red inaccesible|Límite de tasa (en espera)|Error de clave API o autenticación|Tiempo de espera agotado|Servicio en segundo plano desconectado|Error de proxy · Reintentar|Límite · Reintentar|Error auth · Reintentar|Tiempo agotado · Reintentar|Sin conexión · Reintentar|Error · Reintentar|Primeros {0}k / {1}k caracteres traducidos'.split(
-      '|'
-    ),
-    fr: 'Original|Masquer l’original|Secours MT|IA indisponible ; traduction auto|Retraduire|Traduction incomplète|↻ Réessayer|Traduction…|Affinage IA…|Diffusion…|Finalisation…|Proxy ou réseau inaccessible|Limite atteinte (refroidissement)|Erreur de clé API ou d’authentification|Délai dépassé|Service d’arrière-plan hors ligne|Erreur proxy · Réessayer|Limite · Réessayer|Erreur auth · Réessayer|Délai · Réessayer|Hors ligne · Réessayer|Échec · Réessayer|Premiers {0}k / {1}k caractères traduits'.split(
-      '|'
-    ),
-    de: 'Original|Original ausblenden|MT-Fallback|KI nicht verfügbar; maschineller Fallback|Neu übersetzen|Übersetzung unvollständig|↻ Erneut|Übersetze…|KI-Feinschliff…|Streaming…|Abschluss…|Proxy oder Netzwerk nicht erreichbar|Rate-Limit (Abkühlung)|API-Schlüssel- oder Auth-Fehler|Zeitüberschreitung|Hintergrunddienst offline|Proxy-Fehler · Erneut|Rate-Limit · Erneut|Auth-Fehler · Erneut|Zeitlimit · Erneut|Offline · Erneut|Fehlgeschlagen · Erneut|Erste {0}k / {1}k Zeichen übersetzt'.split(
       '|'
     ),
   };
@@ -350,14 +329,7 @@
   function normalizeLangCode(raw) {
     const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
     if (!s || s === 'auto') return '';
-    if (s === 'yue' || s.startsWith('yue-') || s === 'zh-yue' || s.includes('cantonese')) return 'zh-CN';
-    if (/^zh-(tw|hk|mo|hant)/.test(s) || s === 'tw' || s === 'hant') return 'zh-TW';
-    if (/^zh(?:\b|-)/.test(s)) return 'zh-CN';
-    if (/^(ja|jp)(?:\b|-)/.test(s) || s === 'japanese') return 'ja';
-    if (/^(ko|kr)(?:\b|-)/.test(s) || s === 'korean') return 'ko';
-    if (/^es(?:\b|-)/.test(s) || s === 'spanish') return 'es';
-    if (/^fr(?:\b|-)/.test(s) || s === 'french') return 'fr';
-    if (/^de(?:\b|-)/.test(s) || s === 'german') return 'de';
+    if (/^th(?:\b|-)/.test(s) || s === 'thai') return 'th';
     if (/^en(?:\b|-)/.test(s) || s === 'english') return 'en';
     return '';
   }
@@ -377,7 +349,7 @@
       if (stateLang) return stateLang;
       if (argIsAuto || (typeof rawStateLang === 'string' && rawStateLang.trim().toLowerCase() === 'auto')) {
         const navObj = W && 'navigator' in W ? W.navigator : null;
-        return normalizeLangCode(navObj?.language || '') || 'en';
+        return normalizeLangCode(navObj?.language || '') || 'th';
       }
     } catch (_) {}
     if (currentLang) return currentLang;
@@ -386,11 +358,11 @@
       const navLang = normalizeLangCode(navObj?.language || '');
       if (navLang) return navLang;
     } catch (_) {}
-    return 'zh-CN';
+    return 'th';
   }
 
   function getClientPack(explicitLang) {
-    return CLIENT_I18N[resolveActiveLang(explicitLang)] || CLIENT_I18N.en;
+    return CLIENT_I18N[resolveActiveLang(explicitLang)] || CLIENT_I18N.th;
   }
 
   function isDocHiddenOrSleep() {
@@ -625,7 +597,7 @@
       .replace(/\r\n/g, '\n')
       .replace(/```[\s\S]*?```/g, ' ')
       .replace(/https?:\/\/\S+/g, ' ')
-      .replace(/[^a-zA-Z0-9\u4e00-\u9fa5\u3040-\u30ff\uac00-\ud7af]+/g, '')
+      .replace(/[^a-zA-Z0-9\u0e00-\u0e7f\u4e00-\u9fa5\u3040-\u30ff\uac00-\ud7af]+/g, '')
       .toLowerCase();
   }
 
@@ -644,6 +616,7 @@
     return {
       lw: (str.match(/[A-Za-z]{3,}/g) || []).length,
       lc: (str.match(/[A-Za-z]/g) || []).length,
+      th: (str.match(/[\u0E00-\u0E7F]/g) || []).length,
       cjk: (str.match(/[\u4e00-\u9fa5]/g) || []).length,
       kana: (str.match(/[\u3040-\u30ff]/g) || []).length,
       han: (str.match(/[\uac00-\ud7af]/g) || []).length,
@@ -656,13 +629,9 @@
       const para = paras[i].trim();
       if (!para) continue;
       const c = countScripts(para);
-      if (tl === 'ja') {
-        if ((c.lw >= 6 && c.kana < c.lw * 1.5) || (c.cjk >= 12 && c.kana === 0)) return true;
-      } else if (tl === 'ko') {
-        if ((c.lw >= 6 && c.han < c.lw * 1.5) || (c.cjk >= 12 && c.han === 0) || c.kana >= 6) return true;
-      } else if (tl === 'en') {
-        if (c.cjk + c.kana + c.han >= 4) return true;
-      } else if ((c.lw >= 6 && c.cjk < c.lw * 1.5) || c.kana >= 6 || c.han >= 6) {
+      if (tl === 'en') {
+        if (c.th + c.cjk + c.kana + c.han >= 4) return true;
+      } else if ((c.lw >= 6 && c.th < c.lw * 2) || c.cjk >= 4 || c.kana >= 4 || c.han >= 4) {
         return true;
       }
     }
@@ -682,35 +651,24 @@
     if (!prose.trim()) return true;
 
     const c = countScripts(prose);
-    const totalAlpha = c.lc + c.cjk + c.kana + c.han;
+    const totalAlpha = c.lc + c.th + c.cjk + c.kana + c.han;
 
     if (tl === 'en') {
-      if (c.cjk + c.kana + c.han >= 4) return false;
+      if (c.th + c.cjk + c.kana + c.han >= 4) return false;
       if (totalAlpha < 4) return true;
-      return c.cjk + c.kana + c.han < 4;
+      return c.th + c.cjk + c.kana + c.han < 4;
     }
 
     if (totalAlpha < 10) return true;
 
-    if (tl === 'ja') {
-      if (c.lw >= 8 || hasForeignProseParagraph(prose, 'ja')) return false;
-      return c.kana >= 8;
-    }
-
-    if (tl === 'ko') {
-      if (c.lw >= 8 || hasForeignProseParagraph(prose, 'ko')) return false;
-      return c.han >= 8;
-    }
-
-    if (tl === 'es' || tl === 'fr' || tl === 'de') return false;
-
-    if (c.lw >= 8 || c.kana >= 6 || c.han >= 6 || hasForeignProseParagraph(prose, tl)) {
+    if (c.cjk >= 4 || c.kana >= 4 || c.han >= 4 || hasForeignProseParagraph(prose, 'th')) {
       return false;
     }
 
-    if (tl === 'zh-TW') return false;
-
-    return c.lw < 6 && c.kana < 4 && c.han < 4 && c.cjk >= 6;
+    if (c.lw >= 8 && c.th < c.lc * 2) return false;
+    if (c.th >= 8 && c.lw < 6) return true;
+    if (c.th >= 20 && c.th >= c.lc * 2) return true;
+    return false;
   }
 
   function sliceThoughtForSafeSend(rawText) {
@@ -767,14 +725,13 @@
     const prose = masked.replace(/__OPID_\d+__/g, ' ').replace(/\s+/g, ' ').trim();
     if (!prose) return false;
     const latinWords = (prose.match(/[A-Za-z]{2,}/g) || []).length;
+    const th = (prose.match(/[\u0E00-\u0E7F]/g) || []).length;
     const cjk = (prose.match(/[\u4e00-\u9fa5]/g) || []).length;
     const kana = (prose.match(/[\u3040-\u30ff]/g) || []).length;
     const han = (prose.match(/[\uac00-\ud7af]/g) || []).length;
-    if (tl === 'en') return cjk + kana + han >= 2;
-    if (tl === 'ja') return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || (cjk >= 4 && kana === 0);
-    if (tl === 'ko') return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || cjk >= 4 || kana >= 3;
-    if (tl === 'zh-CN' && cjk >= 2 && latinWords < 2 && kana === 0 && han === 0) return false;
-    return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || kana >= 3 || han >= 3 || ((tl === 'es' || tl === 'fr' || tl === 'de') && cjk >= 2);
+    if (tl === 'en') return th + cjk + kana + han >= 2;
+    if (th >= 2 && latinWords < 2 && cjk === 0 && kana === 0 && han === 0 && !(latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose))) return false;
+    return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || cjk >= 2 || kana >= 2 || han >= 2;
   }
 
   function protectToolSummaryTokens(text) {
@@ -803,13 +760,13 @@
     const prose = masked.replace(/__OPID_\d+__/g, ' ').replace(/\s+/g, ' ').trim();
     if (!prose) return false;
     const latinWords = (prose.match(/[A-Za-z]{2,}/g) || []).length;
+    const th = (prose.match(/[\u0E00-\u0E7F]/g) || []).length;
     const cjk = (prose.match(/[\u4e00-\u9fa5]/g) || []).length;
     const kana = (prose.match(/[\u3040-\u30ff]/g) || []).length;
     const han = (prose.match(/[\uac00-\ud7af]/g) || []).length;
-    if (tl === 'en') return cjk + kana + han >= 2;
-    if (tl === 'ja') return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || (cjk >= 4 && kana === 0);
-    if (tl === 'ko') return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || cjk >= 4 || kana >= 3;
-    return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || kana >= 3 || han >= 3 || ((tl === 'es' || tl === 'fr' || tl === 'de') && cjk >= 2);
+    if (tl === 'en') return th + cjk + kana + han >= 2;
+    if (th >= 2 && latinWords < 2 && cjk === 0 && kana === 0 && han === 0 && !(latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose))) return false;
+    return latinWords >= 2 || (latinWords === 1 && tokens.length > 0 && TOOL_VERB_RE.test(prose)) || cjk >= 2 || kana >= 2 || han >= 2;
   }
 
   const getStore = () => W.localStorage || null;
@@ -1441,8 +1398,8 @@
       ) return true;
     } catch (_) {}
     const txt = (tc(btn) || '').trim();
-    if (!txt || /已思考|Thought\s+for|Thought\s+process/i.test(txt)) return false;
-    return /thinking|正在思考|思考中|推演中|諗緊/i.test(txt) && !/\d+\s*(s|sec|秒|m|min|分)/i.test(txt);
+    if (!txt || /Thought\s+for|Thought\s+process|คิดเป็นเวลา|กระบวนการคิด/i.test(txt)) return false;
+    return /thinking|กำลังคิด/i.test(txt) && !/\d+\s*(s|sec|m|min|วินาที|นาที)/i.test(txt);
   }
 
   function isOverlayOrIgnoredElement(el) {
@@ -2604,7 +2561,7 @@
 
   function withLangSuffix(baseTag, lang = currentLang) {
     const tl = normalizeLangCode(lang) || resolveActiveLang();
-    return tl === 'zh-CN' ? baseTag : `${baseTag}_${tl}`;
+    return tl === 'th' ? baseTag : `${baseTag}_${tl}`;
   }
 
   const sigFromBody = (kb, mode, lang = currentLang) => {

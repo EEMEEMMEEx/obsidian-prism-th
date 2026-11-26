@@ -330,36 +330,24 @@
 
     var ORCH_VIOLET_HEX = '#8B5CF6';
     var ORCH_GOLD_HEX = '#F5B942';
-    var ORCH_NON_PLANNER_LABEL_ZH = 'NON-PLANNER · 编排态不可选';
+    var ORCH_NON_PLANNER_LABEL_TH = 'NON-PLANNER · ล็อกในโหมด Orch';
     var ORCH_NON_PLANNER_LABEL_EN = 'NON-PLANNER · LOCKED IN ORCH';
-    var SYNC_BADGE_DEFAULT_ZH = '已同步会话';
+    var SYNC_BADGE_DEFAULT_TH = 'ซิงค์แล้ว';
     var SYNC_BADGE_DEFAULT_EN = 'SYNCED';
     var SYNC_BADGE_DEFAULT_DURATION_MS = 1200;
 
     var OLED_I18N = {
-      'zh-CN': { nonPlanner: ORCH_NON_PLANNER_LABEL_ZH, standbyAux: 'STANDBY · 未开放副盘槽位', synced: SYNC_BADGE_DEFAULT_ZH },
-      'zh-TW': { nonPlanner: 'NON-PLANNER · 編排態不可選', standbyAux: 'STANDBY · 未開放副盤槽位', synced: '已同步工作階段' },
+      th: { nonPlanner: ORCH_NON_PLANNER_LABEL_TH, standbyAux: 'STANDBY · ช่องมาโครสำรอง', synced: SYNC_BADGE_DEFAULT_TH },
       en: { nonPlanner: ORCH_NON_PLANNER_LABEL_EN, standbyAux: 'STANDBY · RESERVED MACRO SLOT', synced: SYNC_BADGE_DEFAULT_EN },
-      ja: { nonPlanner: 'NON-PLANNER · オーケストラ固定', standbyAux: 'STANDBY · 予約済みマクロ枠', synced: '同期済' },
-      ko: { nonPlanner: 'NON-PLANNER · 오케스트레이션 잠금', standbyAux: 'STANDBY · 예약된 매크로 슬롯', synced: '동기화됨' },
-      es: { nonPlanner: 'NON-PLANNER · BLOQUEADO EN ORCH', standbyAux: 'STANDBY · RANURA RESERVADA', synced: 'SINCRONIZADO' },
-      fr: { nonPlanner: 'NON-PLANNER · VERROUILLÉ ORCH', standbyAux: 'STANDBY · EMPLACEMENT RÉSERVÉ', synced: 'SYNCHRONISÉ' },
-      de: { nonPlanner: 'NON-PLANNER · IN ORCH GESPERRT', standbyAux: 'STANDBY · RESERVIERTER SLOT', synced: 'SYNCHRONISIERT' },
     };
 
-    function normalizeOledLang(raw) {
+    function normalizeOledLang(raw, fallback) {
+      var fb = fallback !== undefined ? fallback : 'th';
       var s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
-      if (!s || s === 'auto') return '';
-      if (s === 'yue' || s.indexOf('yue-') === 0 || s === 'zh-yue' || s.indexOf('cantonese') !== -1) return 'zh-CN';
-      if (/^zh-(tw|hant|hk|mo)/.test(s) || s === 'tw' || s === 'hant') return 'zh-TW';
-      if (/^zh(?:$|-)/.test(s)) return 'zh-CN';
-      if (/^(ja|jp)(?:$|-)/.test(s) || s === 'japanese') return 'ja';
-      if (/^(ko|kr)(?:$|-)/.test(s) || s === 'korean') return 'ko';
-      if (/^es(?:$|-)/.test(s) || s === 'spanish') return 'es';
-      if (/^fr(?:$|-)/.test(s) || s === 'french') return 'fr';
-      if (/^de(?:$|-)/.test(s) || s === 'german') return 'de';
-      if (/^en(?:$|-)/.test(s) || s === 'english') return 'en';
-      return '';
+      if (!s || s === 'auto') return fb;
+      if (s === 'en' || s.indexOf('en-') === 0 || s === 'english') return 'en';
+      if (s === 'th' || s.indexOf('th-') === 0 || s === 'thai') return 'th';
+      return fb;
     }
 
     function normalizeOledTargetFps(raw) {
@@ -415,25 +403,21 @@
         explicitLang,
       ];
       for (var i = 0; i < cands.length; i += 1) {
-        var n = normalizeOledLang(cands[i]);
+        var n = normalizeOledLang(cands[i], '');
         if (n) return n;
       }
       try {
         var de = doc && doc.documentElement;
         if (de && typeof de.getAttribute === 'function') {
-          var docLang = normalizeOledLang(de.getAttribute('data-ag-cs-lang') || de.getAttribute('lang'));
+          var docLang = normalizeOledLang(de.getAttribute('data-ag-cs-lang') || de.getAttribute('lang'), '');
           if (docLang) return docLang;
         }
       } catch (_langErr) {}
-      if (bs && typeof bs.zh === 'boolean') return bs.zh ? 'zh-CN' : 'en';
-      if (info && typeof info.zh === 'boolean') return info.zh ? 'zh-CN' : 'en';
-      if (tp && typeof tp.zh === 'boolean') return tp.zh ? 'zh-CN' : 'en';
-      if (typeof explicitZh === 'boolean') return explicitZh ? 'zh-CN' : 'en';
       try {
-        var navLang = normalizeOledLang(rt && rt.navigator && rt.navigator.language);
+        var navLang = normalizeOledLang(rt && rt.navigator && rt.navigator.language, '');
         if (navLang) return navLang;
       } catch (_navErr) {}
-      return 'en';
+      return 'th';
     }
 
     /* ============================================================================
@@ -1815,7 +1799,7 @@
 
     /* 单档位、盲键 1s 化学快闪（含原子质量 STANDBY）或 Orchestrator 非编排主核锁定（NON-PLANNER）胶囊 —— 深浅双模通透适配 */
     function drawSingleModeStatusCapsule(ctx, info, tokens, upperEnName, oledPack) {
-      var pack = (typeof oledPack === 'object' && oledPack) ? oledPack : (oledPack ? OLED_I18N['zh-CN'] : OLED_I18N.en);
+      var pack = (typeof oledPack === 'object' && oledPack) ? oledPack : (oledPack === false ? OLED_I18N.en : OLED_I18N.th);
       var capX = WELL_X;
       var capY = WELL_Y;
       var capW = WELL_W;
@@ -2637,7 +2621,7 @@
         var minFrameGapMs = resolveOledMinFrameGapMs(effTargetFps);
         var effPaused = isEffectivelyPaused(bs);
         var langCode = resolveOledLocale(explicitLang, explicitZh, info, tp, bs, doc, root);
-        var oledPack = OLED_I18N[langCode] || OLED_I18N.en;
+        var oledPack = OLED_I18N[langCode] || OLED_I18N.th;
 
         lastDeckInfo = info;
         lastBlendState = bs;

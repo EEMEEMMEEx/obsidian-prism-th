@@ -40,7 +40,6 @@
   "omniModule": "on",
   "linkTarget": "builtin",
   "sidebarStudio": "off",
-  "hostLocalization": "auto",
   "autoUpdate": "off",
   "updateChannel": "stable",
   "autoArchiveOnExit": false

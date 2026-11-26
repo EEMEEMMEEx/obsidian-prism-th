@@ -32,7 +32,79 @@ function findCsc() {
   throw new Error('csc.exe (.NET Framework 4.x) not found');
 }
 
-function buildInstaller({ outputPath = path.join(ROOT_DIR, 'installer.exe'), configPath } = {}) {
+// 1.0.8-beta.4 -> [1, 0, 8, 4]; tail of the semver line not used as a field.
+function windowsVersionParts(version) {
+  const m = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.\-+]+))?$/.exec(String(version || '').trim());
+  if (!m) return [0, 0, 0, 0];
+  const pre = /(\d+)/.exec(m[4] || '');
+  const clamp = (n) => Math.max(0, Math.min(65535, Number(n) || 0));
+  return [clamp(m[1]), clamp(m[2]), clamp(m[3]), clamp(pre ? pre[1] : 0)];
+}
+
+function csString(value) {
+  return '"' + String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+}
+
+// Assembly attributes feed the Win32 VS_VERSIONINFO resource csc embeds, so Explorer
+// "Details" and SmartScreen reputation metadata show real product/version values.
+function buildVersionInfoSource({ version, title, description }) {
+  const numeric = windowsVersionParts(version).join('.');
+  return [
+    'using System.Reflection;',
+    `[assembly: AssemblyTitle(${csString(title)})]`,
+    `[assembly: AssemblyDescription(${csString(description)})]`,
+    '[assembly: AssemblyCompany("Obsidian Prism Contributors")]',
+    '[assembly: AssemblyProduct("Obsidian Prism")]',
+    '[assembly: AssemblyCopyright("GPL-3.0-only")]',
+    `[assembly: AssemblyVersion(${csString(numeric)})]`,
+    `[assembly: AssemblyFileVersion(${csString(numeric)})]`,
+    `[assembly: AssemblyInformationalVersion(${csString(version)})]`,
+    '',
+  ].join('\n');
+}
+
+function findSignTool() {
+  const explicit = process.env.PRISM_SIGNTOOL;
+  if (explicit && fs.existsSync(explicit)) return explicit;
+  const kitsBin = path.join(
+    process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
+    'Windows Kits',
+    '10',
+    'bin'
+  );
+  if (!fs.existsSync(kitsBin)) return null;
+  const versions = fs.readdirSync(kitsBin).sort().reverse();
+  for (const v of versions) {
+    for (const arch of ['x64', 'x86', 'arm64']) {
+      const candidate = path.join(kitsBin, v, arch, 'signtool.exe');
+      if (fs.existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+// Authenticode signing only runs when a certificate is supplied, so unsigned local
+// builds keep working. Signing reduces SmartScreen friction; it cannot remove it
+// without reputation or an EV certificate.
+function signExecutable(filePath, signOptions = {}) {
+  const certPath = signOptions.certPath || process.env.PRISM_SIGN_CERT;
+  if (!certPath) return { signed: false, reason: 'no-certificate' };
+  if (!fs.existsSync(certPath)) {
+    throw new Error(`Signing certificate not found: ${certPath}`);
+  }
+  const signtool = findSignTool();
+  if (!signtool) return { signed: false, reason: 'signtool-not-found' };
+  const password = signOptions.password || process.env.PRISM_SIGN_PASSWORD;
+  const timestampUrl =
+    signOptions.timestampUrl || process.env.PRISM_SIGN_TIMESTAMP_URL || 'http://timestamp.digicert.com';
+  const args = ['sign', '/fd', 'SHA256', '/f', certPath, '/tr', timestampUrl, '/td', 'SHA256'];
+  if (password) args.push('/p', password);
+  args.push(filePath);
+  execFileSync(signtool, args, { stdio: 'inherit' });
+  return { signed: true, reason: 'signed' };
+}
+
+function buildInstaller({ outputPath = path.join(ROOT_DIR, 'installer.exe'), configPath, signOptions = {} } = {}) {
   const csc = findCsc();
   const stageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-prism-build-'));
 
@@ -49,6 +121,28 @@ function buildInstaller({ outputPath = path.join(ROOT_DIR, 'installer.exe'), con
     const commonCdpClient = path.join(ROOT_DIR, 'installer', 'common', 'CdpClient.cs');
     const watcherMain = path.join(ROOT_DIR, 'installer', 'watcher', 'Program.cs');
 
+    const pluginVersion = cdp.PLUGIN_VERSION;
+    const watcherVersionInfo = path.join(stageDir, 'WatcherVersionInfo.cs');
+    fs.writeFileSync(
+      watcherVersionInfo,
+      buildVersionInfoSource({
+        version: pluginVersion,
+        title: 'Obsidian Prism Watcher',
+        description: 'Obsidian Prism background watcher for Antigravity',
+      }),
+      'utf8'
+    );
+    const setupVersionInfo = path.join(stageDir, 'SetupVersionInfo.cs');
+    fs.writeFileSync(
+      setupVersionInfo,
+      buildVersionInfoSource({
+        version: pluginVersion,
+        title: 'Obsidian Prism Installer',
+        description: 'Obsidian Prism installer (Optical UI & Motion Suite for Antigravity)',
+      }),
+      'utf8'
+    );
+
     execFileSync(csc, [
       '/nologo',
       '/utf8output',
@@ -63,6 +157,7 @@ function buildInstaller({ outputPath = path.join(ROOT_DIR, 'installer.exe'), con
       commonMiniJson,
       commonCdpClient,
       watcherMain,
+      watcherVersionInfo,
     ], { stdio: 'inherit' });
 
     const activeConfigFile = resolveActiveConfigFile(configPath);
@@ -109,17 +204,27 @@ function buildInstaller({ outputPath = path.join(ROOT_DIR, 'installer.exe'), con
       commonMiniJson,
       commonCdpClient,
       setupMain,
+      setupVersionInfo,
     ], { stdio: 'inherit' });
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     fs.copyFileSync(tempOut, outputPath);
     const stat = fs.statSync(outputPath);
+    let signing;
+    try {
+      signing = signExecutable(outputPath, signOptions);
+    } catch (err) {
+      fs.rmSync(outputPath, { force: true });
+      throw err;
+    }
     return {
       outputPath,
       sizeBytes: stat.size,
       watcherSizeBytes: fs.statSync(watcherOut).size,
       payloadZipBytes: fs.statSync(payloadZip).size,
       fileCount: payloadFiles.length,
+      version: pluginVersion,
+      signing,
     };
   } finally {
     fs.rmSync(stageDir, { recursive: true, force: true });
@@ -129,15 +234,23 @@ function buildInstaller({ outputPath = path.join(ROOT_DIR, 'installer.exe'), con
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   const args = process.argv.slice(2);
   let outputPath = path.join(ROOT_DIR, 'installer.exe');
+  const signOptions = {};
   for (let i = 0; i < args.length; i++) {
     if ((args[i] === '--out' || args[i] === '-o') && i + 1 < args.length) {
       outputPath = path.resolve(args[++i]);
+    } else if (args[i] === '--sign-cert' && i + 1 < args.length) {
+      signOptions.certPath = path.resolve(args[++i]);
+    } else if (args[i] === '--sign-password' && i + 1 < args.length) {
+      signOptions.password = args[++i];
+    } else if (args[i] === '--sign-timestamp' && i + 1 < args.length) {
+      signOptions.timestampUrl = args[++i];
     }
   }
-  const res = buildInstaller({ outputPath });
+  const res = buildInstaller({ outputPath, signOptions });
   console.log(
     `[✓] Built ${res.outputPath} (${(res.sizeBytes / 1024).toFixed(1)} KB; ` +
-    `payload ${(res.payloadZipBytes / 1024).toFixed(1)} KB, ${res.fileCount} files)`
+    `payload ${(res.payloadZipBytes / 1024).toFixed(1)} KB, ${res.fileCount} files; ` +
+    `v${res.version}, signing ${res.signing.signed ? 'applied' : `skipped (${res.signing.reason})`})`
   );
 }
 
@@ -146,4 +259,7 @@ export {
   buildInstaller,
   buildZip,
   buildMultiResIco,
+  buildVersionInfoSource,
+  windowsVersionParts,
+  signExecutable,
 };

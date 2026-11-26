@@ -1425,25 +1425,30 @@ test('Shared-with-code Spark project non-destructive protection (0 global & 0 pr
   }
 });
 
-test('Chat-only move-chat-session (drag/drop into folders, running Knowledge move allowed, cross-project BUSY), strict Code<->Chat non-interop, and 5-locale GREETING_POOLS', async () => {
+test('Chat-only move-chat-session (drag/drop into folders, running Knowledge move allowed, cross-project BUSY), strict Code<->Chat non-interop, and 2-locale GREETING_POOLS', async () => {
   const svc = createStudioSandboxService();
   try {
     const s0 = svc.getState().snapshot;
     const storeId = s0.storeId;
 
-    // 1. 5 语随机问候词库校验
-    for (const lang of ['zh-CN', 'zh-TW', 'yue', 'en', 'ja']) {
+    // 1. 2-locale (th/en) greeting pools + fallback validation
+    assert.deepEqual(Object.keys(GREETING_POOLS).sort(), ['en', 'th']);
+    for (const lang of ['th', 'en']) {
       assert.ok(Array.isArray(GREETING_POOLS[lang].withUser) && GREETING_POOLS[lang].withUser.length > 0);
       assert.ok(Array.isArray(GREETING_POOLS[lang].anonymous) && GREETING_POOLS[lang].anonymous.length > 0);
       const named = formatGreeting(lang, 'Alex', 0);
-      assert.equal(named.includes('Alex'), true, `${lang} 带用户名问候必须替换 {user}`);
+      assert.equal(named.includes('Alex'), true, `${lang} named greeting must interpolate {user}`);
       const anon = formatGreeting(lang, '', 0);
-      assert.equal(anon.includes('{user}'), false, `${lang} 无用户名兜底不得残留占位符`);
+      assert.equal(anon.includes('{user}'), false, `${lang} anonymous greeting must not leave {user} placeholder`);
     }
-    assert.equal(normalizeGreetingLang('zh-HK'), 'zh-TW');
-    assert.equal(normalizeGreetingLang('zh-yue'), 'yue');
+    assert.equal(normalizeGreetingLang('th-TH'), 'th');
+    assert.equal(normalizeGreetingLang('thai'), 'th');
     assert.equal(normalizeGreetingLang('en-US'), 'en');
-    assert.equal(normalizeGreetingLang('ja-JP'), 'ja');
+    assert.equal(normalizeGreetingLang('english'), 'en');
+    for (const removed of ['zh-CN', 'zh-TW', 'zh-HK', 'zh-yue', 'yue', 'ja-JP', 'ko', 'es', 'fr', 'de', 'unknown']) {
+      assert.equal(normalizeGreetingLang(removed), 'th', `Removed/unknown lang "${removed}" must fall back to th`);
+      assert.equal(formatGreeting(removed, 'Alex', 0), formatGreeting('th', 'Alex', 0));
+    }
 
     // 2. 在 Chat 创建 2 个 Knowledge 文件夹 + 1 个独立 Spark 项目，并在 Knowledge 根目录首发会话
     const toChat = await svc.handleRpc({

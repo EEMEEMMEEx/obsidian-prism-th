@@ -68,16 +68,10 @@
     ['data-ag-no-i18n', ''],
   ];
 
-  // 完整 8 语无障碍标签（去 yue，en/es/fr/de 严格 0 CJK）
+  // Bilingual accessibility labels (th / en)
   const ARIA_LABELS = {
-    'zh-CN': { accept: '使用建议的提示词' },
-    'zh-TW': { accept: '使用建議的提示詞' },
+    th: { accept: 'ใช้พรอมต์ที่แนะนำ' },
     en: { accept: 'Use suggested prompt' },
-    ja: { accept: '提案されたプロンプトを使用' },
-    ko: { accept: '추천 프롬프트 사용' },
-    es: { accept: 'Usar sugerencia de prompt' },
-    fr: { accept: 'Utiliser la suggestion de prompt' },
-    de: { accept: 'Vorgeschlagenen Prompt verwenden' },
   };
 
   // 运行时高频幽灵建议样式：严格纯 ASCII、0 :has()、行高对齐主输入框 22px，仅在 enabled === true 时注入
@@ -101,36 +95,29 @@
     return el;
   }
 
-  // 对齐全仓 8 语规范（yue -> zh-CN，zh-HK/MO -> zh-TW，未知返回空字符串交由调用方兜底 en）
-  function normalizeLang(raw) {
+  // Normalize language to 'th' or 'en' (default/fallback: 'th')
+  function normalizeLang(raw, fallback = 'th') {
     const s = String(raw || '').trim().toLowerCase().replace(/_/g, '-');
-    if (!s || s === 'auto') return '';
-    if (s === 'yue' || s.startsWith('yue-') || s === 'zh-yue' || s.includes('cantonese')) return 'zh-CN';
-    if (/^zh-(tw|hk|mo|hant)/.test(s) || s === 'tw' || s === 'hant') return 'zh-TW';
-    if (/^zh(?:\b|-)/.test(s)) return 'zh-CN';
-    if (/^(ja|jp)(?:\b|-)/.test(s) || s === 'japanese') return 'ja';
-    if (/^(ko|kr)(?:\b|-)/.test(s) || s === 'korean') return 'ko';
-    if (/^es(?:\b|-)/.test(s) || s === 'spanish') return 'es';
-    if (/^fr(?:\b|-)/.test(s) || s === 'french') return 'fr';
-    if (/^de(?:\b|-)/.test(s) || s === 'german') return 'de';
-    if (/^en(?:\b|-)/.test(s) || s === 'english') return 'en';
-    return '';
+    if (!s || s === 'auto') return fallback;
+    if (s === 'en' || s.startsWith('en-') || s === 'english') return 'en';
+    if (s === 'th' || s.startsWith('th-') || s === 'thai') return 'th';
+    return fallback;
   }
 
   function resolveDocLang(doc) {
     try {
       const de = doc && doc.documentElement;
       if (de && typeof de.getAttribute === 'function') {
-        const l1 = normalizeLang(de.getAttribute('data-ag-cs-lang'));
+        const l1 = normalizeLang(de.getAttribute('data-ag-cs-lang'), '');
         if (l1) return l1;
-        const l2 = normalizeLang(de.getAttribute('data-ag-prism-lang'));
+        const l2 = normalizeLang(de.getAttribute('data-ag-prism-lang'), '');
         if (l2) return l2;
       }
       const navObj = G && 'navigator' in G ? G.navigator : typeof navigator !== 'undefined' ? navigator : null;
-      const navLang = normalizeLang(navObj?.language || '');
+      const navLang = normalizeLang(navObj?.language || '', '');
       if (navLang) return navLang;
     } catch {}
-    return 'en';
+    return 'th';
   }
 
   function createSuggesterBridge(win) {
@@ -471,7 +458,7 @@
         const b = btns[i];
         const tid = String(b.getAttribute?.('data-testid') || '');
         const lbl = String(b.getAttribute?.('aria-label') || b.getAttribute?.('title') || '');
-        if (/(?:stop|cancel)/i.test(tid) || /(?:stop|cancel|停止|取消)/i.test(lbl)) return true;
+        if (/(?:stop|cancel)/i.test(tid) || /(?:stop|cancel|หยุด|ยกเลิก)/i.test(lbl)) return true;
       }
       return false;
     };
@@ -519,10 +506,10 @@
         if (!isVisibleNode(b)) continue;
         const tid = String(b.getAttribute?.('data-testid') || '').trim();
         const lbl = String(b.getAttribute?.('aria-label') || b.getAttribute?.('title') || '').trim();
-        if (/取消置顶|取消固定|unpin|\b(?:pin|menu|more|options|delete|archive|rename|close|dismiss|voice|context)\b/i.test(`${tid} ${lbl}`)) {
+        if (/เลิกปักหมุด|unpin|\b(?:pin|menu|more|options|delete|archive|rename|close|dismiss|voice|context)\b/i.test(`${tid} ${lbl}`)) {
           continue;
         }
-        if (/(?:^|[^a-z])(?:stop|cancel|abort)(?:[^a-z]|$)/i.test(tid) || /(?:^|\b)(?:stop|cancel|abort)(?:\b|$)|停止|取消|中止/i.test(lbl)) {
+        if (/(?:^|[^a-z])(?:stop|cancel|abort)(?:[^a-z]|$)/i.test(tid) || /(?:^|\b)(?:stop|cancel|abort)(?:\b|$)|หยุด|ยกเลิก/i.test(lbl)) {
           return true;
         }
       }
@@ -576,7 +563,7 @@
 
     const getAria = () => {
       const lang = resolveDocLang(doc);
-      return ARIA_LABELS[lang] || ARIA_LABELS.en;
+      return ARIA_LABELS[lang] || ARIA_LABELS.th;
     };
 
     const removeLegacyButtons = () => {

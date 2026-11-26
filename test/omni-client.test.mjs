@@ -1235,11 +1235,11 @@ test('auto-replaces host >20MB File Pane error (UHc without data-testid) with in
 });
 
 // ── 6c. Battle 3: Aux Auto-Preview for .html/.htm/.svg + Sandbox Badge + 8-Locale + Clean Unmount ─
-test('auto-previews normal .html/.htm/.svg in aux-pane-split without error banner, toggles Source, unmounts on .ts, excludes native containers, and renders 8-locale 5+1 sandbox badge', async () => {
+test('auto-previews normal .html/.htm/.svg in aux-pane-split without error banner, toggles Source, unmounts on .ts, excludes native containers, and renders 2-locale 5+1 sandbox badge', async () => {
   const env = createFakeDomEnvironment();
   const { window, document } = env;
   mountMockHostRoot(document, { withBrowserCtx: true, withV2: true });
-  document.documentElement.setAttribute('data-ag-cs-lang', 'zh-CN');
+  document.documentElement.setAttribute('data-ag-cs-lang', 'th');
 
   const auxSplit = document.createElement('div');
   auxSplit.setAttribute('data-testid', 'aux-pane-split');
@@ -1324,13 +1324,13 @@ test('auto-previews normal .html/.htm/.svg in aux-pane-split without error banne
   assert.equal(editorBox.style.display, 'none', 'Native source editor must be hidden in preview mode');
   assert.match(iframe.src, /^http:\/\/127\.0\.0\.1:46600\/viewer\?token=tok_b3.*landing%2Findex\.html/);
   assert.match(iframe.src, /kind=html/);
-  assert.equal(switcher.children[0].textContent, '预览', 'children[0] must remain Preview button');
-  assert.equal(switcher.children[1].textContent, '源码', 'children[1] must remain Source button');
+  assert.equal(switcher.children[0].textContent, 'ตัวอย่าง', 'children[0] must remain Preview button');
+  assert.equal(switcher.children[1].textContent, 'ซอร์สโค้ด', 'children[1] must remain Source button');
 
   // 3) Sandbox badge carries full 5+1 anti-translate attributes
   assert.ok(badge, 'Sandbox isolation badge must render for .html/.htm/.svg');
   assert.equal(badge.className, 'ag-omni-sandbox-badge');
-  assert.equal(badge.textContent, '沙盒隔离');
+  assert.equal(badge.textContent, 'แยกแซนด์บ็อกซ์');
   for (const [attr, expected] of [
     ['translate', 'no'],
     ['data-no-translate', 'true'],
@@ -1343,29 +1343,32 @@ test('auto-previews normal .html/.htm/.svg in aux-pane-split without error banne
     assert.equal(switcher.getAttribute(attr), expected, `Aux bar must set ${attr}="${expected}"`);
   }
 
-  // 4) All 8 locales update switcher & badge cleanly with 0 CJK in non-CJK locales
+  // 4) Both supported locales (th/en) update switcher & badge cleanly with 0 CJK, and removed/unknown locales fall back to th
   const cjkRe = /[\u3400-\u9FFF\uF900-\uFAFF]/;
-  const expectedBadges = {
-    'zh-CN': '沙盒隔离',
-    'zh-TW': '沙盒隔離',
-    en: 'Sandbox Isolated',
-    ja: 'サンドボックス隔離',
-    ko: '샌드박스 격리',
-    es: 'Aislado en sandbox',
-    fr: 'Isolé en sandbox',
-    de: 'Sandbox-isoliert',
-  };
-  for (const [lang, expectedBadge] of Object.entries(expectedBadges)) {
+  const expectedLocales = [
+    ['th', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['en', 'Sandbox Isolated', 'Preview', 'Source'],
+    ['zh-CN', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['zh-TW', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['ja', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['ko', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['es', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['fr', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['de', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['yue', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+    ['xx-YY', 'แยกแซนด์บ็อกซ์', 'ตัวอย่าง', 'ซอร์สโค้ด'],
+  ];
+  for (const [lang, expectedBadge, expectedPreview, expectedSource] of expectedLocales) {
     document.documentElement.setAttribute('data-ag-cs-lang', lang);
     client.sync({ omniModule: 'on' });
     assert.equal(badge.textContent, expectedBadge, `Badge text mismatch for ${lang}`);
-    if (['en', 'ko', 'es', 'fr', 'de'].includes(lang)) {
-      assert.equal(cjkRe.test(badge.textContent), false, `${lang} badge must contain 0 CJK chars`);
-      assert.equal(cjkRe.test(switcher.children[0].textContent), false, `${lang} preview btn must contain 0 CJK chars`);
-      assert.equal(cjkRe.test(switcher.children[1].textContent), false, `${lang} source btn must contain 0 CJK chars`);
-    }
+    assert.equal(switcher.children[0].textContent, expectedPreview, `Preview btn mismatch for ${lang}`);
+    assert.equal(switcher.children[1].textContent, expectedSource, `Source btn mismatch for ${lang}`);
+    assert.equal(cjkRe.test(badge.textContent), false, `${lang} badge must contain 0 CJK chars`);
+    assert.equal(cjkRe.test(switcher.children[0].textContent), false, `${lang} preview btn must contain 0 CJK chars`);
+    assert.equal(cjkRe.test(switcher.children[1].textContent), false, `${lang} source btn must contain 0 CJK chars`);
   }
-  document.documentElement.setAttribute('data-ag-cs-lang', 'zh-CN');
+  document.documentElement.setAttribute('data-ag-cs-lang', 'th');
   client.sync({ omniModule: 'on' });
 
   // 5) Clicking Source button restores native editor & hides iframe; clicking Preview returns to iframe

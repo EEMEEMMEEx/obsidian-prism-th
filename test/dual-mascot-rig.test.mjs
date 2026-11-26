@@ -2333,17 +2333,17 @@ test('Periodic picker PP_OPEN 0fps sleep covers 4-species quad-minis roster and 
   }
 });
 
-test('Octopath HD-2D 16:9 Mascot Casting Stage sub-panel: Ch9 fallback when mascot=off, 5-slot pure toggles, 4 presets, 0x0 VRAM reclaim, 36 schema keys, 8-lang zero-CJK & MIT credits', () => {
+test('Octopath HD-2D 16:9 Mascot Casting Stage sub-panel: Ch9 fallback when mascot=off, 5-slot pure toggles, 4 presets, 0x0 VRAM reclaim, 38 schema keys, 2-lang zero-CJK & MIT credits', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const sp = require('../settings-panel.js');
   const i18nLocales = require('../i18n-locales.js');
 
-  // 1. Strict 39 schema keys (37 baseline + darkAura + darkAuraStyle) & 4 mascot presets
-  assert.equal(Object.keys(sp.PRISM_SETTINGS_SCHEMA).length, 39, 'PRISM_SETTINGS_SCHEMA must remain strictly 39 keys');
+  // 1. Strict 38 schema keys (hostLocalization removed) & 4 mascot presets
+  assert.equal(Object.keys(sp.PRISM_SETTINGS_SCHEMA).length, 38, 'PRISM_SETTINGS_SCHEMA must remain strictly 38 keys');
   assert.deepEqual([...sp.PRISM_SETTINGS_SCHEMA.mascot.allowed], ['crab', 'quad', 'quad-minis', 'off']);
 
-  // 2. 8-language coverage (including all stage keys), /4 cap copy, zero CJK in en/es/fr/de, and 0 new keys leaked into RUNTIME_UI_KEYS
+  // 2. 2-language coverage (th/en + removed locale fallback to th), /4 cap copy, zero CJK in th/en, and 0 new keys leaked into RUNTIME_UI_KEYS
   const newKeys = [
     'optMascotCrab', 'optMascotMinis', 'optMascotQuad', 'optMascotQuadMinis', 'optMascotOff',
     'mascotRosterTitle', 'mascotRosterCount', 'mascotRosterMinis',
@@ -2357,15 +2357,17 @@ test('Octopath HD-2D 16:9 Mascot Casting Stage sub-panel: Ch9 fallback when masc
     assert.equal(runtimeKeySet.has(k), false, `New mascot settings key '${k}' must NOT be in RUNTIME_UI_KEYS`);
   }
   const CJK_RE = /[\u3000-\u30ff\u3400-\u9fff\uac00-\ud7af\uff00-\uffef]/;
-  for (const lang of ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de']) {
+  for (const lang of ['th', 'en']) {
     const ui = i18nLocales.getUiStrings(lang);
     assert.ok(ui.mascotRosterCount.includes('/4'), `mascotRosterCount for ${lang} must reflect /4 cap`);
     for (const k of newKeys) {
       assert.ok(typeof ui[k] === 'string' && ui[k].trim().length > 0, `Missing i18n key ${k} for ${lang}`);
-      if (['en', 'es', 'fr', 'de'].includes(lang)) {
-        assert.equal(CJK_RE.test(ui[k]), false, `CJK leak in ${lang}.${k}: ${ui[k]}`);
-      }
+      assert.equal(CJK_RE.test(ui[k]), false, `CJK leak in ${lang}.${k}: ${ui[k]}`);
     }
+  }
+  const thUi = i18nLocales.getUiStrings('th');
+  for (const removedLang of ['zh-CN', 'ja', 'fr']) {
+    assert.equal(i18nLocales.getUiStrings(removedLang).mascotStageTitle, thUi.mascotStageTitle, `${removedLang} must fall back to th`);
   }
 
   // 3. Credits & third-party MIT attribution for wp3171216237/dsh-TUI

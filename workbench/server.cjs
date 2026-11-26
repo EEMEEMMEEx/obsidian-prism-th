@@ -126,7 +126,7 @@ function parseReplicaPrismConfig(searchParams) {
     homeLayout: ['studio', 'classic', 'off'],
     telemetryModule: ['auto', 'on', 'off'],
     effortSliderModule: ['auto', 'on', 'off'],
-    language: ['zh-CN', 'zh-TW', 'yue', 'en', 'ja'],
+    language: ['th', 'en'],
     codeFont: ['default', 'jetbrains', 'cascadia', 'sfmono'],
   };
   for (const [k, vals] of Object.entries(allow)) {
@@ -902,7 +902,7 @@ if (require.main === module) {
   const server = createWorkbenchServer();
   server.listen(port, host, () => {
     const addr = server.address();
-    console.log(`Obsidian Prism v1.0.8-beta.3 Workbench listening on http://${host}:${addr.port}`);
+    console.log(`Obsidian Prism v1.0.8-beta.4 Workbench listening on http://${host}:${addr.port}`);
     console.log(`  · Optical Workbench: http://${host}:${addr.port}/`);
     console.log(`  · Bipolar Studio:    http://${host}:${addr.port}/studio`);
   });

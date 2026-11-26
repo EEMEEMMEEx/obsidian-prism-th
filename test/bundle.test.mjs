@@ -360,8 +360,8 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
     assert.equal(html.getAttribute('data-ag-cs-style'), '1');
     assert.equal(html.getAttribute('data-ag-cs-palette'), 'obsidian');
     assert.equal(html.getAttribute('data-ag-cs-home'), 'studio');
-    assert.equal(h1.textContent, '接下来做什么？');
-    assert.equal(placeholder.getAttribute('data-ag-cs-placeholder'), '描述任务或提出问题');
+    assert.equal(h1.textContent, 'ทำอะไรต่อดี?');
+    assert.equal(placeholder.getAttribute('data-ag-cs-placeholder'), 'วันนี้ให้ช่วยอะไรดี?');
 
     // Coexistence & zero-interference guarantees
     assert.equal(sandbox.window.__agCsI18n, undefined);
@@ -397,8 +397,8 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
     assert.ok(sandbox.window.__agPrism, 'Expected window.__agPrism exposed');
     assert.equal(sandbox.window.__agClaudeStyle, sandbox.window.__agPrism, 'Expected legacy alias pointing to __agPrism');
     const st = sandbox.window.__agPrism.getState();
-    assert.equal(st.version, '1.0.8-beta.3');
-    assert.equal(html.getAttribute('data-ag-prism'), '1.0.8-beta.3');
+    assert.equal(st.version, '1.0.8-beta.4');
+    assert.equal(html.getAttribute('data-ag-prism'), '1.0.8-beta.4');
     assert.equal(html.getAttribute('data-ag-cs-light-preset'), 'crystal');
     assert.equal(html.getAttribute('data-ag-cs-telemetry'), 'auto');
     assert.equal(html.getAttribute('data-ag-cs-effort-slider'), 'auto');
@@ -445,8 +445,8 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
     assert.equal(generalPanel.querySelector('#ag-cs-settings-sec'), null);
     const settingsSec = appearancePanel.querySelector('#ag-cs-settings-sec');
     assert.ok(settingsSec);
-    assert.equal(settingsSec.querySelector('h3')?.textContent, 'Obsidian Prism · 黑曜棱镜');
-    assert.equal(settingsSec.querySelector('.ag-cs-settings-ver')?.textContent, 'v1.0.8-beta.3');
+    assert.equal(settingsSec.querySelector('h3')?.textContent, 'Obsidian Prism');
+    assert.equal(settingsSec.querySelector('.ag-cs-settings-ver')?.textContent, 'v1.0.8-beta.4');
     const brandMarkHtml = settingsSec.querySelector('.ag-cs-settings-brand-mark')?.innerHTML || '';
     assert.ok(
       brandMarkHtml.includes('ag-cs-brand-logo-svg') || brandMarkHtml.includes('ag-cs-settings-brand-svg'),
@@ -516,7 +516,7 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
     assert.ok(licPreText.includes('RMvdesi'));
     assert.ok(licPreText.includes('MIT License'));
     assert.ok(
-      aboutBox.querySelector('.ag-cs-about-disclaimer')?.textContent?.includes('not affiliated with or endorsed by Google LLC')
+      aboutBox.querySelector('.ag-cs-about-disclaimer')?.textContent?.includes('Google LLC')
     );
     assert.ok(aboutBox.querySelector('button[data-ag-cs-repo-sync]'), 'Expected Git sync button in About box');
 
@@ -526,7 +526,7 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
         .map((b) => b.getAttribute('data-ag-cs-key'))
         .filter(Boolean)
     );
-    assert.equal(settingKeys.size, 38);
+    assert.equal(settingKeys.size, 37);
     assert.ok(settingKeys.has('darkAura'), 'Expected darkAura setting key in Appearance panel');
     assert.ok(settingKeys.has('darkAuraStyle'), 'Expected darkAuraStyle setting key in Appearance panel');
     for (const expectedKey of [
@@ -540,7 +540,6 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
       'convRipple',
       'logoInk',
       'language',
-      'hostLocalization',
       'effortMemory',
       'periodicModelPicker',
       'composerRestyle',
@@ -591,38 +590,22 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
       assert.equal(placeholder.getAttribute('data-ag-cs-placeholder'), expectedPlaceholder);
     };
 
-    // Verify all 8 language buttons switch dashboard, greeting, placeholder & settings copy + emit CDP binding (no yue)
-    assert.equal(getLangBtns().length, 8, 'Expected exactly 8 language buttons');
-    assert.equal(getLangBtns().some((b) => b.getAttribute('data-ag-cs-val') === '"yue"'), false, 'yue button must be removed');
-    checkLangSwitch('zh-TW', '外觀', '介面語言', '概覽', '接下來做什麼？', '描述任務或提出問題');
-    checkLangSwitch('ko', 'Appearance', 'UI 언어', '개요', '다음은 무엇을 할까요?', '작업 설명이나 질문을 입력하세요');
-    assert.equal(html.getAttribute('data-ag-cs-cjk'), '1');
-    checkLangSwitch('es', 'Appearance', 'Idioma de la interfaz', 'Resumen', '¿Qué hacemos ahora?', 'Describe una tarea o haz una pregunta');
-    assert.equal(html.hasAttribute('data-ag-cs-cjk'), false);
-    checkLangSwitch('fr', 'Appearance', 'Langue de l’interface', 'Aperçu', 'Que faisons-nous ensuite ?', 'Décrivez une tâche ou posez une question');
-    assert.equal(html.hasAttribute('data-ag-cs-cjk'), false);
-    checkLangSwitch('de', 'Appearance', 'UI-Sprache', 'Übersicht', 'Was steht als Nächstes an?', 'Aufgabe beschreiben oder Frage stellen');
-    assert.equal(html.hasAttribute('data-ag-cs-cjk'), false);
+    // Verify both language buttons (th, en) switch dashboard, greeting, placeholder & settings copy + emit CDP binding
+    assert.equal(getLangBtns().length, 2, 'Expected exactly 2 language buttons (th, en)');
+    assert.equal(getLangBtns().some((b) => b.getAttribute('data-ag-cs-val') === '"zh-CN"'), false, 'zh-CN button must be removed');
     checkLangSwitch('en', 'Appearance', 'UI Language', 'Overview', "What's up next?", 'How can I help you today?');
     assert.equal(html.hasAttribute('data-ag-cs-cjk'), false);
-    checkLangSwitch('ja', '外観', '表示言語', '概要', '次は何をしますか？', 'タスクの説明や質問を入力してください');
-    assert.equal(html.getAttribute('data-ag-cs-cjk'), '1');
-    checkLangSwitch('zh-CN', '外观', '界面语言', '概览', '接下来做什么？', '描述任务或提出问题');
+    checkLangSwitch('th', 'Appearance', 'ภาษาอินเทอร์เฟซ', 'ภาพรวม', 'ทำอะไรต่อดี?', 'วันนี้ให้ช่วยอะไรดี?');
+    assert.equal(html.hasAttribute('data-ag-cs-cjk'), false);
 
     assert.deepEqual(
       bindingCalls.map((c) => [c.key, c.value]),
       [
-        ['language', 'zh-TW'],
-        ['language', 'ko'],
-        ['language', 'es'],
-        ['language', 'fr'],
-        ['language', 'de'],
         ['language', 'en'],
-        ['language', 'ja'],
-        ['language', 'zh-CN'],
+        ['language', 'th'],
       ]
     );
-    appearanceH2.textContent = '外观';
+    appearanceH2.textContent = 'Appearance';
 
     // Switching palette/mascot externally syncs root attrs & setting button active state immediately (claude alias normalized to warm)
     sandbox.window.__agPrism.refreshConfig({ ...cdp.DEFAULT_CONFIG, palette: 'claude' });
@@ -631,7 +614,7 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
       .querySelectorAll('#ag-cs-settings-sec button')
       .find((b) => b.getAttribute('data-ag-cs-key') === 'palette' && b.getAttribute('data-ag-cs-val') === '"warm"');
     assert.ok(warmBtn, 'Expected Alabaster Warm palette button');
-    assert.equal(warmBtn.textContent, 'Alabaster 暖岩');
+    assert.equal(warmBtn.textContent, 'Alabaster Warm');
     assert.equal(warmBtn.getAttribute('aria-pressed'), 'true');
     assert.equal(warmBtn.hasAttribute('data-pressed'), true);
 

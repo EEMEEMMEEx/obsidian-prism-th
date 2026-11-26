@@ -329,13 +329,13 @@ test('mountOrSyncSettingsSection mounts all 27 settings (including omniModule, l
     },
   };
 
-  const resolveTestLang = () => (state.language === 'auto' ? 'zh-CN' : state.language);
+  const resolveTestLang = () => (state.language === 'auto' ? 'th' : i18nCore.normalizeLanguage(state.language));
   const remountOrSync = () => {
     settingsPanel.mountOrSyncSettingsSection({
       version: '1.0.1',
       getLang: resolveTestLang,
       uiText: (l) => i18nLocales.getUiStrings(l),
-      isZh: () => { const l = resolveTestLang(); return l !== 'en' && l !== 'ja'; },
+      isZh: () => resolveTestLang() !== 'en',
       i18nCore,
       formatSettingsSummary: (l, u) => `${l}:${state.palette}:${u.optLinkBuiltin}`,
       resolveSettingRowActiveValue: (k) => (k === 'language' ? resolveTestLang() : state[k]),
@@ -369,7 +369,7 @@ test('mountOrSyncSettingsSection mounts all 27 settings (including omniModule, l
     assert.equal(sec.getAttribute('data-agy-no-translate'), 'true');
     assert.equal(sec.getAttribute('data-antigravity-zh-skip'), '1');
     const allRows = sec.querySelectorAll('[data-ag-cs-row]');
-    assert.equal(allRows.length, 38, 'Must render all 38 setting rows');
+    assert.equal(allRows.length, 37, 'Must render all 37 setting rows');
     const interactionGrp = sec.querySelector('[data-ag-cs-group="interaction"]');
     const interactionRowKeys = interactionGrp.querySelectorAll('[data-ag-cs-row]').map((r) => r.getAttribute('data-ag-cs-row'));
     assert.ok(interactionRowKeys.includes('sidebarNavFold'), 'interaction group must include sidebarNavFold');
@@ -440,7 +440,8 @@ test('mountOrSyncSettingsSection mounts all 27 settings (including omniModule, l
     await new Promise((r) => setTimeout(r, 25));
     assert.equal(clipboardWrites.length, 1);
     const exportedObj = JSON.parse(clipboardWrites[0]);
-    assert.equal(Object.keys(exportedObj.settings).length, 39);
+    assert.equal(Object.keys(exportedObj.settings).length, 38);
+    assert.equal(exportedObj.settings.hostLocalization, undefined);
     assert.equal(exportedObj.settings.darkAura, 'balanced');
     assert.equal(exportedObj.settings.darkAuraStyle, 'prism');
     assert.equal(exportedObj.settings.convRipple, 'off');
@@ -450,7 +451,6 @@ test('mountOrSyncSettingsSection mounts all 27 settings (including omniModule, l
     assert.equal(exportedObj.settings.sidebarNavFold, 'off');
     assert.equal(exportedObj.settings.scrollBottomMotion, 'smooth');
     assert.equal(exportedObj.settings.updateChannel, 'stable');
-    assert.equal(exportedObj.settings.hostLocalization, 'auto');
     assert.equal(exportedObj.settings.omniModule, 'on');
     assert.equal(exportedObj.settings.linkTarget, 'external');
     assert.equal(exportedObj.settings.sidebarStudio, 'on');
@@ -458,7 +458,7 @@ test('mountOrSyncSettingsSection mounts all 27 settings (including omniModule, l
     assert.equal(clipboardWrites[0].includes('SECRETKEY123'), false);
     assert.equal(clipboardWrites[0].includes('PRIVATE999'), false);
 
-    // 5. Cross-language Import JSON (zh-CN -> en) rebuilds panel, preserves green 'ok' status toast, and calls reloadConfig()
+    // 5. Cross-language Import JSON (th -> en) rebuilds panel, preserves green 'ok' status toast, and calls reloadConfig()
     const fileInput = sec.querySelector('input');
     const importPayload = JSON.stringify({
       settings: { language: 'en', omniModule: 'off', linkTarget: 'builtin', thoughtTranslate: 'ai', thoughtView: 'bilingual' },
@@ -478,37 +478,37 @@ test('mountOrSyncSettingsSection mounts all 27 settings (including omniModule, l
     assert.equal(statusAfterImport.getAttribute('data-tone'), 'ok', 'Green toast must survive cross-language panel rebuild');
     assert.equal(statusAfterImport.textContent, i18nLocales.getUiStrings('en').cfgImportOk);
 
-    // 6. Cross-language Reset Defaults (en -> auto -> zh-CN) restores defaults & preserves green 'ok' toast in zh-CN
+    // 6. Cross-language Reset Defaults (en -> auto -> th) restores defaults & preserves green 'ok' toast in th
     sec.querySelector('button[data-ag-cs-cfg-action="reset"]').click();
     sec = doc.getElementById(settingsPanel.SETTINGS_SEC_ID);
     assert.equal(state.language, 'auto');
-    assert.equal(sec.getAttribute('data-ag-cs-lang'), 'zh-CN');
+    assert.equal(sec.getAttribute('data-ag-cs-lang'), 'th');
     assert.equal(state.omniModule, 'on');
     assert.equal(state.linkTarget, 'builtin');
     const statusAfterReset = sec.querySelector('[data-ag-cs-cfg-status]');
     assert.equal(statusAfterReset.getAttribute('data-tone'), 'ok');
-    assert.equal(statusAfterReset.textContent, i18nLocales.getUiStrings('zh-CN').cfgResetOk);
+    assert.equal(statusAfterReset.textContent, i18nLocales.getUiStrings('th').cfgResetOk);
 
     // 7. Dynamic lightPreset context hints across dark, light+warm, light+host, light+obsidian
     const getLpDesc = () => doc.getElementById(settingsPanel.SETTINGS_SEC_ID).querySelector('[data-ag-cs-row="lightPreset"] [data-k="d"]').textContent;
-    const zhUi = i18nLocales.getUiStrings('zh-CN');
-    assert.equal(getLpDesc(), zhUi.lightPresetHintDark);
+    const thUi = i18nLocales.getUiStrings('th');
+    assert.equal(getLpDesc(), thUi.lightPresetHintDark);
 
     doc.documentElement.setAttribute('data-ag-cs-theme', 'light');
     state.palette = 'warm';
     remountOrSync();
-    assert.equal(getLpDesc(), zhUi.lightPresetHintWarm);
+    assert.equal(getLpDesc(), thUi.lightPresetHintWarm);
 
     state.palette = 'host';
     remountOrSync();
-    assert.equal(getLpDesc(), zhUi.lightPresetHintHost);
+    assert.equal(getLpDesc(), thUi.lightPresetHintHost);
 
     state.palette = 'obsidian';
     remountOrSync();
-    assert.equal(getLpDesc(), zhUi.setLightPresetDesc);
+    assert.equal(getLpDesc(), thUi.setLightPresetDesc);
 
-    // 8. Verify all 5 languages render Omni & Link Target titles cleanly
-    for (const lang of ['zh-CN', 'zh-TW', 'yue', 'en', 'ja']) {
+    // 8. Verify th, en, and removed locales (falling back to th) render Omni & Link Target titles cleanly
+    for (const lang of ['th', 'en', 'zh-CN', 'yue', 'ja']) {
       state.language = lang;
       remountOrSync();
       const curSec = doc.getElementById(settingsPanel.SETTINGS_SEC_ID);
@@ -691,15 +691,15 @@ test('settings-panel lazy foldBody deferral on collapsed mount, memoized syncRoo
     // Updating state while collapsed updates fold summary in O(1) without building or scanning buttons
     state.palette = 'warm';
     mountOrSync();
-    assert.equal(summaryEl.textContent, 'zh-CN:warm:ultra');
+    assert.equal(summaryEl.textContent, 'th:warm:ultra');
     assert.equal(foldBody.children.length, 0);
     assert.equal(matchCalls, 0);
 
-    // First click on foldHead lazily constructs all 38 rows and 6 groups
+    // First click on foldHead lazily constructs all 37 rows and 6 groups
     foldHead.click();
     assert.equal(sec.getAttribute('data-open'), '1');
     assert.equal(sec.getAttribute('data-body-built'), '1');
-    assert.equal(sec.querySelectorAll('[data-ag-cs-row]').length, 38);
+    assert.equal(sec.querySelectorAll('[data-ag-cs-row]').length, 37);
     assert.equal(sec.querySelectorAll('.ag-cs-settings-group').length, 6);
     assert.equal(sec.querySelector('button[data-ag-cs-repo-sync]')?.getAttribute('data-tone'), 'secondary');
     assert.equal(sec.querySelector('button[data-ag-cs-update-check]')?.getAttribute('data-tone'), null);

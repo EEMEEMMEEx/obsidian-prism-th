@@ -717,7 +717,7 @@ test('Engine 1 (Video & Audio): frame stepping, A-B loop, PNG frame capture, mar
   // Part A: Video Workbench driven via client URL query parameters on empty renderWorkbenchHtml({})
   const videoHtml = renderWorkbenchHtml({});
   const videoEnv = bootRenderedWorkbenchInVm(videoHtml, {
-    locationHref: 'http://127.0.0.1:43199/viewer?token=tok1&path=%2Fmedia%2Fdemo.mp4&theme=dark&lang=zh-CN',
+    locationHref: 'http://127.0.0.1:43199/viewer?token=tok1&path=%2Fmedia%2Fdemo.mp4&theme=dark&lang=th',
     onFetch: async (url) => {
       if (url.includes('/meta')) {
         return {
@@ -746,33 +746,33 @@ test('Engine 1 (Video & Audio): frame stepping, A-B loop, PNG frame capture, mar
 
   // Frame stepping (+1F / -1F = 1/30s)
   videoEl.currentTime = 1.0;
-  findBtn('1帧 >').click();
+  findBtn('+1F').click();
   assert.ok(Math.abs(videoEl.currentTime - (1.0 + 1 / 30)) < 1e-6);
-  findBtn('< 1帧').click();
+  findBtn('-1F').click();
   assert.ok(Math.abs(videoEl.currentTime - 1.0) < 1e-6);
 
   // A-B Loop wraparound
   videoEl.currentTime = 2.0;
-  findBtn('设 A 点').click();
+  findBtn('ตั้งจุด A').click();
   videoEl.currentTime = 4.0;
-  findBtn('设 B 点').click();
+  findBtn('ตั้งจุด B').click();
   videoEl.currentTime = 4.25;
   videoEl.dispatchEvent('timeupdate');
   assert.equal(videoEl.currentTime, 2.0, 'reaching B point should loop back to A point');
 
   // Frame PNG download & clipboard copy
-  findBtn('下载帧 PNG').click();
+  findBtn('บันทึกเฟรม PNG').click();
   assert.equal(videoEnv.downloads.length, 1);
   assert.match(videoEnv.downloads[0].download, /^frame-.*\.png$/);
 
-  findBtn('复制帧').click();
+  findBtn('คัดลอกเฟรม').click();
   await videoEnv.settle();
   assert.equal(videoEnv.clipboardLog.items.length, 1);
 
   // Markers add & copy
   videoEl.currentTime = 5.123;
-  findBtn('+ 打点').click();
-  findBtn('复制时间点').click();
+  findBtn('+ มาร์กเกอร์').click();
+  findBtn('คัดลอกเวลา').click();
   await videoEnv.settle();
   assert.ok(videoEnv.clipboardLog.texts.includes('00:05.123'));
 
@@ -831,15 +831,15 @@ test('Engine 1 (Video & Audio): frame stepping, A-B loop, PNG frame capture, mar
 test('Engine 2 & 5 (SVG & Mermaid Vector Lens): XSS sanitization, wheel zoom, drag pan, PNG export & postMessage sync', async () => {
   const html = renderWorkbenchHtml({
     kind: 'mermaid',
-    lang: 'zh-CN',
+    lang: 'th',
   });
   const env = bootRenderedWorkbenchInVm(html);
   await env.settle();
 
   // Initially waiting for diagram payload
-  assert.match(env.stageEl.textContent, /等待传入图表数据/);
+  assert.match(env.stageEl.textContent, /รอข้อมูลแผนภาพ/);
 
-  // Inject SVG with malicious script & onload via ag-prism-workbench-sync and switch to Japanese + Alabaster
+  // Inject SVG with malicious script & onload via ag-prism-workbench-sync and switch to English + Alabaster
   env.win.postMessageToSelf({
     type: 'ag-prism-workbench-sync',
     theme: 'light',
@@ -847,7 +847,7 @@ test('Engine 2 & 5 (SVG & Mermaid Vector Lens): XSS sanitization, wheel zoom, dr
     lightPreset: 'alabaster',
     accent: 'iris',
     corners: 'soft',
-    lang: 'ja',
+    lang: 'en',
     kind: 'mermaid',
     title: 'Architecture Flow',
     rawContent:
@@ -860,7 +860,7 @@ test('Engine 2 & 5 (SVG & Mermaid Vector Lens): XSS sanitization, wheel zoom, dr
   assert.equal(env.htmlEl.getAttribute('data-wb-light-preset'), 'alabaster');
   assert.equal(env.htmlEl.getAttribute('data-wb-accent'), 'iris');
   assert.equal(env.htmlEl.getAttribute('data-wb-corners'), 'soft');
-  assert.equal(env.htmlEl.getAttribute('lang'), 'ja');
+  assert.equal(env.htmlEl.getAttribute('lang'), 'en');
   assert.equal(env.titleEl.textContent, 'Architecture Flow');
   assert.match(env.pillsEl.textContent, /400×200/);
 
@@ -1091,8 +1091,8 @@ test('Engine 4 (CSV/JSONL Table & Font Waterfall): filter, numeric sort, chunked
   assert.match(samples[0].style.fontFeatureSettings, /"liga" 0/);
 });
 
-test('Bitmap Image pan-zoom, JSONL grid mounting & 5-locale + host theme-change postMessage compatibility', async () => {
-  // Bitmap image natural dimensions & 1:1 zoom
+test('Bitmap Image pan-zoom, JSONL grid mounting & 2-locale + fallback + host theme-change postMessage compatibility', async () => {
+  // Bitmap image natural dimensions & 1:1 zoom (removed locale yue falls back cleanly to th)
   const imgHtml = renderWorkbenchHtml({
     baseUrl: 'http://127.0.0.1:43199',
     token: 'tok-img',
@@ -1115,10 +1115,11 @@ test('Bitmap Image pan-zoom, JSONL grid mounting & 5-locale + host theme-change 
   await imgEnv.settle();
   imgEnv.flushRaf(2);
 
+  assert.equal(imgEnv.htmlEl.getAttribute('lang'), 'th', 'Removed locale yue must fall back to th');
   assert.equal(imgEnv.badgeEl.textContent, 'IMAGE');
   assert.match(imgEnv.pillsEl.textContent, /1024×512/);
   const btns = imgEnv.toolsEl.querySelectorAll('button');
-  assert.ok(btns.some((b) => b.textContent === '棋盤格'), 'Cantonese (yue) locale label should render');
+  assert.ok(btns.some((b) => b.textContent === 'ตารางหมากรุก'), 'Thai fallback locale label should render for removed yue');
   btns.find((b) => b.textContent === '1:1').click();
   assert.match(imgEnv.toolsEl.textContent, /100%/);
 
@@ -1133,20 +1134,33 @@ test('Bitmap Image pan-zoom, JSONL grid mounting & 5-locale + host theme-change 
   assert.equal(imgEnv.htmlEl.getAttribute('data-wb-theme'), 'light');
   assert.equal(imgEnv.htmlEl.style.getPropertyValue('--wb-accent'), '#2563EB');
 
-  // Switch to zh-TW JSONL grid via ag-prism-workbench-sync
+  // Switch to en JSONL grid via ag-prism-workbench-sync
   imgEnv.win.postMessageToSelf({
     type: 'ag-prism-workbench-sync',
-    lang: 'zh-TW',
+    lang: 'en',
     kind: 'table',
     path: '/logs/trace.jsonl',
     rawContent: '{"id":1,"msg":"init"}\n{"id":2,"msg":"ready"}\n',
   });
   await imgEnv.settle();
+  assert.equal(imgEnv.htmlEl.getAttribute('lang'), 'en');
   assert.equal(imgEnv.badgeEl.textContent, 'TABLE');
   assert.match(imgEnv.stageEl.textContent, /ready/);
   assert.ok(
-    imgEnv.toolsEl.querySelectorAll('button').some((b) => b.textContent === '純文字'),
-    'Traditional Chinese (zh-TW) locale label should render'
+    imgEnv.toolsEl.querySelectorAll('button').some((b) => b.textContent === 'Raw Text'),
+    'English (en) locale label should render'
+  );
+
+  // Switch to removed zh-TW -> falls back to th cleanly
+  imgEnv.win.postMessageToSelf({
+    type: 'ag-prism-workbench-sync',
+    lang: 'zh-TW',
+  });
+  await imgEnv.settle();
+  assert.equal(imgEnv.htmlEl.getAttribute('lang'), 'th');
+  assert.ok(
+    imgEnv.toolsEl.querySelectorAll('button').some((b) => b.textContent === 'ข้อความดิบ'),
+    'Removed locale zh-TW must fall back to Thai (th) label'
   );
 });
 
@@ -1155,7 +1169,7 @@ test('Plain text fallback stage supports line-wrap toggle, clipboard copy & chun
     baseUrl: 'http://127.0.0.1:43199',
     token: 'tok-txt',
     path: '/logs/daemon.log',
-    lang: 'zh-CN',
+    lang: 'th',
   });
   const txtEnv = bootRenderedWorkbenchInVm(txtHtml, {
     onFetch: async (url) => {
@@ -1191,10 +1205,10 @@ test('Plain text fallback stage supports line-wrap toggle, clipboard copy & chun
   const pre = txtEnv.stageEl.querySelector('pre');
   assert.equal(pre.getAttribute('data-wrap'), '1');
   const btns = txtEnv.toolsEl.querySelectorAll('button');
-  btns.find((b) => b.textContent === '自动换行').click();
+  btns.find((b) => b.textContent === 'ตัดบรรทัด').click();
   assert.equal(pre.getAttribute('data-wrap'), '0');
 
-  const moreBtn = btns.find((b) => b.textContent === '加载更多切片');
+  const moreBtn = btns.find((b) => b.textContent === 'โหลดเพิ่ม');
   await moreBtn.onclick();
   await txtEnv.settle();
   assert.equal(pre.textContent, 'line-1\nline-2\n');
@@ -1412,7 +1426,7 @@ test('WO-MAIN-001C: omni-client pre-paints dark overlay against white flash & wo
   assert.equal(env.htmlEl.style.getPropertyValue('--wb-font-sans'), "'Google Sans', sans-serif");
 });
 
-test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-init fail-closed, SVG light/dark checker & XSS strip, and full 8+1 locales (0 CJK in non-CJK)', async () => {
+test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-init fail-closed, SVG light/dark checker & XSS strip, and 2-locale th/en + fallback (0 CJK)', async () => {
   // 1. HTML iframe sandbox MUST strictly equal 'allow-scripts' + referrerpolicy='no-referrer' + sandbox badge
   const htmlFilePage = renderWorkbenchHtml({
     baseUrl: 'http://127.0.0.1:43199',
@@ -1458,7 +1472,7 @@ test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-i
   const rawHtml = '<!doctype html><html><body><div id="a">hi</div><script>window.x=1;</script></body></html>';
   const srcdocPage = renderWorkbenchHtml({
     kind: 'html',
-    lang: 'zh-CN',
+    lang: 'th',
     rawContent: rawHtml,
   });
   const srcdocEnv = bootRenderedWorkbenchInVm(srcdocPage);
@@ -1505,7 +1519,7 @@ test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-i
     baseUrl: 'http://127.0.0.1:43199',
     token: 'tok-svg',
     path: '/assets/logo.svg',
-    lang: 'zh-CN',
+    lang: 'th',
   });
   const svgEnv = bootRenderedWorkbenchInVm(svgPage, {
     onFetch: async (url) => {
@@ -1541,7 +1555,7 @@ test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-i
   assert.ok(svgLayer.innerHTML.includes('<rect'), 'Safe SVG geometry must remain');
   const svgBadge = svgEnv.toolsEl.querySelector('.wb-sandbox-badge');
   assert.ok(svgBadge);
-  assert.equal(svgBadge.textContent, '沙盒隔离');
+  assert.equal(svgBadge.textContent, 'แยกแซนด์บ็อกซ์');
 
   const svgBtns = svgEnv.toolsEl.querySelectorAll('button');
   for (const bgId of ['checker-light', 'checker-dark', 'dark', 'light', 'checker']) {
@@ -1559,7 +1573,7 @@ test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-i
   assert.notEqual(svgLayer.style.transform, tfAfterZoomIn, '− zoom button must update transform');
   svgBtns.find((b) => b.textContent === '1:1').click();
   assert.match(svgEnv.toolsEl.textContent, /100%/);
-  svgBtns.find((b) => b.textContent === '适应窗口').click();
+  svgBtns.find((b) => b.textContent === 'พอดีหน้าต่าง').click();
 
   // Visible-state reload message refreshes once; hidden-state skips refresh
   const callsBeforeReload = svgMetaCalls;
@@ -1572,37 +1586,41 @@ test('Battle 3: strict HTML sandbox="allow-scripts", srcdoc CSP meta, /sandbox-i
   await svgEnv.settle();
   assert.equal(svgMetaCalls, callsBeforeReload + 1, 'Visible document must reload on parent reload message');
 
-  // 5. Full 8+1 locales coverage & strict 0 CJK in non-CJK locales (en/ko/es/fr/de)
+  // 5. Full 2-locale coverage (th/en) with strict 0 CJK + fallback from removed/unknown locales to th
   const cjkRe = /[\u3400-\u9FFF\uF900-\uFAFF]/;
-  const localeCols = ['zh-CN', 'zh-TW', 'yue', 'en', 'ja', 'ko', 'es', 'fr', 'de'];
+  const localeCols = ['th', 'en'];
   for (const [key, row] of Object.entries(WORKBENCH_I18N)) {
-    assert.equal(row.length, localeCols.length, `WORKBENCH_I18N.${key} must provide all 9 locale columns`);
+    assert.equal(row.length, localeCols.length, `WORKBENCH_I18N.${key} must provide 2 locale columns (th, en)`);
     for (let i = 0; i < localeCols.length; i++) {
       assert.ok(typeof row[i] === 'string' && row[i].length > 0, `WORKBENCH_I18N.${key}[${localeCols[i]}] must be non-empty`);
-      if (['en', 'ko', 'es', 'fr', 'de'].includes(localeCols[i])) {
-        assert.equal(cjkRe.test(row[i]), false, `WORKBENCH_I18N.${key}[${localeCols[i]}] must contain 0 CJK chars: ${row[i]}`);
-      }
+      assert.equal(cjkRe.test(row[i]), false, `WORKBENCH_I18N.${key}[${localeCols[i]}] must contain 0 CJK chars: ${row[i]}`);
     }
   }
 
-  for (const [lang, expectedBadge, expectedLightChecker] of [
-    ['ko', '샌드박스 격리', '밝은 체커'],
-    ['es', 'Aislado en sandbox', 'Damero claro'],
-    ['fr', 'Isolé en sandbox', 'Damier clair'],
-    ['de', 'Sandbox-isoliert', 'Helles Raster'],
+  for (const [lang, expectedHtmlLang, expectedBadge, expectedLightChecker] of [
+    ['th', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['en', 'en', 'Sandbox Isolated', 'Light Checker'],
+    ['zh-CN', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['zh-TW', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['ja', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['ko', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['es', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['fr', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['de', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
+    ['yue', 'th', 'แยกแซนด์บ็อกซ์', 'ตารางหมากรุกสว่าง'],
   ]) {
     const p = renderWorkbenchHtml({
       kind: 'svg',
       lang,
       rawContent: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>',
     });
-    assert.ok(p.includes(`<html lang="${lang}"`), `renderWorkbenchHtml must emit lang="${lang}"`);
+    assert.ok(p.includes(`<html lang="${expectedHtmlLang}"`), `renderWorkbenchHtml(${lang}) must emit lang="${expectedHtmlLang}"`);
     const e = bootRenderedWorkbenchInVm(p);
     await e.settle();
     assert.equal(e.toolsEl.querySelector('.wb-sandbox-badge')?.textContent, expectedBadge);
     assert.ok(
       e.toolsEl.querySelectorAll('button').some((b) => b.textContent === expectedLightChecker),
-      `${lang} toolbar must render localized light checkerboard label`
+      `${lang} toolbar must render expected light checkerboard label (${expectedLightChecker})`
     );
   }
 });

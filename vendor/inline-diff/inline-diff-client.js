@@ -196,16 +196,10 @@
         v = String(navObj?.language || '').trim();
       }
       const s = v.toLowerCase().replace(/_/g, '-');
-      if (!s || s === 'auto') return 'en';
-      if (s === 'yue' || s.startsWith('yue-') || s === 'zh-yue' || s.includes('cantonese')) return 'zh-CN';
-      if (/^zh-(tw|hant|hk|mo)/.test(s) || s === 'tw' || s === 'hant') return 'zh-TW';
-      if (/^zh/.test(s)) return 'zh-CN';
-      if (/^(ja|jp)/.test(s) || s === 'japanese') return 'ja';
-      if (/^(ko|kr)/.test(s) || s === 'korean') return 'ko';
-      if (/^es/.test(s) || s === 'spanish') return 'es';
-      if (/^fr/.test(s) || s === 'french') return 'fr';
-      if (/^de/.test(s) || s === 'german') return 'de';
-      return 'en';
+      if (!s || s === 'auto') return 'th';
+      if (/^th\b/.test(s) || s === 'thai') return 'th';
+      if (/^en\b/.test(s) || s === 'english') return 'en';
+      return 'th';
     };
 
     const getLang = () => {
@@ -257,114 +251,48 @@
 
     const DIFF_FALLBACK = {
       inlineDiffOpenSidebar: {
-        'zh-CN': '在侧栏打开完整对比',
-        'zh-TW': '在側欄開啟完整對比',
+        th: 'เปิด Diff แบบเต็มในแถบด้านข้าง',
         en: 'Open full diff in Sidebar',
-        ja: 'サイドバーで完全な差分を開く',
-        ko: '사이드바에서 전체 차이 열기',
-        es: 'Abrir diff completo en la barra lateral',
-        fr: 'Ouvrir le diff complet dans la barre latérale',
-        de: 'Vollständigen Diff in Seitenleiste öffnen',
       },
       inlineDiffCollapse: {
-        'zh-CN': '收起',
-        'zh-TW': '收合',
+        th: 'ยุบ',
         en: 'Collapse',
-        ja: '閉じる',
-        ko: '접기',
-        es: 'Contraer',
-        fr: 'Réduire',
-        de: 'Einklappen',
       },
       inlineDiffLoading: {
-        'zh-CN': '正在读取差异...',
-        'zh-TW': '正在讀取差異...',
+        th: 'กำลังโหลดความต่าง...',
         en: 'Loading diff...',
-        ja: '差分を読み込み中...',
-        ko: '차이점 불러오는 중...',
-        es: 'Cargando diff...',
-        fr: 'Chargement du diff...',
-        de: 'Diff wird geladen...',
       },
       inlineDiffBinary: {
-        'zh-CN': '二进制文件暂不支持行内预览，请右键在侧栏打开。',
-        'zh-TW': '二進位檔案暫不支援行內預覽，請右鍵在側欄開啟。',
+        th: 'ไฟล์ไบนารีไม่รองรับการแสดงตัวอย่างแบบอินไลน์ คลิกขวาเพื่อเปิดในแถบด้านข้าง',
         en: 'Binary file cannot be previewed inline. Right-click to open in Sidebar.',
-        ja: 'バイナリファイルはインライン表示できません。右クリックでサイドバーから開けます。',
-        ko: '바이너리 파일은 인라인으로 미리 볼 수 없습니다. 우클릭하여 사이드바에서 여세요.',
-        es: 'Los archivos binarios no tienen vista previa en línea. Haz clic derecho para abrir en la barra lateral.',
-        fr: 'Les fichiers binaires ne peuvent pas être prévisualisés en ligne. Clic droit pour ouvrir dans la barre latérale.',
-        de: 'Binärdateien können nicht inline angezeigt werden. Rechtsklick zum Öffnen in der Seitenleiste.',
       },
       inlineDiffNoPreview: {
-        'zh-CN': '当前步骤暂无行内差异，请右键在侧栏打开。',
-        'zh-TW': '目前步驟暫無行內差異，請右鍵在側欄開啟。',
+        th: 'ไม่มีความต่างแบบอินไลน์สำหรับขั้นตอนนี้ คลิกขวาเพื่อเปิดในแถบด้านข้าง',
         en: 'Inline diff is unavailable for this step. Right-click to open in Sidebar.',
-        ja: 'このステップには差分テキストがありません。右クリックでサイドバーから開けます。',
-        ko: '이 단계에는 인라인 차이가 없습니다. 우클릭하여 사이드바에서 여세요.',
-        es: 'El diff en línea no está disponible para este paso. Haz clic derecho para abrir en la barra lateral.',
-        fr: 'Le diff en ligne est indisponible pour cette étape. Clic droit pour ouvrir dans la barre latérale.',
-        de: 'Inline-Diff ist für diesen Schritt nicht verfügbar. Rechtsklick zum Öffnen in der Seitenleiste.',
       },
       inlineDiffSnapshotNotice: {
-        'zh-CN': '未受 Git 追踪 · 预览当前文件内容（右键可在侧栏打开完整对比）',
-        'zh-TW': '未受 Git 追蹤 · 預覽目前檔案內容（右鍵可在側欄開啟完整對比）',
+        th: 'ไม่ได้ติดตามโดย Git · แสดงเนื้อหาไฟล์ปัจจุบัน (คลิกขวาเพื่อเปิด Diff แบบเต็มในแถบด้านข้าง)',
         en: 'Not tracked by Git · previewing current file (right-click to open full diff in Sidebar)',
-        ja: 'Git 未追跡 · 現在のファイルを表示中（右クリックでサイドバーで完全な差分を開く）',
-        ko: 'Git 추적 안 됨 · 현재 파일 미리보기(우클릭하여 사이드바에서 전체 차이 열기)',
-        es: 'No rastreado por Git · vista previa del archivo actual (clic derecho para abrir diff completo)',
-        fr: 'Non suivi par Git · aperçu du fichier actuel (clic droit pour ouvrir le diff complet)',
-        de: 'Nicht von Git verfolgt · Vorschau der aktuellen Datei (Rechtsklick für vollständigen Diff)',
       },
       inlineDiffLongLinesTag: {
-        'zh-CN': '单行长改',
-        'zh-TW': '單行長改',
+        th: 'บรรทัดยาว',
         en: 'long line',
-        ja: '長行',
-        ko: '긴 줄',
-        es: 'línea larga',
-        fr: 'ligne longue',
-        de: 'lange Zeile',
       },
       inlineDiffMenuExpand: {
-        'zh-CN': '展开行内对比',
-        'zh-TW': '展開行內對比',
+        th: 'ขยาย Diff แบบอินไลน์',
         en: 'Expand inline diff',
-        ja: 'インライン差分を展開',
-        ko: '인라인 차이 펼치기',
-        es: 'Expandir diff en línea',
-        fr: 'Déplier le diff en ligne',
-        de: 'Inline-Diff ausklappen',
       },
       inlineDiffMenuCollapse: {
-        'zh-CN': '收起行内对比',
-        'zh-TW': '收合行內對比',
+        th: 'ยุบ Diff แบบอินไลน์',
         en: 'Collapse inline diff',
-        ja: 'インライン差分を閉じる',
-        ko: '인라인 차이 접기',
-        es: 'Contraer diff en línea',
-        fr: 'Replier le diff en ligne',
-        de: 'Inline-Diff einklappen',
       },
       inlineDiffMenuCopyPath: {
-        'zh-CN': '复制文件路径',
-        'zh-TW': '複製檔案路徑',
+        th: 'คัดลอกพาธไฟล์',
         en: 'Copy file path',
-        ja: 'ファイルパスをコピー',
-        ko: '파일 경로 복사',
-        es: 'Copiar ruta del archivo',
-        fr: 'Copier le chemin du fichier',
-        de: 'Dateipfad kopieren',
       },
       inlineDiffLargeExpandBtn: {
-        'zh-CN': '⋯ 大文件仅节选关键片段 · 点击在右侧栏查看完整对比',
-        'zh-TW': '⋯ 大檔案僅節選關鍵片段 · 點擊在右側欄檢視完整對比',
+        th: '⋯ แสดงเฉพาะส่วนสำคัญ · คลิกเพื่อเปิด Diff แบบเต็มในแถบด้านข้าง',
         en: '⋯ Showing key hunks · Click to open full diff in Sidebar',
-        ja: '⋯ 大きなファイルのため一部のみ表示 · クリックしてサイドバーで全体を見る',
-        ko: '⋯ 대용량 파일 주요 변경만 표시 · 클릭하여 사이드바에서 전체 보기',
-        es: '⋯ Mostrando fragmentos clave · Haz clic para abrir el diff completo',
-        fr: '⋯ Extraits clés affichés · Cliquer pour ouvrir le diff complet',
-        de: '⋯ Wichtige Bereiche angezeigt · Klicken für vollständigen Diff',
       },
     };
 
@@ -381,7 +309,7 @@
         if (ui && typeof ui[key] === 'string' && ui[key]) return ui[key];
       } catch {}
       const row = DIFF_FALLBACK[key];
-      return (row && (row[lang] || row.en)) || fallback || key;
+      return (row && (row[lang] || row.th)) || fallback || key;
     }
 
     function mkSvgIcon(kind, size = 14) {

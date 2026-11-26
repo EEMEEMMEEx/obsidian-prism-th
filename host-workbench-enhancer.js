@@ -34,14 +34,8 @@
   const A_OVC = 'data-ag-ov-sec-closing';
 
   const UI_RAW = {
-    'zh-CN': '折叠|展开|行|提问导航| 轮|收起步骤|已收起 | 项|已是最简|过滤本会话提问...|无匹配提问|章节|',
-    'zh-TW': '摺疊|展開|行|提問導覽| 輪|收起步驟|已收起 | 項|已是最簡|過濾本會話提問...|無匹配提問|章節|',
+    th: 'พับ|ขยาย|บรรทัด|โครงร่างคำถาม| รอบ|พับขั้นตอน|พับแล้ว | รายการ|เรียบร้อยแล้ว|กรองคำถามในแชตนี้...|ไม่พบคำถามที่ตรงกัน|ตอนที่|คำถาม',
     en: 'Fold|Expand|L|Outline| turns|Fold Steps|Folded ||All clean|Filter prompts...|No matching prompts|Chapter|Prompts',
-    ja: '折りたたむ|展開|行|プロンプト目次||手順を畳む||件畳みました|完了|質問を絞り込む...|一致なし|章|',
-    ko: '접기|펼치기|줄|질문 목차| 턴|단계 접기||개 접힘|완료|질문 검색...|일치 항목 없음|챕터|',
-    es: 'Contraer|Expandir|L|Esquema| turnos|Contraer pasos|Contraído ||Todo limpio|Filtrar preguntas...|Sin coincidencias|Capítulo|Preguntas',
-    fr: 'Replier|Déplier|L|Plan| tours|Replier étapes|Replié ||Tout est clair|Filtrer les requêtes...|Aucun résultat|Chapitre|Requêtes',
-    de: 'Einklappen|Ausklappen|Z|Gliederung| Runden|Schritte einklappen|Eingeklappt ||Bereinigt|Prompts filtern...|Keine Treffer|Kapitel|Prompts',
   };
   const UI_STRINGS = {};
   for (const k in UI_RAW) {
@@ -58,7 +52,6 @@
       chapterBadge: a[11],
     };
   }
-  UI_STRINGS.zh = UI_STRINGS['zh-CN'];
 
   function isElementLike(n) {
     return Boolean(n && (n.nodeType === 1 || (n.nodeType === undefined && typeof n.tagName === 'string')));
@@ -66,20 +59,13 @@
 
   function normEnhLang(langRaw) {
     const l = String(langRaw || '').trim().toLowerCase().replace(/_/g, '-');
-    if (!l || l === 'auto') return 'en';
-    if (l === 'yue' || l.startsWith('yue-') || l === 'zh-yue' || l.includes('cantonese')) return 'zh-CN';
-    if (/^zh-(tw|hant|hk|mo)/.test(l) || l === 'tw' || l === 'hant') return 'zh-TW';
-    if (/^zh/.test(l)) return 'zh-CN';
-    if (/^(ja|jp)/.test(l) || l === 'japanese') return 'ja';
-    if (/^(ko|kr)/.test(l) || l === 'korean') return 'ko';
-    if (/^es/.test(l) || l === 'spanish') return 'es';
-    if (/^fr/.test(l) || l === 'french') return 'fr';
-    if (/^de/.test(l) || l === 'german') return 'de';
-    return 'en';
+    if (!l || l === 'auto') return 'th';
+    if (l === 'en' || l.startsWith('en-') || l === 'english') return 'en';
+    return 'th';
   }
 
   function resolveLocalePack(langRaw) {
-    return UI_STRINGS[normEnhLang(langRaw)] || UI_STRINGS.en;
+    return UI_STRINGS[normEnhLang(langRaw)] || UI_STRINGS.th;
   }
 
   function isEditableElement(el) {
@@ -360,8 +346,8 @@
     }
 
     const SIDEBAR_MORE_FB = {
-      sidebarMoreLabel: { 'zh-CN': '更多', 'zh-TW': '更多', en: 'More', ja: 'その他', ko: '더보기', es: 'Más', fr: 'Plus', de: 'Mehr' },
-      sidebarLessLabel: { 'zh-CN': '收起', 'zh-TW': '收起', en: 'Less', ja: '折りたたむ', ko: '접기', es: 'Menos', fr: 'Moins', de: 'Weniger' },
+      sidebarMoreLabel: { th: 'เพิ่มเติม', en: 'More' },
+      sidebarLessLabel: { th: 'ย่อลง', en: 'Less' },
     };
     function getUiText(key, fallback) {
       if (tFn) {
@@ -369,7 +355,7 @@
         if (typeof v === 'string' && v && v !== key) return v;
       }
       const nl = normEnhLang(getLang());
-      return SIDEBAR_MORE_FB[key]?.[nl] || SIDEBAR_MORE_FB[key]?.en || fallback || key;
+      return SIDEBAR_MORE_FB[key]?.[nl] || SIDEBAR_MORE_FB[key]?.th || fallback || key;
     }
 
     function mkSvgIcon(kind, size = 14) {

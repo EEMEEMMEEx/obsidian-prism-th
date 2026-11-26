@@ -454,7 +454,7 @@
       homeLayout: 'studio',
       telemetryModule: 'on',
       effortSliderModule: 'on',
-      language: 'zh-CN',
+      language: 'th',
     },
     injectBusy: false,
   };
@@ -527,7 +527,7 @@
     window.agPulseHost = {
       getMetrics: async () => buildMetricsSnapshot(),
       getLatestSnapshot: () => buildMetricsSnapshot(),
-      getPreferences: async () => ({ language: sim.prismCfg.language || 'zh-CN' }),
+      getPreferences: async () => ({ language: sim.prismCfg.language || 'th' }),
       setPreferences: async (v) => v || {},
       report: () => {},
     };

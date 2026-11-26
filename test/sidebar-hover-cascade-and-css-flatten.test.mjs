@@ -564,64 +564,11 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
     slCtl.destroy();
   }
 
-  // 4) host-i18n-runtime: skips pointerenter on sidebar rows/project-header & debounces rapid HoverCard mounts (120ms)
+  // 4) vendor/host-i18n removed: Channel 4 host-i18n stays disabled (0 HoverCard/pointerenter overhead)
   {
-    const i18nMod = require(path.join(ROOT, 'vendor/host-i18n/host-i18n-runtime.js'));
-    let moCb = null, hoverFn = null, rafCount = 0, tmSeq = 1;
-    const timers = new Map();
-    const html = mkEl('html'), body = mkEl('body');
-    const split = mkEl('div', { 'data-testid': 'sidebar-split' });
-    const sbPane = mkEl('div');
-    const projHdr = mkEl('button', { 'data-testid': 'project-header' });
-    const convRow = mkEl('div', { 'data-testid': 'conversation-row-sidebar' });
-    sbPane.appendChild(projHdr); sbPane.appendChild(convRow); split.appendChild(sbPane);
-    body.appendChild(split); html.appendChild(body);
-    const doc = {
-      documentElement: html, body, hidden: false, readyState: 'complete',
-      hasFocus: () => true,
-      createTreeWalker: () => ({ nextNode: () => null }),
-      querySelector: (s) => html.querySelector(s),
-      querySelectorAll: (s) => html.querySelectorAll(s),
-      addEventListener(t, fn) { if (t === 'pointerenter') hoverFn = fn; },
-      removeEventListener() {},
-    };
-    const win = {
-      document: doc, location: { pathname: '/' },
-      addEventListener() {}, removeEventListener() {},
-      MutationObserver: class { constructor(cb) { if (!moCb) moCb = cb; } observe() {} disconnect() {} takeRecords() { return []; } },
-    };
-    const inst = i18nMod.mountHostI18n({
-      root: win, doc, mode: 'on',
-      MutationObserver: win.MutationObserver,
-      nowFn: () => 5000,
-      rafFn: () => { rafCount++; return rafCount; },
-      cancelRafFn: () => {},
-      setTimeoutFn: (fn, ms) => { const id = tmSeq++; timers.set(id, { fn, ms }); return id; },
-      clearTimeoutFn: (id) => { timers.delete(id); },
-    });
-    assert.ok(moCb && hoverFn, 'host-i18n must install observer and pointerenter handler');
-
-    const tmBeforeHover = timers.size;
-    hoverFn({ type: 'pointerenter', target: convRow });
-    hoverFn({ type: 'pointerenter', target: projHdr });
-    assert.equal(timers.size, tmBeforeHover, 'host-i18n pointerenter on sidebar rows/project-header must early-return with 0 timers');
-
-    const raf0 = rafCount;
-    let lastHc = null;
-    for (let i = 0; i < 5; i++) {
-      const hc = mkTwoLevelHoverCard(`Updated ${i}d ago`, true);
-      body.appendChild(hc.portal);
-      moCb([{ type: 'childList', target: body, addedNodes: [hc.portal], removedNodes: [] }]);
-      if (i < 4) { body.removeChild(hc.portal); hc.portal.isConnected = false; }
-      lastHc = hc;
-    }
-    assert.equal(rafCount, raf0, 'Rapid HoverCard burst must trigger 0 immediate host-i18n rAF flushes');
-    const hcTimers = [...timers.values()].filter((t) => t.ms === 120);
-    assert.equal(hcTimers.length, 1, 'Rapid HoverCard burst must coalesce into exactly 1 120ms debounce timer');
-    hcTimers[0].fn();
-    assert.equal(rafCount, raf0 + 1, 'Settled connected HoverCard must flush once after 120ms debounce');
-    assert.equal(lastHc.portal.isConnected, true);
-    inst.destroy();
+    assert.equal(fs.existsSync(path.join(ROOT, 'vendor', 'host-i18n')), false);
+    assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'on', language: 'th' }), false);
+    assert.equal(cdp.buildHostI18nExpression({ hostLocalization: 'on', language: 'th' }), '');
   }
 
   // 5) Vendor sidebar-split selector parity
@@ -630,7 +577,7 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
     assert.ok(src.includes('sidebar-split'), `${rel} must cover real [data-testid="sidebar-split"] sidebar container`);
   }
 
-  // 6) PrismDaemon Ch4 hostI18nCodeHash hot-heal replaces stale hostI18nScriptId & re-evaluates
+  // 6) PrismDaemon Ch4 legacy host-i18n cleanup removes stale hostI18nScriptId when host-i18n is disabled
   {
     const daemon = new PrismDaemon({
       rootDir: ROOT,
@@ -655,7 +602,7 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
     };
     daemon.codeHash = 'ch1-same-hash';
     daemon.injectExpr = '(() => ({ status: "ok" }))()';
-    daemon.hostI18nExpr = '(() => { const targetHash = "hi-hash-new"; return { ok: true }; })()';
+    daemon.hostI18nExpr = '';
     const ops = [];
     const entry = {
       wsUrl: 'ws://127.0.0.1/page/1',
@@ -671,9 +618,9 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
       session: {
         closed: false,
         evaluate: async (expr) => {
-          if (typeof expr === 'string' && expr.includes('hi-hash-new')) {
-            ops.push('hi-eval');
-            return { ok: true };
+          if (typeof expr === 'string' && expr.includes('__agPrismHostI18n?.destroy')) {
+            ops.push('hi-cleanup');
+            return { ok: true, status: 'off' };
           }
           return {
             ready: true,
@@ -702,9 +649,10 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
       },
     };
     await daemon.verifyAndHealEntry(entry, true);
-    assert.ok(ops.includes('rm:hi-script-old'), 'must remove stale hostI18nScriptId on hash mismatch');
-    assert.equal(entry.hostI18nScriptId, 'hi-script-new');
-    assert.ok(ops.includes('hi-eval'), 'must evaluate upgraded hostI18nExpr on hostI18nCodeHash mismatch');
+    assert.ok(ops.includes('rm:hi-script-old'), 'must remove stale hostI18nScriptId when host-i18n is disabled');
+    assert.equal(entry.hostI18nScriptId, null);
+    assert.equal(entry.hostI18nMounted, false);
+    assert.ok(ops.includes('hi-cleanup'), 'must evaluate host-i18n cleanup expression');
     await daemon.stop(false, { skipAutoArchive: true });
   }
 });
