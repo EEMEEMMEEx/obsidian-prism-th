@@ -24,8 +24,8 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
 
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
-const locales = require(path.join(ROOT_DIR, 'i18n-locales.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
+const locales = require(path.join(ROOT_DIR, 'src/i18n-locales.js'));
 const telemetryMod = require(path.join(ROOT_DIR, 'vendor', 'pulse-dashboard', 'inline-fallback.js'));
 const sliderMod = require(path.join(ROOT_DIR, 'vendor', 'effort-slider', 'slider-coexist.js'));
 const installPluginTool = require(path.join(ROOT_DIR, 'tools', 'install-plugin.cjs'));
@@ -242,17 +242,19 @@ function createLightweightDom() {
   return { win, doc, makeEl, observers, composerToolbar };
 }
 
-test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, THIRD_PARTY_NOTICES.md, plugin.json, and sidecar.json contract', () => {
+test('Obsidian Prism personal fork brand compliance, GPL-3.0 LICENSE, NOTICE, THIRD_PARTY_NOTICES.md, plugin.json, and sidecar.json contract', () => {
   const pkgJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'package.json'), 'utf8'));
   assert.equal(pkgJson.name, 'obsidian-prism');
-  assert.equal(pkgJson.version, '1.0.8-beta.4');
+  assert.equal(pkgJson.version, '1.0.8-beta.5');
   assert.equal(pkgJson.license, 'GPL-3.0-only');
+  assert.equal(pkgJson.author, 'EEMEEMMEEx');
+  assert.equal(pkgJson.private, true);
 
   const pluginJson = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'plugin.json'), 'utf8'));
   assert.deepEqual(Object.keys(pluginJson).sort(), ['description', 'displayName', 'logo', 'name', 'version']);
   assert.equal(pluginJson.name, 'obsidian-prism');
   assert.equal(pluginJson.displayName, 'Obsidian Prism');
-  assert.equal(pluginJson.version, '1.0.8-beta.4');
+  assert.equal(pluginJson.version, '1.0.8-beta.5');
   assert.equal(pluginJson.logo, 'assets/logo.svg');
   assert.ok(fs.existsSync(path.join(ROOT_DIR, 'assets', 'logo.svg')));
 
@@ -263,7 +265,7 @@ test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, TH
   assert.equal(sidecarJson.display_name, 'Obsidian Prism Daemon');
   assert.equal(sidecarJson.has_web_ui, false);
 
-  // Verify GPL-3.0 LICENSE, NOTICE, CITATION.cff & upstream MIT credits + non-affiliation disclaimer
+  // Verify GPL-3.0 LICENSE, NOTICE & upstream MIT credits + non-affiliation disclaimer
   const licenseTxt = fs.readFileSync(path.join(ROOT_DIR, 'LICENSE'), 'utf8');
   assert.ok(licenseTxt.includes('GNU GENERAL PUBLIC LICENSE'));
   assert.ok(licenseTxt.includes('Version 3, 29 June 2007'));
@@ -277,13 +279,11 @@ test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, TH
   };
 
   const noticeFileTxt = fs.readFileSync(path.join(ROOT_DIR, 'NOTICE'), 'utf8');
+  assert.ok(noticeFileTxt.includes('EEMEEMMEEx'));
   assert.ok(noticeFileTxt.includes('RMvdesi'));
+  assert.ok(extractGithubRepoSlugs(noticeFileTxt).has('EEMEEMMEEx/obsidian-prism-th'));
   assert.ok(extractGithubRepoSlugs(noticeFileTxt).has('RMvdesi/obsidian-prism'));
   assert.ok(noticeFileTxt.includes('GPL-3.0'));
-
-  const citationTxt = fs.readFileSync(path.join(ROOT_DIR, 'CITATION.cff'), 'utf8');
-  assert.ok(citationTxt.includes('title: "Obsidian Prism"'));
-  assert.ok(citationTxt.includes('license: GPL-3.0-only'));
 
   const noticesTxt = fs.readFileSync(path.join(ROOT_DIR, 'THIRD_PARTY_NOTICES.md'), 'utf8');
   assert.ok(noticesTxt.includes('0DNANCY'));
@@ -294,14 +294,11 @@ test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, TH
   assert.ok(noticesTxt.includes(disclaimer));
   assert.ok(readmeTxt.includes(disclaimer));
 
-  const readmeEnTxt = fs.readFileSync(path.join(ROOT_DIR, 'README.en.md'), 'utf8');
-  const settingsPanelTxt = fs.readFileSync(path.join(ROOT_DIR, 'settings-panel.js'), 'utf8');
-  const settingsPanelMod = require(path.join(ROOT_DIR, 'settings-panel.js'));
-  const contributorsTxt = fs.readFileSync(path.join(ROOT_DIR, 'docs', 'CONTRIBUTORS.md'), 'utf8');
+  const settingsPanelTxt = fs.readFileSync(path.join(ROOT_DIR, 'src', 'settings-panel.js'), 'utf8');
+  const settingsPanelMod = require(path.join(ROOT_DIR, 'src', 'settings-panel.js'));
 
   const noticeSlugs = extractGithubRepoSlugs(noticesTxt);
   const readmeSlugs = extractGithubRepoSlugs(readmeTxt);
-  const readmeEnSlugs = extractGithubRepoSlugs(readmeEnTxt);
   const settingsSlugs = new Set((settingsPanelMod.UPSTREAM_CREDITS || []).map((c) => c.repo));
   const nineUpstreamSlugs = [
     '0DNANCY/agy-claude-style',
@@ -318,7 +315,6 @@ test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, TH
     assert.ok(noticeSlugs.has(slug), `THIRD_PARTY_NOTICES.md must credit ${slug}`);
     assert.ok(noticeFileTxt.includes(slug), `NOTICE must credit ${slug}`);
     assert.ok(readmeSlugs.has(slug), `README.md must credit ${slug}`);
-    assert.ok(readmeEnSlugs.has(slug), `README.en.md must credit ${slug}`);
     assert.ok(settingsSlugs.has(slug), `settings-panel.js must credit ${slug}`);
   }
   for (const holder of ['0DNANCY', 'AG Pulse contributors', 'LLYSH-HANNARI', 'Antigravity Chinese Localization Contributors', 'wp3171216237']) {
@@ -326,10 +322,7 @@ test('Obsidian Prism brand compliance, GPL-3.0 LICENSE, NOTICE, CITATION.cff, TH
     assert.ok(noticeFileTxt.includes(holder), `NOTICE must retain MIT holder ${holder}`);
     assert.ok(settingsPanelTxt.includes(holder), `settings-panel.js must retain MIT holder ${holder}`);
   }
-  assert.ok(noticesTxt.includes('swarm-i18n-runtime.js') && noticesTxt.includes('swarm-zh-CN.json'), 'THIRD_PARTY_NOTICES.md §1.4 must document swarm-i18n-runtime.js & swarm-zh-CN.json');
-  for (const contributor of ['@OyatsuSuki', '@yzd05', '@wanghaoyi216', '@Gruu6y']) {
-    assert.ok(contributorsTxt.includes(contributor), `CONTRIBUTORS.md must credit v1.0.8 contributor ${contributor}`);
-  }
+  assert.ok(noticesTxt.includes('vendor/host-i18n/') && noticesTxt.includes('yiheng8023/antigravity-chinese'), 'THIRD_PARTY_NOTICES.md §1.4 must document yiheng8023/antigravity-chinese & removed vendor/host-i18n/');
 
   // Verify absorbed upstream sources exist in vendor/
   const requiredVendorFiles = [
@@ -958,9 +951,9 @@ test('PrismDaemon & install-plugin.cjs: obsidian-prism target, legacy antigravit
                       ready: true,
                       hasPrism: true,
                       hasRepoBridge: true,
-                      prismAttr: '1.0.8-beta.4',
+                      prismAttr: '1.0.8-beta.5',
                       hasStyle: true,
-                      version: '1.0.8-beta.4',
+                      version: '1.0.8-beta.5',
                       status: 'ok',
                     },
                   },
@@ -2447,7 +2440,7 @@ test('host-i18n Chinese overlay has been cleanly removed (shouldEnableHostI18n i
 });
 
 test('Battle 5: usage-core.js full 2-locale coverage (th default/fallback, en, zero CJK leak)', () => {
-  const usageCore = require(path.join(ROOT_DIR, 'usage-core.js'));
+  const usageCore = require(path.join(ROOT_DIR, 'src/usage-core.js'));
   assert.equal(usageCore.resolveLang(true), 'th');
   assert.equal(usageCore.resolveLang(false), 'en');
   assert.equal(usageCore.resolveLang(null), 'th');
@@ -2640,7 +2633,7 @@ test('Battle 5: slider-coexist Traditional Chinese EFF_MAP / Current: prefix & f
 });
 
 test('Smoked Obsidian Wave 1: style.css hygiene (0 :has, ASCII, LF, no BOM, home-panel backdrop-filter:none) & Ch1 < 549,500 B across all 9 locales', () => {
-  const cssBuf = fs.readFileSync(path.join(ROOT_DIR, 'style.css'));
+  const cssBuf = fs.readFileSync(path.join(ROOT_DIR, 'src/style.css'));
   assert.equal(cssBuf[0] === 0xef && cssBuf[1] === 0xbb && cssBuf[2] === 0xbf, false, 'style.css must have zero UTF-8 BOM');
   const css = cssBuf.toString('utf8');
   assert.equal(css.includes('\r'), false, 'style.css must use LF line endings only (0 CRLF)');
@@ -2660,7 +2653,7 @@ test('Smoked Obsidian Wave 1: style.css hygiene (0 :has, ASCII, LF, no BOM, home
 
 test('Issue #81: inline-fallback TIER_CSS uses --pt-c instead of --c so external Dashboard card background is never overridden', async () => {
   const fbPath = path.join(ROOT_DIR, 'vendor', 'pulse-dashboard', 'inline-fallback.js');
-  const bridgePath = path.join(ROOT_DIR, 'pulse-vial-bridge.js');
+  const bridgePath = path.join(ROOT_DIR, 'src/pulse-vial-bridge.js');
   const fbSrc = fs.readFileSync(fbPath, 'utf8');
   const bridgeBytes = fs.statSync(bridgePath).size;
 

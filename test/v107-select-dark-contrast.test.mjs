@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const require = createRequire(import.meta.url);
-const cdp = require('../cdp.js');
+const cdp = require('../src/cdp.js');
 
 function checkBalancedBraces(css) {
   let depth = 0;
@@ -68,7 +68,7 @@ function extractTopLevelHtmlStyleBlock(css) {
 }
 
 test('Issue #15: style.css obeys zero :has(), zero non-ASCII, balanced braces, host color-scheme & high-contrast select/option rules', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
   // 1) Core CSS invariants
   assert.equal(css.includes(':has('), false, 'style.css must contain 0 :has( selectors');
@@ -113,7 +113,7 @@ test('Issue #15: style.css obeys zero :has(), zero non-ASCII, balanced braces, h
 });
 
 test('Issue #15: home-studio-panel.js STUDIO_EXTRA_CSS includes fallback dark-contrast option rule and survives cdp minification & Channel 1 build', () => {
-  const studioSrc = fs.readFileSync(path.join(ROOT, 'home-studio-panel.js'), 'utf8');
+  const studioSrc = fs.readFileSync(path.join(ROOT, 'src/home-studio-panel.js'), 'utf8');
   assert.ok(
     studioSrc.includes('.ag-cs-home-ws-select{') && studioSrc.includes('color-scheme:inherit'),
     'home-studio-panel.js must set color-scheme:inherit on .ag-cs-home-ws-select'

@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 const PERIODIC_DIR = path.join(ROOT_DIR, 'vendor', 'periodic-picker');
 const require = createRequire(import.meta.url);
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 
 const PERIODIC_MODULES = [
   'pbr-grain-assets.js',
@@ -543,7 +543,7 @@ function createDomSandbox({ pathname = '/conv-1' } = {}) {
 }
 
 test('style.css: zero -webkit-mask:var(--_m0) / background:var(--_x0), 6 CSSOM-safe masks, 0 :has(), 0 non-ASCII & Ch1 9-lang < 549,500 B', () => {
-  const css = fs.readFileSync(path.join(ROOT_DIR, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT_DIR, 'src/style.css'), 'utf8');
   assert.equal(css.includes('-webkit-mask:var(--_m0)'), false, 'must not contain CSSOM-dropped -webkit-mask:var(--_m0)');
   assert.equal(css.includes('--_m0'), false, 'must remove obsolete --_m0 token');
   assert.equal(css.includes('background:var(--_x0)'), false, 'must not contain background:var(--_x0) shorthand');
@@ -563,7 +563,7 @@ test('style.css: zero -webkit-mask:var(--_m0) / background:var(--_x0), 6 CSSOM-s
 
 test('model-glyph-crystal & ui-runtime: readButtonLabelWithoutGlyph skips mini-keycap/running suffix; locked/session-switch never misfires Hero D fiber pulse while unlocked same-session switch still fires', () => {
   const env = createDomSandbox({ pathname: '/conv-a' });
-  const glyphSrc = fs.readFileSync(path.join(ROOT_DIR, 'model-glyph-crystal.js'), 'utf8');
+  const glyphSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/model-glyph-crystal.js'), 'utf8');
   vm.runInContext(glyphSrc, env.sandbox);
   const mgc = env.sandbox.__agPrismModelGlyphCrystal;
   assert.ok(mgc && typeof mgc.readButtonLabelWithoutGlyph === 'function');

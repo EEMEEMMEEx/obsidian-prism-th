@@ -10,11 +10,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const require = createRequire(import.meta.url);
 
-const cdp = require('../cdp.js');
-const enhancerMod = require('../host-workbench-enhancer.js');
-const i18nCore = require('../i18n-core.js');
-const i18nLocales = require('../i18n-locales.js');
-const settingsPanel = require('../settings-panel.js');
+const cdp = require('../src/cdp.js');
+const enhancerMod = require('../src/host-workbench-enhancer.js');
+const i18nCore = require('../src/i18n-core.js');
+const i18nLocales = require('../src/i18n-locales.js');
+const settingsPanel = require('../src/settings-panel.js');
 
 function checkBalancedDelimiters(src) {
   const stack = [];
@@ -97,7 +97,7 @@ test('GLSL minifyGlsl preserves preprocessor directives, interfaces, structs, sw
   // 2) All 4 real WebGL2 shader pairs in repository
   const shaderSpecs = [
     {
-      file: 'crystal-prism-core.js',
+      file: 'src/crystal-prism-core.js',
       expectedCount: 2,
       mustKeepPerShader: [
         ['aPos', 'vUv', 'gl_Position', 'main'],
@@ -122,7 +122,7 @@ test('GLSL minifyGlsl preserves preprocessor directives, interfaces, structs, sw
       ],
     },
     {
-      file: 'ripple-core.js',
+      file: 'src/ripple-core.js',
       expectedCount: 4,
       mustKeepPerShader: [
         ['gl_VertexID', 'gl_Position', 'main'],
@@ -173,7 +173,7 @@ test('GLSL minifyGlsl preserves preprocessor directives, interfaces, structs, sw
       ],
     },
     {
-      file: 'vial-core.js',
+      file: 'src/vial-core.js',
       expectedCount: 2,
       mustKeepPerShader: [
         ['a_pos', 'v_uv', 'gl_Position', 'main'],
@@ -460,12 +460,12 @@ test('host-workbench-enhancer enforces iframe postMessage protocol/origin allowl
 
   ctl.destroy();
 
-  const enhancerSrc = fs.readFileSync(path.join(ROOT, 'host-workbench-enhancer.js'), 'utf8');
+  const enhancerSrc = fs.readFileSync(path.join(ROOT, 'src/host-workbench-enhancer.js'), 'utf8');
   assert.equal(enhancerSrc.includes('boundFoldBtns'), false, 'Dead boundFoldBtns WeakSet must be removed');
 });
 
 test('ui-runtime teardownCore cancels healBlockedExternalPulseBar 220ms timer and ignores late callbacks when destroyed', () => {
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   const scheduled = new Map();
   let nextTid = 1;
   let clearedIds = [];
@@ -833,7 +833,7 @@ test('settings-panel persists Beta sub-tab, localizes Conversation DB Health acr
     }
     assert.ok(repoActions.includes('storage-health') && repoActions.includes('prepare-archive'), 'Storage actions must route through __agPrismRepoBridge');
 
-    const spSrc = fs.readFileSync(path.join(ROOT, 'settings-panel.js'), 'utf8');
+    const spSrc = fs.readFileSync(path.join(ROOT, 'src/settings-panel.js'), 'utf8');
     assert.equal(spSrc.includes('localRepoPending'), false, 'Duplicate localRepoPending RPC bridge must be removed from settings-panel.js');
   } finally {
     if (prevDoc === undefined) delete globalThis.document;
@@ -852,7 +852,7 @@ test('Main bundle budget <= 704,000 B (< 690 KiB / 706,560 B CI hard limit), sid
   assert.ok(bytes < 690 * 1024, `Bundle must stay strictly < 706,560 B (690 KiB), got ${bytes} B`);
   assert.ok(bytes <= 704000, `Bundle target <= 704,000 B (headroom >= 2,560 B), got ${bytes} B`);
 
-  const cssRaw = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const cssRaw = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal(cssRaw.includes('data-ag-cs-route'), false, 'Dead selector data-ag-cs-route must be removed from style.css');
 
   // Verify compiled SLIDER_CSS retains html[data-ces-slider-ready='1']-gated submenu hiding rules, never emits bare ungated [role='menu']:has(), and strips dead .ces-set* CSS
@@ -935,14 +935,12 @@ test('Main bundle budget <= 704,000 B (< 690 KiB / 706,560 B CI hard limit), sid
 
   // Verify release metadata consistency
   const wbApp = fs.readFileSync(path.join(ROOT, 'workbench/app.js'), 'utf8');
-  assert.ok(wbApp.includes('Obsidian Prism v1.0.8-beta.4') && wbApp.includes('GPL-3.0 · 7 CREDITS'), 'workbench/app.js must reflect v1.0.8-beta.4 and GPL-3.0');
+  assert.ok(wbApp.includes('Obsidian Prism v1.0.8-beta.5') && wbApp.includes('GPL-3.0 · 7 CREDITS'), 'workbench/app.js must reflect v1.0.8-beta.5 and GPL-3.0');
   assert.equal(wbApp.includes('Obsidian Prism v1.0.0'), false);
   assert.equal(wbApp.includes('MIT · 7 CREDITS'), false);
 
-  const bugTpl = fs.readFileSync(path.join(ROOT, '.github/ISSUE_TEMPLATE/bug_report.md'), 'utf8');
-  assert.ok(bugTpl.includes('`v1.0.8-beta.4`'));
   const manifest = fs.readFileSync(path.join(ROOT, 'installer/setup/app.manifest'), 'utf8');
-  assert.ok(manifest.includes('version="1.0.8.4"'));
+  assert.ok(manifest.includes('version="1.0.8.5"'));
   for (const rel of [
     'vendor/omni-viewer/omni-client.js',
     'vendor/thought-translator/thought-client.js',
@@ -951,8 +949,8 @@ test('Main bundle budget <= 704,000 B (< 690 KiB / 706,560 B CI hard limit), sid
     'vendor/wallpaper/wallpaper-settings-ui.js',
   ]) {
     const firstLine = fs.readFileSync(path.join(ROOT, rel), 'utf8').split(/\r?\n/)[0];
-    assert.ok(firstLine.includes('v1.0.8-beta.4'), `${rel} header comment must be v1.0.8-beta.4`);
+    assert.ok(firstLine.includes('v1.0.8-beta.5'), `${rel} header comment must be v1.0.8-beta.5`);
   }
   const changelog = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
-  assert.ok(changelog.includes('## [1.0.8-beta.4]') && changelog.includes('## [1.0.8-beta.2]') && changelog.includes('## [1.0.8-beta.1]') && changelog.includes('## [1.0.7]') && !changelog.includes('## [1.0.7-beta.') && changelog.includes('## [1.0.6]') && changelog.includes('## [1.0.5]') && changelog.includes('## [1.0.4]') && changelog.includes('## [1.0.3]') && changelog.includes('## [1.0.2]') && changelog.includes('archive:conversations'));
+  assert.ok(changelog.includes('## [1.0.8-beta.5]') && changelog.includes('## [1.0.8-beta.4]') && changelog.includes('## [1.0.8-beta.2]') && changelog.includes('## [1.0.8-beta.1]') && changelog.includes('## [1.0.7]') && !changelog.includes('## [1.0.7-beta.') && changelog.includes('## [1.0.6]') && changelog.includes('## [1.0.5]') && changelog.includes('## [1.0.4]') && changelog.includes('## [1.0.3]') && changelog.includes('## [1.0.2]') && changelog.includes('archive:conversations'));
 });

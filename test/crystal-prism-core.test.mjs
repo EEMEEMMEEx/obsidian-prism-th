@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const crystalCore = require('../crystal-prism-core.js');
+const crystalCore = require('../src/crystal-prism-core.js');
 
 test('crystal-prism-core computeProximityFactor enforces small 105px reaction radius and smooth falloff', () => {
   assert.equal(crystalCore.PROXIMITY_RADIUS_PX, 105);
@@ -207,7 +207,7 @@ test('crystal-prism-core 2D fallback with reduceMotion draws once and skips 100%
 });
 
 test('crystal-prism-core & model-glyph-crystal honor accentTone (mono/cobalt/iris/amber/warm), ambientIntensity=0 0fps sleep, and dynamic motionLevel', () => {
-  const modelGlyphMod = require('../model-glyph-crystal.js');
+  const modelGlyphMod = require('../src/model-glyph-crystal.js');
   assert.equal(crystalCore.resolveCrystalAccentCode('mono'), 5);
   assert.equal(crystalCore.resolveCrystalAccentCode('amber'), 4);
   assert.equal(crystalCore.resolveCrystalAccentCode('iris'), 3);

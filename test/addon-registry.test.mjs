@@ -67,12 +67,12 @@ function createDirLink(targetDir, linkPath) {
   fs.symlinkSync(targetDir, linkPath, linkType);
 }
 
-test('isTrustedAddonUrl enforces HTTPS allowlist, RMvdesi/obsidian-prism repo prefix, and blocks ports/userInfo/traversal', () => {
+test('isTrustedAddonUrl enforces HTTPS allowlist, EEMEEMMEEx/obsidian-prism-th repo prefix, and blocks ports/userInfo/traversal', () => {
   // 允许的白名单 URL
   const allowed = [
-    'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/manifest.json',
-    'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/demo/manifest.json',
-    'https://api.github.com/repos/RMvdesi/obsidian-prism/releases/latest',
+    'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/manifest.json',
+    'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/demo/manifest.json',
+    'https://api.github.com/repos/EEMEEMMEEx/obsidian-prism-th/releases/latest',
     'https://objects.githubusercontent.com/github-production-release-asset-123/asset.js?sig=abc',
     'https://release-assets.githubusercontent.com/asset/foo.js',
     'https://github-releases.githubusercontent.com/1234/demo.js',
@@ -84,26 +84,26 @@ test('isTrustedAddonUrl enforces HTTPS allowlist, RMvdesi/obsidian-prism repo pr
   // 严禁的非白名单 / SSRF / 绕过 URL
   const blocked = [
     '',
-    'http://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/manifest.json',
+    'http://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/manifest.json',
     'file:///etc/passwd',
     'data:application/json,{}',
-    'https://github.com:443/RMvdesi/obsidian-prism/releases/download/v1.0.8/manifest.json',
-    'https://github.com:8443/RMvdesi/obsidian-prism/releases/download/v1.0.8/manifest.json',
+    'https://github.com:443/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/manifest.json',
+    'https://github.com:8443/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/manifest.json',
     'https://objects.githubusercontent.com:443/asset.js',
-    'https://user@github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/manifest.json',
-    'https://user:pass@raw.githubusercontent.com/RMvdesi/obsidian-prism/main/a.json',
-    'https://evil.example.com/RMvdesi/obsidian-prism/manifest.json',
-    'https://github.com.evil.com/RMvdesi/obsidian-prism/manifest.json',
-    'https://127.0.0.1/RMvdesi/obsidian-prism/manifest.json',
+    'https://user@github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/manifest.json',
+    'https://user:pass@raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/a.json',
+    'https://evil.example.com/EEMEEMMEEx/obsidian-prism-th/manifest.json',
+    'https://github.com.evil.com/EEMEEMMEEx/obsidian-prism-th/manifest.json',
+    'https://127.0.0.1/EEMEEMMEEx/obsidian-prism-th/manifest.json',
     'https://169.254.169.254/latest/meta-data/',
     'https://github.com/other-org/obsidian-prism/releases/download/v1/manifest.json',
-    'https://github.com/RMvdesi/obsidian-prism-evil/releases/download/v1/manifest.json',
+    'https://github.com/EEMEEMMEEx/obsidian-prism-th-evil/releases/download/v1/manifest.json',
     'https://raw.githubusercontent.com/attacker/obsidian-prism/main/manifest.json',
     'https://api.github.com/repos/attacker/obsidian-prism/releases/latest',
-    'https://github.com/RMvdesi/obsidian-prism/',
-    'https://github.com/RMvdesi/obsidian-prism/../attacker/repo/manifest.json',
-    'https://github.com/RMvdesi/obsidian-prism/%2e%2e/attacker/manifest.json',
-    'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/a%5cb.js',
+    'https://github.com/EEMEEMMEEx/obsidian-prism-th/',
+    'https://github.com/EEMEEMMEEx/obsidian-prism-th/../attacker/repo/manifest.json',
+    'https://github.com/EEMEEMMEEx/obsidian-prism-th/%2e%2e/attacker/manifest.json',
+    'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/a%5cb.js',
     'https://objects.githubusercontent.com/a%00b.js',
   ];
   for (const url of blocked) {
@@ -148,7 +148,7 @@ test('validateSafeRelativePath and validateAddonManifest block traversal, absolu
   assert.equal(isValidSemver('not-a-version'), false);
 
   const goodSha = sha256Hex('console.log(1);');
-  const manifestUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/sample/manifest.json';
+  const manifestUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/sample/manifest.json';
   const okManifest = validateAddonManifest(
     {
       id: 'sample-addon',
@@ -161,7 +161,7 @@ test('validateSafeRelativePath and validateAddonManifest block traversal, absolu
   assert.equal(okManifest.ok, true);
   assert.equal(
     okManifest.manifest.files[0].url,
-    'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/sample/index.js'
+    'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/sample/index.js'
   );
 
   // 非法 ID / 非法 SHA / entry 不在 files[] / 非白名单 file.url
@@ -251,9 +251,9 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     const addonsDir = path.join(tmpDir, 'addons');
     const file1Body = 'export const hello = () => "v1";\n';
     const file2Body = 'export const helper = 42;\n';
-    const manifestUrl = 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/manifest.json';
+    const manifestUrl = 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/manifest.json';
     const cdnFile1Url = 'https://objects.githubusercontent.com/github-production-release-asset-1/index.js';
-    const file2Url = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/demo-pack/lib/helper.js';
+    const file2Url = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/demo-pack/lib/helper.js';
 
     const manifestObj = {
       id: 'demo-pack',
@@ -263,7 +263,7 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
       files: [
         {
           path: 'index.js',
-          url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/index.js',
+          url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/index.js',
           sha256: sha256Hex(file1Body),
           size: Buffer.byteLength(file1Body),
         },
@@ -280,7 +280,7 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     const routes = new Map([
       [manifestUrl, () => makeMockResponse({ status: 200, body: JSON.stringify(manifestObj) })],
       [
-        'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/index.js',
+        'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/index.js',
         () => makeMockResponse({ status: 302, headers: { location: cdnFile1Url } }),
       ],
       [cdnFile1Url, () => makeMockResponse({ status: 200, body: file1Body })],
@@ -320,8 +320,8 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(status.addon.version, '1.0.0');
 
     // 1b) 覆盖升级时若新版本 SHA-256 失败，旧版本文件 100% 完好无损；验签通过则原子替换为 v2
-    const v2BadUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/demo-pack/v2-bad.json';
-    const v2TamperedFileUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/demo-pack/v2-tampered.js';
+    const v2BadUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/demo-pack/v2-bad.json';
+    const v2TamperedFileUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/demo-pack/v2-tampered.js';
     routes.set(v2BadUrl, () =>
       makeMockResponse({
         status: 200,
@@ -340,8 +340,8 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(fs.readFileSync(path.join(installedDir, 'index.js'), 'utf8'), file1Body, 'Existing v1 must remain intact on failed upgrade');
 
     const v2Body = 'export const hello = () => "v2";\n';
-    const v2GoodUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/demo-pack/v2-good.json';
-    const v2FileUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/demo-pack/v2.js';
+    const v2GoodUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/demo-pack/v2-good.json';
+    const v2FileUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/demo-pack/v2.js';
     routes.set(v2GoodUrl, () =>
       makeMockResponse({
         status: 200,
@@ -372,8 +372,8 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
       },
     });
     const bigFileBuf = Buffer.alloc(4096, 0x61);
-    const bigFileManifestUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/too-big/manifest.json';
-    const bigFileUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/too-big/big.bin';
+    const bigFileManifestUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/too-big/manifest.json';
+    const bigFileUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/too-big/big.bin';
     routes.set(bigFileManifestUrl, () =>
       makeMockResponse({
         status: 200,
@@ -391,8 +391,8 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(fs.existsSync(path.join(addonsDir, 'too-big')), false);
 
     // 2) SHA-256 不匹配：全新安装拒绝写盘，零目录残留
-    const badManifestUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/bad-sha/manifest.json';
-    const badFileUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/bad-sha/main.js';
+    const badManifestUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/bad-sha/manifest.json';
+    const badFileUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/bad-sha/main.js';
     routes.set(badManifestUrl, () =>
       makeMockResponse({
         status: 200,
@@ -412,7 +412,7 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.deepEqual(fs.readdirSync(addonsDir), ['demo-pack'], 'No staging residue allowed after failure');
 
     // 3) 302 跨站劫持与超过 5 跳拦截
-    const hijackUrl = 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/hijack.json';
+    const hijackUrl = 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/hijack.json';
     routes.set(hijackUrl, () =>
       makeMockResponse({ status: 302, headers: { location: 'https://evil.example.com/steal.json' } })
     );
@@ -420,7 +420,7 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(hijackRes.ok, false);
     assert.equal(hijackRes.error, 'untrusted_redirect_url');
 
-    const crossRepoHijack = 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/cross-repo.json';
+    const crossRepoHijack = 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/cross-repo.json';
     routes.set(crossRepoHijack, () =>
       makeMockResponse({ status: 302, headers: { location: 'https://github.com/attacker/evil/manifest.json' } })
     );
@@ -428,7 +428,7 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(crossRepoRes.ok, false);
     assert.equal(crossRepoRes.error, 'untrusted_redirect_url');
 
-    const portRedirect = 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/port.json';
+    const portRedirect = 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/port.json';
     routes.set(portRedirect, () =>
       makeMockResponse({ status: 302, headers: { location: 'https://objects.githubusercontent.com:443/a.json' } })
     );
@@ -437,14 +437,14 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(portRes.error, 'untrusted_redirect_url');
 
     // 超过 5 跳重定向循环
-    const loopUrl = 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.8/loop.json';
+    const loopUrl = 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.8/loop.json';
     routes.set(loopUrl, () => makeMockResponse({ status: 302, headers: { location: loopUrl } }));
     const loopRes = await registry.install({ manifestUrl: loopUrl });
     assert.equal(loopRes.ok, false);
     assert.equal(loopRes.error, 'too_many_redirects');
 
     // 4) 超大 manifest (> 512 KiB) 拦截
-    const hugeManifestUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/huge/manifest.json';
+    const hugeManifestUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/huge/manifest.json';
     routes.set(hugeManifestUrl, () =>
       makeMockResponse({ status: 200, body: Buffer.alloc(MAX_MANIFEST_BYTES + 64, 0x20) })
     );
@@ -453,7 +453,7 @@ test('AddonRegistry install verifies redirects, memory SHA-256, atomic rename, u
     assert.equal(hugeRes.error, 'payload_too_large');
 
     // 5) 禁止覆盖内置 bundled periodic-picker
-    const spoofBundledUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/spoof/manifest.json';
+    const spoofBundledUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/spoof/manifest.json';
     routes.set(spoofBundledUrl, () =>
       makeMockResponse({
         status: 200,
@@ -517,8 +517,8 @@ test('AddonRegistry blocks symlink/junction targets, redline addonsDir, and hija
     createDirLink(outsideVictim, symAddonTarget);
 
     const payload = 'export const x = 1;\n';
-    const manifestUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/linked-addon/manifest.json';
-    const fileUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/linked-addon/index.js';
+    const manifestUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/linked-addon/manifest.json';
+    const fileUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/linked-addon/index.js';
     const registry = new AddonRegistry({
       rootDir: ROOT,
       addonsDir,
@@ -567,8 +567,8 @@ test('PrismDaemon executeRepoAction gates addons-* behind OBSIDIAN_PRISM_ADDONS_
   try {
     const addonsDir = path.join(tmpDir, 'addons');
     const codeBody = 'export const ok = true;\n';
-    const manifestUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/lab-mod/manifest.json';
-    const codeUrl = 'https://raw.githubusercontent.com/RMvdesi/obsidian-prism/main/addons/lab-mod/mod.js';
+    const manifestUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/lab-mod/manifest.json';
+    const codeUrl = 'https://raw.githubusercontent.com/EEMEEMMEEx/obsidian-prism-th/main/addons/lab-mod/mod.js';
 
     const registry = new AddonRegistry({
       rootDir: ROOT,

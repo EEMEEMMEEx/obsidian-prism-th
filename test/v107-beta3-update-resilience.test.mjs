@@ -20,9 +20,9 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 const installTool = require(path.join(ROOT_DIR, 'tools', 'install-plugin.cjs'));
-const removeMod = require(path.join(ROOT_DIR, 'remove.js'));
+const removeMod = require(path.join(ROOT_DIR, 'src/remove.js'));
 
 function execFileAsync(bin, args, opts = {}) {
   return new Promise((resolve, reject) => {
@@ -839,15 +839,11 @@ test('任务 2 & 3: 四端 --purge-data 补齐 obsidian-prism-wallpaper.json（�
   assert.ok(winSetup.includes('"obsidian-prism-wallpaper.json"'), 'Windows Setup --purge-data must include obsidian-prism-wallpaper.json');
   assert.ok(macSetup.includes('"obsidian-prism-wallpaper.json"'), 'macOS Setup --purge-data must include obsidian-prism-wallpaper.json');
 
-  // 3) README.md & README.en.md AI 代装规范与思考翻译自检核验
-  const readmeZh = fs.readFileSync(path.join(ROOT_DIR, 'README.md'), 'utf8');
-  const readmeEn = fs.readFileSync(path.join(ROOT_DIR, 'README.en.md'), 'utf8');
-  assert.ok(readmeZh.includes('npm run install:plugin') && readmeZh.includes('node tools/install-plugin.cjs --status'));
-  assert.ok(readmeZh.includes('严禁仅执行 `npm run inject`'));
-  assert.ok(readmeZh.includes('一键诊断'));
-  assert.ok(readmeEn.includes('npm run install:plugin') && readmeEn.includes('node tools/install-plugin.cjs --status'));
-  assert.ok(readmeEn.includes('Do NOT use `npm run inject`'));
-  assert.ok(readmeEn.includes('1-Click Diagnose'));
+  // 3) README.md install & self-check instructions
+  const readme = fs.readFileSync(path.join(ROOT_DIR, 'README.md'), 'utf8');
+  assert.ok(readme.includes('npm run install:plugin') && readme.includes('node tools/install-plugin.cjs --status'));
+  assert.ok(readme.includes('`npm run inject`'));
+  assert.ok(readme.includes('1-Click Diagnose'));
 });
 
 test('#229 [P1-6] (Windows C#): 内存级 hostKey 去重兜底、ACCESS_DENIED/无窗跳过 PowerShell 风暴、连续 2 次探活判死与 ConnectionRefused 立即判死', {

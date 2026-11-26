@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const vialCore = require('../vial-core.js');
+const vialCore = require('../src/vial-core.js');
 
 test('vial-core exposes 24-node physical shallow-water engine, symmetrical ionized capsule geometry, and slosh damping', () => {
   assert.equal(vialCore.WAVE_NODES, 24);
@@ -518,12 +518,12 @@ test('OP-3.5 vial-core accentTone response: mono silver-titanium, iris, amber, a
 test('Issue #2/#4/#5 high-Hz & win-blur guards: pulse-vial-bridge (<31,000B) 33ms steady throttle + 0fps blur sleep, and prism-rim-canvas DPR 1.5 + <1.5px micro-move skip', async () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const bridgePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'pulse-vial-bridge.js');
+  const bridgePath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'pulse-vial-bridge.js');
   const bridgeBytes = fs.statSync(bridgePath).size;
   assert.ok(bridgeBytes < 31000, `pulse-vial-bridge.js must stay < 31,000 B, got ${bridgeBytes} B`);
 
-  const bridgeMod = require('../pulse-vial-bridge.js');
-  const prismRimMod = require('../prism-rim-canvas.js');
+  const bridgeMod = require('../src/pulse-vial-bridge.js');
+  const prismRimMod = require('../src/prism-rim-canvas.js');
 
   // Part A: pulse-vial-bridge 180Hz steady streaming throttle (>=33ms) & win-blur 0fps pause/wake
   const winListeners = new Map();

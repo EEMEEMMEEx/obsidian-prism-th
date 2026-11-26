@@ -6,49 +6,20 @@ import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
-// Phase 1 root-file allowlist ratchet (see RFC #69):
-// Metadata files + existing runtime modules awaiting Phase 2 src/ migration.
-// Adding new ad-hoc files to the repository root fails this gate.
+// Personal repository root-file allowlist:
+// Only metadata, license/notice, and config files belong at the repository root.
+// Runtime modules live in src/, Windows bat scripts in scripts/win/, tests in test/.
 const ALLOWED_ROOT_FILES = new Set([
-  // Repository & package metadata
   '.gitattributes',
   '.gitignore',
   'CHANGELOG.md',
-  'CITATION.cff',
   'LICENSE',
   'NOTICE',
   'README.md',
-  'README.en.md',
   'THIRD_PARTY_NOTICES.md',
   'config.example.json',
   'package.json',
   'plugin.json',
-  // Legacy runtime modules pending Phase 2 src/ consolidation
-  'animated-icons.js',
-  'cdp.js',
-  'context-menu-btw.js',
-  'conv-aura.js',
-  'crystal-prism-core.js',
-  'dual-mascot-rig.js',
-  'home-ripple-host.js',
-  'home-studio-panel.js',
-  'host-workbench-enhancer.js',
-  'i18n-core.js',
-  'i18n-locales.js',
-  'inject.js',
-  'model-glyph-crystal.js',
-  'motion-engine.js',
-  'prism-rim-canvas.js',
-  'pulse-vial-bridge.js',
-  'remove.js',
-  'ripple-core.js',
-  'settings-panel.js',
-  'smooth-caret.js',
-  'stream-choreography.js',
-  'style.css',
-  'ui-runtime.js',
-  'usage-core.js',
-  'vial-core.js',
 ]);
 
 // Existing legacy version-stamped test files grandfathered until Phase 3 consolidation.
@@ -111,34 +82,45 @@ function listTrackedRootFiles() {
   }
 }
 
-test('Phase 1 directory hygiene: community docs live in .github/, multilingual docs in docs/, Windows bat scripts in scripts/win/, and root stays within allowlist', () => {
-  // 1) Relocated files exist at their canonical destinations
+test('Personal repo directory hygiene: runtime modules live in src/, community docs removed, Windows bat scripts in scripts/win/, and root stays within allowlist', () => {
+  // 1) Canonical files exist at their expected locations
   for (const rel of [
-    '.github/CONTRIBUTING.md',
-    '.github/CODE_OF_CONDUCT.md',
-    '.github/SECURITY.md',
-    'README.en.md',
-    'docs/CONTRIBUTORS.md',
+    'src/cdp.js',
+    'src/inject.js',
+    'src/remove.js',
+    'src/style.css',
+    'src/ui-runtime.js',
+    'src/settings-panel.js',
     'scripts/win/inject.bat',
     'scripts/win/watch.bat',
     'scripts/win/remove.bat',
     'scripts/run-tests.mjs',
     'test/helpers/mini-dom.mjs',
   ]) {
-    assert.ok(fs.existsSync(path.join(ROOT, rel)), `Expected relocated/new file to exist: ${rel}`);
+    assert.ok(fs.existsSync(path.join(ROOT, rel)), `Expected canonical file to exist: ${rel}`);
   }
 
-  // 2) Relocated files must not remain duplicated at repository root
-  for (const oldRoot of [
+  // 2) Community / legacy root files must not exist
+  for (const removed of [
+    '.github/CONTRIBUTING.md',
+    '.github/CODE_OF_CONDUCT.md',
+    '.github/SECURITY.md',
+    'docs/CONTRIBUTORS.md',
+    'CITATION.cff',
+    'README.en.md',
     'CONTRIBUTING.md',
     'CODE_OF_CONDUCT.md',
     'SECURITY.md',
     'CONTRIBUTORS.md',
+    'cdp.js',
+    'inject.js',
+    'remove.js',
+    'style.css',
     'inject.bat',
     'watch.bat',
     'remove.bat',
   ]) {
-    assert.equal(fs.existsSync(path.join(ROOT, oldRoot)), false, `Relocated file must not remain at root: ${oldRoot}`);
+    assert.equal(fs.existsSync(path.join(ROOT, removed)), false, `Removed/relocated file must not exist: ${removed}`);
   }
 
   // 3) Root file allowlist ratchet (prevents new ad-hoc files from accumulating at root)
@@ -147,20 +129,20 @@ test('Phase 1 directory hygiene: community docs live in .github/, multilingual d
   assert.deepEqual(
     unexpected,
     [],
-    `Unexpected root file(s) outside allowlist (place docs in docs/, governance in .github/, scripts in scripts/): ${unexpected.join(', ')}`
+    `Unexpected root file(s) outside allowlist (place runtime files in src/, scripts in scripts/): ${unexpected.join(', ')}`
   );
 
-  // 4) Windows helper .bat scripts resolve repo root two levels up from scripts/win/
+  // 4) Windows helper .bat scripts resolve src/ two levels up from scripts/win/
   const injectBat = fs.readFileSync(path.join(ROOT, 'scripts', 'win', 'inject.bat'), 'utf8');
   const watchBat = fs.readFileSync(path.join(ROOT, 'scripts', 'win', 'watch.bat'), 'utf8');
   const removeBat = fs.readFileSync(path.join(ROOT, 'scripts', 'win', 'remove.bat'), 'utf8');
-  assert.ok(injectBat.includes('..\\..\\inject.js'), 'scripts/win/inject.bat must resolve ../../inject.js');
-  assert.ok(watchBat.includes('..\\..\\inject.js'), 'scripts/win/watch.bat must resolve ../../inject.js');
-  assert.ok(removeBat.includes('..\\..\\remove.js'), 'scripts/win/remove.bat must resolve ../../remove.js');
+  assert.ok(injectBat.includes('..\\..\\src\\inject.js'), 'scripts/win/inject.bat must resolve ../../src/inject.js');
+  assert.ok(watchBat.includes('..\\..\\src\\inject.js'), 'scripts/win/watch.bat must resolve ../../src/inject.js');
+  assert.ok(removeBat.includes('..\\..\\src\\remove.js'), 'scripts/win/remove.bat must resolve ../../src/remove.js');
 });
 
-test('Phase 1 documentation relative links and image assets resolve to real files on disk', () => {
-  const docsToCheck = ['README.md', 'README.en.md', 'docs/CONTRIBUTORS.md', 'CHANGELOG.md'];
+test('Personal repo documentation relative links and image assets resolve to real files on disk', () => {
+  const docsToCheck = ['README.md', 'CHANGELOG.md'];
   for (const relDoc of docsToCheck) {
     const absDoc = path.join(ROOT, relDoc);
     const rawContent = fs.readFileSync(absDoc, 'utf8');

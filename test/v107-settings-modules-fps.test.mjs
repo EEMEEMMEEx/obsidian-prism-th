@@ -322,7 +322,7 @@ function createMiniDom() {
 
 // ── 1. model-glyph-crystal.js: #2a effortSliderModule='off' + #8b palette='host' ──
 test('model-glyph-crystal (#2a & #8b): effortSliderModule="off" blocks/cleans orchestrator-effort-bar & crystal loop, and light palette="host" avoids alabaster warm tint', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'model-glyph-crystal.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/model-glyph-crystal.js'), 'utf8');
   const clock = makeFakeClock(1000);
   const { doc, html, body, makeEl } = createMiniDom();
 
@@ -520,7 +520,7 @@ test('slider-coexist (#2b): "auto" yields to external slider, "on" forcefully mo
 
 // ── 3. prism-rim-canvas.js: 1A high-FPS unlock + #8b palette='host' + idle/micro-move guards ──
 test('prism-rim-canvas (1A & #8b): follows targetFps (native/180/120/60) without 16ms cap, preserves <1.5px skip & 1800ms VRAM zeroing, and fixes light palette="host"', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   const clock = makeFakeClock(1000);
   const { doc, html, body, makeEl } = createMiniDom();
   const winBus = makeEventBus();
@@ -681,7 +681,7 @@ test('prism-rim-canvas (1A & #8b): follows targetFps (native/180/120/60) without
 
 // ── 4. home-ripple-host.js: #4 ambient=0 press guard + 1A active high-FPS + #8b palette='host' ──
 test('home-ripple-host (#4, 1A, #8b): ambient=0 blocks click disturb/rAF, active ripple unlocks targetFps while low-energy stays 33ms, and light palette="host" avoids alabaster warm tint', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8');
   const clock = makeFakeClock(1000);
   const { doc, html, body, makeEl } = createMiniDom();
   const winBus = makeEventBus();

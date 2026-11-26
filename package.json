@@ -1,18 +1,15 @@
 {
   "name": "obsidian-prism",
-  "version": "1.0.8-beta.4",
-  "description": "Obsidian Prism (黑曜棱镜) — Optical UI & Motion Suite for Antigravity. Unified 4-tier spring choreography, daylight crystal themes, 512K telemetry vial, reasoning effort slider, and dual-mode thought translator.",
+  "version": "1.0.8-beta.5",
+  "description": "Obsidian Prism (Personal TH/EN Edition) — Optical UI & Motion Suite for Antigravity by EEMEEMMEEx.",
   "license": "GPL-3.0-only",
-  "author": "RMvdesi",
-  "private": false,
+  "author": "EEMEEMMEEx",
+  "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RMvdesi/obsidian-prism.git"
+    "url": "git+https://github.com/EEMEEMMEEx/obsidian-prism-th.git"
   },
-  "homepage": "https://github.com/RMvdesi/obsidian-prism#readme",
-  "bugs": {
-    "url": "https://github.com/RMvdesi/obsidian-prism/issues"
-  },
+  "homepage": "https://github.com/EEMEEMMEEx/obsidian-prism-th#readme",
   "engines": {
     "node": ">=22.0.0"
   },
@@ -30,10 +27,10 @@
     "test:gates": "node scripts/run-tests.mjs --gates",
     "test:fast": "node scripts/run-tests.mjs --fast",
     "workbench": "node workbench/server.cjs",
-    "inject": "node inject.js",
-    "watch": "node inject.js --watch",
+    "inject": "node src/inject.js",
+    "watch": "node src/inject.js --watch",
     "daemon": "node sidecars/daemon/main.mjs",
-    "remove": "node remove.js",
+    "remove": "node src/remove.js",
     "install:plugin": "node tools/install-plugin.cjs --install",
     "archive:conversations": "node sidecars/daemon/conversation-archive.mjs",
     "clean:legacy": "node tools/patch-asar.cjs --clean-legacy",

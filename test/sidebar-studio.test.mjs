@@ -2524,7 +2524,7 @@ test('v2 sidebar-client enforces zero-empty-screen circuit breaker, honest non-f
 });
 
 test('cdp.buildSidebarStudioExpression builds clean v2 bridge without legacy v1 write shortcuts and rejects unsafe client sources', () => {
-  const cdp = require('../cdp.js');
+  const cdp = require('../src/cdp.js');
   const expr = cdp.buildSidebarStudioExpression({ binding: SIDEBAR_BINDING, schemaVersion: 2, serviceReady: true });
   assert.doesNotThrow(() => new vm.Script(expr));
   assert.ok(expr.includes('SIDEBAR_STUDIO_CLIENT_V2'));

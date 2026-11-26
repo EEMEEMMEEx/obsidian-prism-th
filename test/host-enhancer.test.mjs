@@ -7,9 +7,9 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const __dirname = import.meta.dirname;
 
-const enhancerMod = require(path.join(__dirname, '..', 'host-workbench-enhancer.js'));
+const enhancerMod = require(path.join(__dirname, '..', 'src/host-workbench-enhancer.js'));
 const inlineDiffMod = require(path.join(__dirname, '..', 'vendor', 'inline-diff', 'inline-diff-client.js'));
-const streamMod = require(path.join(__dirname, '..', 'stream-choreography.js'));
+const streamMod = require(path.join(__dirname, '..', 'src/stream-choreography.js'));
 
 // ── Lightweight Deterministic DOM Harness (Zero External Dependencies) ─────
 function createClassList(el) {
@@ -778,7 +778,7 @@ test('stream-choreography prevents outer <pre> flicker on TextNode appends, keep
 
 // ── Test 5: style.css Wave 2 Optical, Surface, Schema & Thought Contracts ─
 test('style.css covers all 6 Wave-2 config hooks, eliminates double borders & entity-pill underline, purges warm-theme cold-blue leaks, and styles thought-translator V2 tokens', () => {
-  const css = fs.readFileSync(path.join(__dirname, '..', 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'src/style.css'), 'utf8');
 
   let depth = 0;
   for (const ch of css) {
@@ -964,7 +964,7 @@ test('style.css covers all 6 Wave-2 config hooks, eliminates double borders & en
   const overviewShellRule = css.split('\n').find((l) => l.includes('& [data-ag-cs-overview-shell="1"]{')) || '';
   assert.equal(overviewShellRule.includes('position:relative'), false, '[data-ag-cs-overview-shell="1"] must never override native absolute floating positioning');
 
-  const enhancerSrc = fs.readFileSync(path.join(__dirname, '..', 'host-workbench-enhancer.js'), 'utf8');
+  const enhancerSrc = fs.readFileSync(path.join(__dirname, '..', 'src/host-workbench-enhancer.js'), 'utf8');
   assert.equal(enhancerSrc.includes('doc.click'), false, 'host-workbench-enhancer.js must have 0 doc.click');
   assert.equal(enhancerSrc.includes('innerHTML'), false, 'host-workbench-enhancer.js must have 0 innerHTML');
   assert.equal(enhancerSrc.includes('setPrefValue'), false, 'host-workbench-enhancer.js must have 0 setPrefValue');
@@ -1692,7 +1692,7 @@ test('D13: inline diff escapes narrow 255px inner block to full-width 754px step
     assert.equal(addLines[2].querySelector('.ag-cs-inline-diff-sign')?.textContent, '┆', 'End row shows ┆ merged connector');
     assert.ok(addLines[2].querySelector('.ag-cs-inline-diff-wrap-tag'), 'Truncated single long line renders wrap indicator tag');
 
-    const css = fs.readFileSync(path.join(__dirname, '..', 'style.css'), 'utf8');
+    const css = fs.readFileSync(path.join(__dirname, '..', 'src/style.css'), 'utf8');
     assert.equal(css.includes('grid-template-rows:1fr'), false, 'Diff box must NOT use layout-thrashing grid-template-rows transition');
     assert.ok(css.includes('ag-cs-diff-unfold') && css.includes('ag-cs-diff-fold'), 'Diff box must use GPU compositor unfold/fold keyframes');
     const bqRule = css.split('\n').find((l) => l.includes('& blockquote{')) || '';
@@ -1750,8 +1750,8 @@ test('D13: inline diff escapes narrow 255px inner block to full-width 754px step
 // ── Test 12: Wave D18.5 / D19 Sash Transparent Hitbox, Staggered Nested Scrollbars & REMOVE_EXPRESSION Parity ──
 test('Wave D18.5 / D19: [data-sash-handle] stays transparent at rest, nested scrollbars stagger without overlap, and REMOVE_EXPRESSION strips D18 attributes', () => {
   const vm = require('node:vm');
-  const cdp = require(path.join(__dirname, '..', 'cdp.js'));
-  const css = fs.readFileSync(path.join(__dirname, '..', 'style.css'), 'utf8');
+  const cdp = require(path.join(__dirname, '..', 'src/cdp.js'));
+  const css = fs.readFileSync(path.join(__dirname, '..', 'src/style.css'), 'utf8');
 
   // 1) [data-sash-handle] 8px sidebar resize hitbox must stay transparent with zero shadow at rest, revealing .bg-border only on hover/active
   const sashIdx = css.indexOf('[data-sash-handle]{');
@@ -1859,9 +1859,9 @@ test('Wave D18.5 / D19: [data-sash-handle] stays transparent at rest, nested scr
 // ── Test 13: Wave D20 Takeover Bottom-Reflect Mounting, Smoked Obsidian Artifact/Takeover Facets & Pulse Z-Index Unseal ──
 test('Wave D20: ui-runtime mounts bottom prism-reflect on interaction-takeover-card dynamically, and style.css enforces smoked-obsidian artifacts, keycap proceed button, transparent takeover liner, and pulse z-index 36 > 12', async () => {
   const vm = require('node:vm');
-  const cdp = require(path.join(__dirname, '..', 'cdp.js'));
-  const uiRuntimeSrc = fs.readFileSync(path.join(__dirname, '..', 'ui-runtime.js'), 'utf8');
-  const css = fs.readFileSync(path.join(__dirname, '..', 'style.css'), 'utf8');
+  const cdp = require(path.join(__dirname, '..', 'src/cdp.js'));
+  const uiRuntimeSrc = fs.readFileSync(path.join(__dirname, '..', 'src/ui-runtime.js'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'src/style.css'), 'utf8');
 
   // 1) Static contract & live VM verification of ui-runtime.js bottom prism-reflect on [data-testid="interaction-takeover-card"]
   assert.ok(
@@ -2094,7 +2094,7 @@ test('Wave D20: ui-runtime mounts bottom prism-reflect on interaction-takeover-c
 });
 
 test('Navigator outline mounts dedicated trigger, yields to Base UI turn tooltips without overlap, keeps legacy turn compat, and cleans up', async () => {
-  const cdp = require(path.join(__dirname, '..', 'cdp.js'));
+  const cdp = require(path.join(__dirname, '..', 'src/cdp.js'));
   const env = createMockEnv();
   const conv = env.createElement('div', { 'data-testid': 'conversation-view' });
   const vp = env.createElement('div', { 'data-testid': 'autoscroll-viewport' });

@@ -45,7 +45,7 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 const cliInstaller = require(path.join(ROOT_DIR, 'tools', 'install-plugin.cjs'));
 
 function createMockCdpServer(options = {}) {
@@ -399,7 +399,7 @@ async function waitFor(fn, timeoutMs = 6000, intervalMs = 100) {
 }
 
 test('installer manifest validators match inject.js, cdp.js, and config.example.json 100%', () => {
-  const injectSrc = fs.readFileSync(path.join(ROOT_DIR, 'inject.js'), 'utf8');
+  const injectSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/inject.js'), 'utf8');
   assert.ok(injectSrc.includes('validateConfigEntry'), 'inject.js must delegate directly to cdp.validateConfigEntry');
   assert.deepEqual(Object.keys(VALIDATORS).sort(), Object.keys(cdp.VALIDATORS).sort());
 
@@ -442,8 +442,8 @@ test('installer manifest validators match inject.js, cdp.js, and config.example.
   assert.equal(exampleCfg.codeLigatures, false);
   assert.equal(exampleCfg.ambientIntensity, '100');
   assert.equal(exampleCfg.thoughtView, 'immersive');
-  assert.ok(cdp.RUNTIME_PARTS.includes('host-workbench-enhancer.js'));
-  assert.ok(cdp.SYNC_ROOT_FILES.includes('host-workbench-enhancer.js'));
+  assert.ok(cdp.RUNTIME_PARTS.includes('src/host-workbench-enhancer.js'));
+  assert.ok(cdp.SYNC_ROOT_FILES.includes('src/host-workbench-enhancer.js'));
 });
 
 test(
@@ -518,7 +518,7 @@ test(
       assert.ok(fs.existsSync(path.join(installDir, 'obsidian-prism-watcher.exe')));
       assert.ok(fs.existsSync(path.join(installDir, 'obsidian-prism-installer.exe')));
       assert.ok(fs.existsSync(path.join(installDir, 'manifest.json')));
-      assert.ok(fs.existsSync(path.join(installDir, 'host-workbench-enhancer.js')));
+      assert.ok(fs.existsSync(path.join(installDir, 'src', 'host-workbench-enhancer.js')));
       assert.ok(fs.existsSync(path.join(installDir, 'vendor', 'pulse-dashboard', 'inline-fallback.js')));
       assert.ok(fs.existsSync(path.join(installDir, 'vendor', 'effort-slider', 'slider-coexist.js')));
       assert.ok(fs.existsSync(path.join(installDir, 'vendor', 'thought-translator', 'thought-client.js')));
@@ -531,7 +531,7 @@ test(
       assert.ok(fs.existsSync(path.join(nativePluginDir, 'sidecars', 'daemon', 'main.mjs')));
       assert.ok(fs.existsSync(path.join(nativePluginDir, 'vendor', 'thought-translator', 'translator-service.mjs')));
       assert.ok(fs.existsSync(path.join(nativePluginDir, 'vendor', 'pulse-dashboard', 'sidecars', 'panel', 'store.mjs')));
-      assert.ok(fs.existsSync(path.join(nativePluginDir, 'host-workbench-enhancer.js')));
+      assert.ok(fs.existsSync(path.join(nativePluginDir, 'src', 'host-workbench-enhancer.js')));
       assert.ok(fs.existsSync(path.join(nativePluginDir, 'config.json')));
 
       const activeCfgPath = path.join(ROOT_DIR, 'config.example.json');
@@ -1396,7 +1396,7 @@ test('Windows C# CdpClient ReconcileConfigAliases (#5) & BuildConfigRefreshExpre
 });
 
 test('remove.js preserves usage rollup cache by default and --purge-data safely cleans it while blocking symlinks and redline dirs', () => {
-  const removeMod = require(path.join(ROOT_DIR, 'remove.js'));
+  const removeMod = require(path.join(ROOT_DIR, 'src/remove.js'));
   assert.deepEqual(removeMod.parseCliArgs([]), { purgeData: false });
   assert.deepEqual(removeMod.parseCliArgs(['--purge-data']), { purgeData: true });
 
@@ -1447,7 +1447,7 @@ test('remove.js preserves usage rollup cache by default and --purge-data safely 
     delete baseEnv.AG_PRISM_TELEMETRY_DIR;
 
     // 1. Default `node remove.js` (no --purge-data) must preserve user configs and usage rollup cache
-    execFileSync(process.execPath, [path.join(ROOT_DIR, 'remove.js')], {
+    execFileSync(process.execPath, [path.join(ROOT_DIR, 'src/remove.js')], {
       env: baseEnv,
       stdio: 'pipe',
     });
@@ -1457,7 +1457,7 @@ test('remove.js preserves usage rollup cache by default and --purge-data safely 
     assert.equal(fs.existsSync(telSamplePath), true, 'default remove.js must preserve telemetry dir');
 
     // 2. `node remove.js --purge-data` cleans usage rollup cache, configs, caches, safe override, and telemetry
-    execFileSync(process.execPath, [path.join(ROOT_DIR, 'remove.js'), '--purge-data'], {
+    execFileSync(process.execPath, [path.join(ROOT_DIR, 'src/remove.js'), '--purge-data'], {
       env: baseEnv,
       stdio: 'pipe',
     });
@@ -1496,7 +1496,7 @@ test('remove.js preserves usage rollup cache by default and --purge-data safely 
 });
 
 test('remove.js P1-5: --purge-data waits for slow-exiting daemon flush before deleting usage cache and escalates to SIGKILL on timeout', async () => {
-  const removeMod = require(path.join(ROOT_DIR, 'remove.js'));
+  const removeMod = require(path.join(ROOT_DIR, 'src/remove.js'));
   assert.ok(
     removeMod.DAEMON_STOP_POLL_MS >= 25 && removeMod.DAEMON_STOP_POLL_MS <= 40,
     `Expected poll interval within 25..40ms, got ${removeMod.DAEMON_STOP_POLL_MS}`

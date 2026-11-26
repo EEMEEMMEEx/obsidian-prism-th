@@ -12,7 +12,7 @@ import { PrismDaemon, THOUGHT_BINDING } from '../sidecars/daemon/main.mjs';
 
 const require = createRequire(import.meta.url);
 const ROOT_DIR = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 const installPluginTool = require(path.join(ROOT_DIR, 'tools', 'install-plugin.cjs'));
 
 function createSimulatedDomSandbox(opts = {}) {

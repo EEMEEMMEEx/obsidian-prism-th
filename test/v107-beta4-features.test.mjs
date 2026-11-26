@@ -8,11 +8,11 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const locales = require(path.join(ROOT, 'i18n-locales.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const locales = require(path.join(ROOT, 'src/i18n-locales.js'));
 const sliderCoexist = require(path.join(ROOT, 'vendor', 'effort-slider', 'slider-coexist.js'));
 const upstreamSlider = require(path.join(ROOT, 'vendor', 'effort-slider', 'upstream-client.js'));
-const dualMascotRig = require(path.join(ROOT, 'dual-mascot-rig.js'));
+const dualMascotRig = require(path.join(ROOT, 'src/dual-mascot-rig.js'));
 
 function createFakeDom() {
   const attrsMap = new WeakMap();
@@ -370,7 +370,7 @@ test('v1.0.7-beta.4: dual-mascot-rig peek mode enforces full pointer pass-throug
 
   rig.dispose();
 
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.ok(css.includes('.ag-cs-crab[data-ag-mascot-peek="1"]'), 'style.css must style peek pass-through');
   assert.ok(
     /\.ag-cs-crab\[data-ag-mascot-peek="1"\][^{]*\{z-index:8 !important;/.test(css),
@@ -1057,7 +1057,7 @@ test('v1.0.7 / Issue #58: full-body gentle crouch peek (no hard bottom clip) + p
 });
 
 test('v1.0.7: prism-rim-canvas emits quantized onComposerRimUpdate on hover near composer top edge and clears on leave/ambient=0/hidden', () => {
-  const rimMod = require(path.join(ROOT, 'prism-rim-canvas.js'));
+  const rimMod = require(path.join(ROOT, 'src/prism-rim-canvas.js'));
   const { doc, win } = createFakeDom();
   const prevDoc = globalThis.document;
   const prevWin = globalThis.window;

@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
 
 test('perf guard 1: cdp.stripJsFunctionsByName handles regex /}/, comments, and nested template ${ {a:1} } safely', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
   const sample = [
     'function keepBefore() { return 1; }',
     'function targetFn(x) {',
@@ -36,7 +36,7 @@ test('perf guard 1: cdp.stripJsFunctionsByName handles regex /}/, comments, and 
 });
 
 test('perf guard 2: home-ripple-host enters 0fps idle sleep after 1200ms stationary pointer without clearing visual aura', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8');
   let now = 1000;
   let rafSeq = 1;
   const rafs = new Map();
@@ -113,7 +113,7 @@ test('perf guard 2: home-ripple-host enters 0fps idle sleep after 1200ms station
 });
 
 test('perf guard 3: conv-aura O(1) indicator cache immediately exits running when React mutates data-testid in place', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   let now = 1000;
   let btnTestId = 'stop-button';
   let btnVisible = true;
@@ -167,7 +167,7 @@ test('perf guard 3: conv-aura O(1) indicator cache immediately exits running whe
 });
 
 test('perf guard 4: host-workbench-enhancer pruneUnsubs clears WeakSet so detached-then-reattached navRail rebinds cleanly', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'host-workbench-enhancer.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/host-workbench-enhancer.js'), 'utf8');
   let addCount = 0;
   let removeCount = 0;
   const rail = {
@@ -301,7 +301,7 @@ test('perf guard 6: upstream-client unbind clears __cesAgBound so reused panel r
 });
 
 test('perf guard 7: style.css & omni-client have zero :has(), unscoped ::highlight(), universal * motion-off, or *:nth-last-child', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal((css.match(/:has\(/g) || []).length, 0, 'style.css must contain zero :has() selectors (avoid Blink full-subtree RecalcStyle)');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must contain zero non-ASCII characters');
   assert.ok(css.includes('[data-testid="aux-pane-split"][data-ag-cs-aux-dual="1"]'), 'aux-pane-split dual layout must use O(1) data-ag-cs-aux-dual attribute');
@@ -318,7 +318,7 @@ test('perf guard 7: style.css & omni-client have zero :has(), unscoped ::highlig
 });
 
 test('perf guard 8: stream-choreography slices bulk syncWorkedForAutoUnfold clicks per frame and cancels on session swap', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
   const rafCbs = [];
   const clicks = [];
   const mkBtn = (id, tid, expanded) => {
@@ -442,8 +442,8 @@ test('perf guard 9: thought-client api.sync(cfg) is idempotent on repeated ident
 });
 
 test('perf guard 10: ui-runtime runGuardedMut drains MO records & default bundle stays under 690 KiB', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   assert.ok(uiSrc.includes('mainObserver.takeRecords()'), 'runGuardedMut must synchronously drain mainObserver records');
   assert.ok(uiSrc.includes('if (!force && key === lastAbsorbedSyncKey) return;'), 'syncAbsorbedModules must gate identical calls');
   const bytes = Buffer.byteLength(cdp.buildInjectExpression(), 'utf8');
@@ -451,7 +451,7 @@ test('perf guard 10: ui-runtime runGuardedMut drains MO records & default bundle
 });
 
 test('perf guard 11: style.css enables offscreen content-visibility, sidebar containment, zero global * wildcards, and runtime flattener compiles nested/:is() rules', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.ok(css.includes('content-visibility:auto'), 'style.css must apply content-visibility:auto to offscreen expanded bodies/turns');
   assert.ok(css.includes('contain-intrinsic-size:auto 26px'), 'style.css must apply step-level content-visibility:auto to expanded tool-group step rows');
   assert.ok(css.includes('[data-testid="sidebar-split"]>div:first-child{contain:style;'), 'sidebar container must isolate style via contain:style without trapping position:fixed descendants');
@@ -463,7 +463,7 @@ test('perf guard 11: style.css enables offscreen content-visibility, sidebar con
   assert.equal(css.includes('&>*{display:none !important;}'), false, 'must not use universal >* inside new-conversation svg');
 
   // Verify flattenMainStyleSheet logic in ui-runtime.js expands nested & and :is(...) idempotently
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   const fnMatch = uiSrc.match(/function flattenMainStyleSheet\(\)[\s\S]*?\n  \}/);
   assert.ok(fnMatch, 'flattenMainStyleSheet must exist in ui-runtime.js');
   const attrs = new Map([['data-ag-cs-css-hash', 'h1']]);
@@ -508,7 +508,7 @@ test('perf guard 11: style.css enables offscreen content-visibility, sidebar con
 });
 
 test('perf guard 12: prism-rim-canvas skips canvas resize when inactive and stream-choreography avoids hover getBoundingClientRect reflows', () => {
-  const rimSrc = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const rimSrc = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   let widthWrites = 0;
   let clearCalls = 0;
   const fakeCv = {
@@ -565,7 +565,7 @@ test('perf guard 12: prism-rim-canvas skips canvas resize when inactive and stre
   assert.equal(clearCalls, 1, 'subsequent sidebar mousemoves must do 0 clearRect and 0 attribute writes');
 
   // stream-choreography measureNewLensOverlays skips rectOf when trigger is stale (>900ms)
-  const choreoSrc = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
+  const choreoSrc = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
   let rectCalls = 0;
   const fakeOv = {
     getBoundingClientRect() { rectCalls++; return { left: 0, top: 0, width: 100, height: 50 }; },
@@ -660,7 +660,7 @@ test('perf guard 13: thought-client skips checkVisibility on unchanged translate
 });
 
 test('perf guard 14: flattenMainStyleSheet preserves :not(:is(...)), prefix &, and minifyCss keeps quoted strings/URLs/IDs intact', () => {
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   const fnMatch = uiSrc.match(/function flattenMainStyleSheet\(\)[\s\S]*?\n  \}/);
   assert.ok(fnMatch, 'flattenMainStyleSheet must exist in ui-runtime.js');
   const attrs = new Map([['data-ag-cs-css-hash', 'h2']]);
@@ -693,7 +693,7 @@ test('perf guard 14: flattenMainStyleSheet preserves :not(:is(...)), prefix &, a
   assert.ok(fakeStyle.textContent.includes('html[x] .card:not(:is(.a,.b)){display: block;}'), 'must never expand :is() inside :not()');
   assert.ok(fakeStyle.textContent.includes('html[x] .card [data-x=":is(p,q)"]{color: blue;}'), 'must never expand :is() inside quoted attribute values');
 
-  const cdpSrc = fs.readFileSync(path.join(ROOT, 'cdp.js'), 'utf8');
+  const cdpSrc = fs.readFileSync(path.join(ROOT, 'src/cdp.js'), 'utf8');
   const minMatch = cdpSrc.match(/function minifyCss\(css\)[\s\S]*?\n\}/);
   assert.ok(minMatch, 'minifyCss must exist in cdp.js');
   const sbCss = { Set };
@@ -708,7 +708,7 @@ test('perf guard 14: flattenMainStyleSheet preserves :not(:is(...)), prefix &, a
 
 test('perf guard 15: conv-aura prime+sync(true) avoids post-write checkVisibility thrash, stream-choreography guards convEntrySeq reentrancy, and upstream-client whitelists fallback trigger & attrs', () => {
   // 1) conv-aura prime() + sync(true) reuses pre-measured indicator without re-invoking checkVisibility in Phase 2
-  const auraSrc = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const auraSrc = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   let checkVisCalls = 0;
   const stopBtn = {
     nodeType: 1,
@@ -771,7 +771,7 @@ test('perf guard 15: conv-aura prime+sync(true) avoids post-write checkVisibilit
   assert.equal(checkVisCalls, 2, 'drawNow anim loop performs full checkVisibility safety check after 2000ms');
 
   // 2) stream-choreography convEntrySeq cancels stale frame2Fn when fn() synchronously calls cancelDeferredHydration
-  const scSrc = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
+  const scSrc = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
   let timerCb = null;
   let rafCb = null;
   let t2 = 5000;
@@ -843,7 +843,7 @@ test('perf guard 15: conv-aura prime+sync(true) avoids post-write checkVisibilit
 
 test('perf guard 16: smooth-caret avoids sel.isCollapsed forced layout, prism-rim-canvas skips rAF when pointer is far idle, and hover-card-popup is excluded from lens-in & composer/settings sync', () => {
   // 1) smooth-caret reads Range.collapsed/endContainer/endOffset without touching Selection.isCollapsed/focusNode
-  const caretSrc = fs.readFileSync(path.join(ROOT, 'smooth-caret.js'), 'utf8');
+  const caretSrc = fs.readFileSync(path.join(ROOT, 'src/smooth-caret.js'), 'utf8');
   let selPropReads = 0;
   const textNode = { nodeType: 3, nodeValue: 'hi' };
   const fakeEd = {
@@ -893,7 +893,7 @@ test('perf guard 16: smooth-caret avoids sel.isCollapsed forced layout, prism-ri
   assert.equal(selPropReads, 0, 'smooth-caret must read pure-DOM Range properties instead of forced-layout Selection.isCollapsed/focusNode');
 
   // 2) prism-rim-canvas skips scheduling rAF on subsequent far-idle sidebar pointer moves
-  const rimSrc = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const rimSrc = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   let rafScheduled = 0;
   let lastRaf = null;
   let nowT = 5000;
@@ -937,9 +937,9 @@ test('perf guard 16: smooth-caret avoids sel.isCollapsed forced layout, prism-ri
   assert.equal(rafScheduled, 1, 'far-idle sidebar pointer moves must schedule 0 rAFs once canvases are cleared');
 
   // 3) style.css, stream-choreography, and ui-runtime all exclude ephemeral [data-hover-card-popup]
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
-  const scSrc = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
+  const scSrc = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
   assert.ok(css.includes('.agy-overlay:not([data-hover-card-popup])'), 'style.css must exclude hover cards from ag-cs-lens-in animation');
   assert.ok(scSrc.includes("ha(ov, 'data-hover-card-popup')"), 'stream-choreography must skip hover cards in measureNewLensOverlays');
   assert.ok(uiSrc.includes("'data-hover-card-popup'"), 'ui-runtime must short-circuit hover cards in classifyDirtySubtree');
@@ -1192,19 +1192,19 @@ test('perf guard 19: conversation-archive safely moves finished subagent DB+WAL+
 });
 
 test('perf guard 20: Host Turbo alert.css dedup+restore, async img, hidden sidecar iframe skip, blur 1.2s pause / 0ms wake, idle fxCanvas 0x0 reclamation, and bundle < 690 KiB', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
-  const rig = require(path.join(ROOT, 'dual-mascot-rig.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
+  const rig = require(path.join(ROOT, 'src/dual-mascot-rig.js'));
 
   // 1) Hard size budget: default bundle < 690 KiB (706,560 B) / <= 704,000 B & pulse-vial-bridge.js < 31,000 B
   const defaultExpr = cdp.buildInjectExpression(cdp.DEFAULT_CONFIG);
   const bundleBytes = Buffer.byteLength(defaultExpr, 'utf8');
   assert.ok(bundleBytes < 690 * 1024, `Default bundle must stay < 690 KiB (706560 B), got ${bundleBytes} B`);
-  const pvBytes = fs.statSync(path.join(ROOT, 'pulse-vial-bridge.js')).size;
+  const pvBytes = fs.statSync(path.join(ROOT, 'src/pulse-vial-bridge.js')).size;
   assert.ok(pvBytes < 31000, `pulse-vial-bridge.js must stay < 31000 B, got ${pvBytes} B`);
 
   // 2) CSS guards (T2/T3/T4/T5): hidden dot animation:none, valid blur pause (no pseudo-elements inside :is()), iframe contain:strict, safe pre/table contain
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.ok(
     css.includes('[data-agent-state-dot]:nth-child(n+2){display:none !important;animation:none !important;}'),
     'Hidden status spinner dots must clear native animation'
@@ -1226,7 +1226,7 @@ test('perf guard 20: Host Turbo alert.css dedup+restore, async img, hidden sidec
   assert.equal(/:is\([^)]*::(?:before|after)/.test(blurRuleMatch[0]), false, 'Pseudo-elements must never be placed inside :is()');
 
   // 3) Live runtime test for T1 (alert.css dedup + lossless restore without removing React nodes), T2 (async img), and T5 (1.2s blur / 0ms focus wake)
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   function mkEl(tag, attrs = {}) {
     const attrMap = new Map(Object.entries(attrs));
     const el = {
@@ -1606,14 +1606,14 @@ test('perf guard 20: Host Turbo alert.css dedup+restore, async img, hidden sidec
 });
 
 test('perf guard 21: Issues #2/#3/#5/#7/#8 + PR #6 + #35 queued-message 3-gears fix + #36 external zh coexistence & bundle <= 704KB', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const mgc = require(path.join(ROOT, 'model-glyph-crystal.js'));
-  const scMod = require(path.join(ROOT, 'stream-choreography.js'));
-  const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
-  const uiMainFactory = require(path.join(ROOT, 'ui-runtime.js'));
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const mgc = require(path.join(ROOT, 'src/model-glyph-crystal.js'));
+  const scMod = require(path.join(ROOT, 'src/stream-choreography.js'));
+  const settingsPanel = require(path.join(ROOT, 'src/settings-panel.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
+  const uiMainFactory = require(path.join(ROOT, 'src/ui-runtime.js'));
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
   // 1) CSS & REMOVE_EXPRESSION hygiene: 0 :has(), 0 non-ASCII, stepped animations, blur/off backdrop-filter:none, fold-body contain:layout style, Issue #8 scrollbar fix
   assert.equal((css.match(/:has\(/g) || []).length, 0, 'style.css must contain zero :has() selectors');
@@ -1915,7 +1915,7 @@ test('perf guard 21: Issues #2/#3/#5/#7/#8 + PR #6 + #35 queued-message 3-gears 
   sb.globalThis = sb;
   sb.window.globalThis = sb;
 
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'settings-panel.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/settings-panel.js'), 'utf8'), sb);
   vm.runInNewContext(`(${uiMainFactory.toString()})(${JSON.stringify(cdp.DEFAULT_CONFIG)})`, sb);
   const api = sb.window.__agPrism;
   assert.ok(api, 'ui-runtime must initialize cleanly');
@@ -1970,7 +1970,7 @@ test('perf guard 21: Issues #2/#3/#5/#7/#8 + PR #6 + #35 queued-message 3-gears 
 
 test('perf guard 22: home-ripple-host coalesces burst ResizeObserver ticks via rAF (canceling on park & unmount) & ui-runtime WeakMap caches icon target scans with full SVG/role/tooltip signature', () => {
   // 1) home-ripple-host ResizeObserver coalescing + park()/unmount() rAF cancellation
-  const rippleHostSrc = fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8');
+  const rippleHostSrc = fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8');
   let roCb = null;
   let rafIdSeq = 0;
   const rafs = new Map();
@@ -2097,7 +2097,7 @@ test('perf guard 22: home-ripple-host coalesces burst ResizeObserver ticks via r
   ctl.unmount();
 
   // 1b) #193 [P2-2]: ripple-core dirty check includes semMix convergence guard so 2D/still never short-circuits mid-fade
-  const rippleCoreMod = require(path.join(ROOT, 'ripple-core.js'));
+  const rippleCoreMod = require(path.join(ROOT, 'src/ripple-core.js'));
   let draws2d = 0;
   const mockCtx2d = {
     clearRect() {},
@@ -2137,7 +2137,7 @@ test('perf guard 22: home-ripple-host coalesces burst ResizeObserver ticks via r
   glow.dispose();
 
   // 2) ui-runtime iconSigMap WeakMap fast-path presence, thought-isolation ordering & full signature guard
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   const fnIdx = uiSrc.indexOf('function syncHostAnimatedIcons(');
   assert.ok(fnIdx > 0);
   const fnSlice = uiSrc.slice(fnIdx - 60, fnIdx + 1800);

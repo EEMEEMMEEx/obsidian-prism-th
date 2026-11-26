@@ -10,9 +10,9 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const rippleCore = require(path.join(ROOT, 'ripple-core.js'));
-const homeRippleHost = require(path.join(ROOT, 'home-ripple-host.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const rippleCore = require(path.join(ROOT, 'src/ripple-core.js'));
+const homeRippleHost = require(path.join(ROOT, 'src/home-ripple-host.js'));
 
 function checkBalancedBraces(css) {
   let depth = 0;
@@ -498,7 +498,7 @@ function buildSplitShellLayout(env, paneCount = 2) {
 
 test('Issue #63 CSS, hygiene & Channel 1 budget gate (< 549,500 B, ~2 KB delta, 0 :has, 100% ASCII, 0 CSSOM traps)', () => {
   const forbiddenRe = new RegExp(['octo', 'path'].join('') + '|' + ['\u516b\u65b9', '\u65c5\u4eba'].join(''), 'i');
-  for (const rel of ['ripple-core.js', 'home-ripple-host.js', 'ui-runtime.js', 'style.css']) {
+  for (const rel of ['src/ripple-core.js', 'src/home-ripple-host.js', 'src/ui-runtime.js', 'src/style.css']) {
     const buf = fs.readFileSync(path.join(ROOT, rel));
     const txt = buf.toString('utf8');
     assert.equal(buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf, false, `${rel} must have 0 BOM`);
@@ -506,7 +506,7 @@ test('Issue #63 CSS, hygiene & Channel 1 budget gate (< 549,500 B, ~2 KB delta, 
     assert.equal(forbiddenRe.test(txt), false, `${rel} must contain 0 forbidden words`);
   }
 
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal(/[^\x00-\x7f]/.test(css), false, 'style.css must remain 100% ASCII');
   assert.equal(/:has\(/.test(css), false, 'style.css must contain 0 :has()');
   assert.equal(checkBalancedBraces(css), true, 'style.css braces must remain balanced');
@@ -981,8 +981,8 @@ test('Issue #63 ui-runtime integration: 4-tier convRipple (off/subtle/medium/ful
   sb.globalThis = sb;
 
   // Bind host module inside sandbox context so document/window references resolve to sb
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8'), sb);
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8'), sb);
 
   // 1) Default config (convRipple omitted -> 'off'): 0 intrusion
   sb.__agCsUiMain({ homeLayout: 'off', homeRipple: false, motionLevel: 'ultra', ambientIntensity: '100' });

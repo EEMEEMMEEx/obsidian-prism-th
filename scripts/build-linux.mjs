@@ -61,7 +61,7 @@ function generateUninstallSh(version = cdp.PLUGIN_VERSION) {
     'SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"',
     'PLUGIN_SRC="$SCRIPT_DIR/native-plugin"',
     'INSTALLER_JS="$PLUGIN_SRC/tools/install-plugin.cjs"',
-    'REMOVE_JS="$PLUGIN_SRC/remove.js"',
+    'REMOVE_JS="$PLUGIN_SRC/src/remove.js"',
     '',
     'if ! command -v node >/dev/null 2>&1; then',
     '  printf \'[Obsidian Prism] Node.js >= 22 is required to run uninstall.\\n\' >&2',

@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const rig = require('../dual-mascot-rig.js');
+const rig = require('../src/dual-mascot-rig.js');
 
 test('dual-mascot-rig aligns strictly with official Claude Clawd PX=3 TICK=100 DOZE_TICK=400 open geometry', () => {
   assert.equal(rig.PX, 3);
@@ -2137,7 +2137,7 @@ test('PR #45 Quad mascot mode: GPT White Dragon & DeepSeek Whale sprites, 4-camp
   assert.equal(hostEl.children.filter((n) => n.className === 'ag-v2-mascot-actor').length, 0);
 
   // 3. Model camp resolver + strict parseModelLabelInfo shape preservation
-  const mgc = require('../model-glyph-crystal.js');
+  const mgc = require('../src/model-glyph-crystal.js');
   assert.equal(mgc.resolveMascotCamp('Claude Sonnet 4.6'), 'claude');
   assert.equal(mgc.resolveMascotCamp('Gemini 2.5 Pro'), 'gemini');
   assert.equal(mgc.resolveMascotCamp('GPT-5.2 (低)'), 'gpt');
@@ -2159,8 +2159,8 @@ test('PR #45 Quad mascot mode: GPT White Dragon & DeepSeek Whale sprites, 4-camp
 });
 
 test('Custom mascot roster DSL: single-toggle 0/1 clamp, canonical folding, 3-way validation parity, 4-actor hot swap & VRAM cleanup, 520px layout, camp fallback & pure-minis r:+m', () => {
-  const cdp = require('../cdp.js');
-  const sp = require('../settings-panel.js');
+  const cdp = require('../src/cdp.js');
+  const sp = require('../src/settings-panel.js');
 
   assert.equal(rig.MASCOT_MAX_PER_SPECIES, 1, 'MASCOT_MAX_PER_SPECIES must be strictly 1');
   assert.equal(rig.MASCOT_MAX_TOTAL, 4, 'MASCOT_MAX_TOTAL must be strictly 4');
@@ -2336,8 +2336,8 @@ test('Periodic picker PP_OPEN 0fps sleep covers 4-species quad-minis roster and 
 test('Octopath HD-2D 16:9 Mascot Casting Stage sub-panel: Ch9 fallback when mascot=off, 5-slot pure toggles, 4 presets, 0x0 VRAM reclaim, 38 schema keys, 2-lang zero-CJK & MIT credits', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const sp = require('../settings-panel.js');
-  const i18nLocales = require('../i18n-locales.js');
+  const sp = require('../src/settings-panel.js');
+  const i18nLocales = require('../src/i18n-locales.js');
 
   // 1. Strict 38 schema keys (hostLocalization removed) & 4 mascot presets
   assert.equal(Object.keys(sp.PRISM_SETTINGS_SCHEMA).length, 38, 'PRISM_SETTINGS_SCHEMA must remain strictly 38 keys');
@@ -2566,7 +2566,7 @@ test('Octopath HD-2D 16:9 Mascot Casting Stage sub-panel: Ch9 fallback when masc
 
 test('Octopath WebGL2 HD-2D engine: 4-FBO MRT pipeline, GL_NEAREST pixel filtering, 3D parallax & ray picking, hot-swap atlas & full WEBGL_lose_context VRAM reclaim', () => {
   const octo = require('../vendor/clawd-mascot/octopath-stage-webgl.js');
-  const cdp = require('../cdp.js');
+  const cdp = require('../src/cdp.js');
 
   // 1. Strict WebGL2 capability probe rejects Mock 2D contexts
   assert.equal(octo.isRealWebGL2Context({ fillRect() {}, clearRect() {} }), false);
@@ -2762,8 +2762,8 @@ test('Octopath WebGL2 HD-2D engine: 4-FBO MRT pipeline, GL_NEAREST pixel filteri
 });
 
 test('Mascot Casting Stage under prefers-reduced-motion: detaching dialog immediately reclaims 0x0 VRAM and unbinds document listeners + MutationObserver', () => {
-  const sp = require('../settings-panel.js');
-  const i18nLocales = require('../i18n-locales.js');
+  const sp = require('../src/settings-panel.js');
+  const i18nLocales = require('../src/i18n-locales.js');
   const { doc, moInstances, docListeners } = createRigMockDom(760);
   doc.defaultView.matchMedia = () => ({ matches: true });
 
@@ -2830,9 +2830,9 @@ test('PR #51 queued-messages-card roof-perch: zero bottom gap, interactive roof 
   const vm = await import('node:vm');
   const { fileURLToPath } = await import('node:url');
   const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const cdp = require('../cdp.js');
+  const cdp = require('../src/cdp.js');
 
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.ok(
     css.includes('& [data-ag-cs-crab-anchor="queued"]{position:relative !important;overflow:visible !important;}'),
     'style.css must enforce relative+visible positioning on [data-ag-cs-crab-anchor="queued"]'
@@ -3080,7 +3080,7 @@ test('subtle motion [role="button"] rules exclude .ag-v2-mascot-actor and [data-
   const fs = require('node:fs');
   const path = require('node:path');
   const { fileURLToPath } = require('node:url');
-  const cssPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'style.css');
+  const cssPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'style.css');
   const css = fs.readFileSync(cssPath, 'utf8');
   const subtleStart = css.indexOf('&[data-ag-cs-motion="subtle"]{');
   assert.ok(subtleStart >= 0, 'style.css must define &[data-ag-cs-motion="subtle"]');

@@ -152,7 +152,7 @@ function makeRichDomNode(tagName, attrs = {}) {
 }
 
 test('Issue #82: resolveHomeModelColours assigns 100% distinct, family-intuitive, order-stable dark/light colors for 8..30+ models', () => {
-  const panelMod = require(path.join(ROOT, 'home-studio-panel.js'));
+  const panelMod = require(path.join(ROOT, 'src/home-studio-panel.js'));
   assert.equal(typeof panelMod.resolveHomeModelColours, 'function');
 
   // 1) 同阵营多模型（Gemini x4 + Claude x2 + GPT x2 + DeepSeek x1 + Qwen x1 = 10 models）
@@ -213,8 +213,8 @@ test('Issue #82: resolveHomeModelColours assigns 100% distinct, family-intuitive
 });
 
 test('Issue #82: Models tab renders matching unique segment & legend swatch colors for 12+ models with light/dark CSS support', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-studio-panel.js'), 'utf8');
-  const usageCore = require(path.join(ROOT, 'usage-core.js'));
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-studio-panel.js'), 'utf8');
+  const usageCore = require(path.join(ROOT, 'src/usage-core.js'));
 
   const html = makeRichDomNode('html');
   html.isConnected = true;
@@ -347,9 +347,9 @@ test('Issue #82: Models tab renders matching unique segment & legend swatch colo
 });
 
 test('Issue #82 hygiene: home-studio-panel.js keeps LF, 0 BOM, 0 forbidden words, and 0 B Channel 1 impact', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
   assert.equal(cdp.RUNTIME_PARTS.includes('home-studio-panel.js'), false, 'home-studio-panel.js must remain deferred (0 B Channel 1 impact)');
-  const panelRaw = fs.readFileSync(path.join(ROOT, 'home-studio-panel.js'));
+  const panelRaw = fs.readFileSync(path.join(ROOT, 'src/home-studio-panel.js'));
   assert.equal(panelRaw[0] === 0xef && panelRaw[1] === 0xbb && panelRaw[2] === 0xbf, false, '0 BOM');
   const panelText = panelRaw.toString('utf8');
   assert.equal(panelText.includes('\r\n'), false, '0 CRLF');

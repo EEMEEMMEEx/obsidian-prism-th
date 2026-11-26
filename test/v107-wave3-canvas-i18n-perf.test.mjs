@@ -193,7 +193,7 @@ function makeMascotDomMock(clock, opts = {}) {
   hostEl.clientWidth = 720;
   if ('isConnected' in opts) hostEl.isConnected = opts.isConnected;
 
-  const src = fs.readFileSync(path.join(ROOT, 'dual-mascot-rig.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/dual-mascot-rig.js'), 'utf8');
   const sb = {
     window: win,
     document: doc,
@@ -319,7 +319,7 @@ test('Wave 3 P1-1a & P2-3 dual-mascot-rig: detached host pauses heartbeat/theate
 });
 
 test('Wave 3 P1-1b & P2-1 home-ripple-host: parkRipple reclaims VRAM while keeping parked=true + lossless reattach at full DPR, and 300Hz throttle aligns via setTimeout with clean cancel', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8');
   const clock = makeFakeClock(1000);
   const docBus = makeEventBus();
   const winBus = makeEventBus();
@@ -501,7 +501,7 @@ test('Wave 3 P1-1b & P2-1 home-ripple-host: parkRipple reclaims VRAM while keepi
 });
 
 test('Wave 3 P1-1c & P2-4 conv-aura: park() releases VRAM & sync() restores cleanly, and computeConvAuraOptics / invokeConvGlowDraw reuse static buffers without stale spectrum leak', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   const clock = makeFakeClock(1000);
   const docBus = makeEventBus();
   const winBus = makeEventBus();
@@ -687,7 +687,7 @@ test('Wave 3 P1-1c & P2-4 conv-aura: park() releases VRAM & sync() restores clea
 });
 
 test('Wave 3 P1-1d prism-rim-canvas: origin-centered radial gradient cache + translate equivalence, window.blur clear & 1800ms VRAM reclaim, and teardown listener cleanup', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   const clock = makeFakeClock(5000);
   const docBus = makeEventBus();
   const rootBus = makeEventBus();
@@ -1048,7 +1048,7 @@ test('Wave 3 P2-2 vendor/effort-slider/upstream-client: paintDither caches gradi
 });
 
 test('Wave 3 P1-3d host-i18n removed: vendor/host-i18n is absent and Channel 4 host-i18n is disabled (0 overhead)', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
   assert.equal(fs.existsSync(path.join(ROOT, 'vendor', 'host-i18n')), false);
   assert.equal(cdp.shouldEnableHostI18n({ hostLocalization: 'on', language: 'th' }), false);
   assert.equal(cdp.buildHostI18nExpression({ hostLocalization: 'on', language: 'th' }), '');

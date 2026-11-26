@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 
 function createFakeDom() {
   const attrsMap = new WeakMap();

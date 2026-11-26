@@ -342,8 +342,8 @@ function createDomEnv() {
 
 test('1) Source audit: all 5 target modules contain the 5 anti-translation exemption attributes and preserve data-ag-no-i18n', () => {
   const files = [
-    'home-studio-panel.js',
-    'host-workbench-enhancer.js',
+    'src/home-studio-panel.js',
+    'src/host-workbench-enhancer.js',
     'vendor/thought-translator/thought-client.js',
     'vendor/thought-translator/thought-settings-ui.js',
     'vendor/sidebar-studio/sidebar-client.js',
@@ -355,7 +355,7 @@ test('1) Source audit: all 5 target modules contain the 5 anti-translation exemp
     }
   }
   // Ensure pre-existing data-ag-no-i18n was preserved
-  for (const rel of ['home-studio-panel.js', 'host-workbench-enhancer.js', 'vendor/thought-translator/thought-client.js']) {
+  for (const rel of ['src/home-studio-panel.js', 'src/host-workbench-enhancer.js', 'vendor/thought-translator/thought-client.js']) {
     const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     assert.ok(src.includes('data-ag-no-i18n'), `${rel} must preserve data-ag-no-i18n`);
   }
@@ -379,8 +379,8 @@ test('2) home-studio-panel.js marks .ag-cs-home-panel-seat with all 5 attributes
     homeEl.appendChild(greeting);
     env.body.appendChild(homeEl);
 
-    const usageCore = require(path.join(ROOT, 'usage-core.js'));
-    const homeStudioMod = require(path.join(ROOT, 'home-studio-panel.js'));
+    const usageCore = require(path.join(ROOT, 'src/usage-core.js'));
+    const homeStudioMod = require(path.join(ROOT, 'src/home-studio-panel.js'));
     const ctl = homeStudioMod.createHomeStudioPanelController({
       usageCore,
       isDestroyed: () => false,
@@ -409,7 +409,7 @@ test('2) home-studio-panel.js marks .ag-cs-home-panel-seat with all 5 attributes
 
 test('3) host-workbench-enhancer.js marks fold button and nav outline popover only, never host DOM elements', () => {
   const env = createDomEnv();
-  const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
+  const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
 
   const convView = env.createElement('div', { 'data-testid': 'conversation-view' });
   const viewport = env.createElement('div', { 'data-testid': 'autoscroll-viewport' });

@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src', 'cdp.js'));
 
 const VALIDATORS = { ...cdp.VALIDATORS };
 
@@ -304,6 +304,7 @@ function collectNativePluginEntries(activeConfigFile) {
     }
   };
 
+  walkSubDir('src');
   walkSubDir('assets');
   walkSubDir('vendor');
   walkSubDir('sidecars');

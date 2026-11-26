@@ -8,7 +8,7 @@ const { execFile, execFileSync, spawn } = require('child_process');
 
 const STYLE_ID = 'ag-prism-css';
 const LEGACY_STYLE_ID = 'ag-claude-style-css';
-const PLUGIN_VERSION = '1.0.8-beta.4';
+const PLUGIN_VERSION = '1.0.8-beta.5';
 const SETTING_BINDING = '__agPrismSetting';
 const LEGACY_SETTING_BINDING = '__agClaudeStyleSetting';
 const OMNI_BINDING = '__agPrismOmniCall';
@@ -26,9 +26,10 @@ const APP_DATA = IS_MAC
   ? process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming')
   : process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
 
+const ROOT_DIR = path.basename(__dirname) === 'src' ? path.resolve(__dirname, '..') : __dirname;
 const PORT_FILE = path.join(APP_DATA, 'Antigravity', 'DevToolsActivePort');
-const PID_FILE = path.join(__dirname, '.watch.pid');
-const CONFIG_FILE = path.join(__dirname, 'config.json');
+const PID_FILE = path.join(ROOT_DIR, '.watch.pid');
+const CONFIG_FILE = path.join(ROOT_DIR, 'config.json');
 
 const DEFAULT_CONFIG = {
   language: 'auto',
@@ -408,7 +409,7 @@ function readPidFromLockFile(filePath) {
 function findDaemonLockMetaForPid(pid, customLockFile = null) {
   const candidates = [];
   if (customLockFile) candidates.push(customLockFile);
-  candidates.push(path.join(__dirname, '.daemon.pid'));
+  candidates.push(path.join(ROOT_DIR, '.daemon.pid'));
   const envPluginDir = process.env.AG_PRISM_PLUGIN_DIR;
   if (envPluginDir) candidates.push(path.join(envPluginDir, '.daemon.pid'));
   candidates.push(path.join(os.homedir(), '.gemini', 'config', 'plugins', 'obsidian-prism', '.daemon.pid'));
@@ -2440,8 +2441,8 @@ function collectKnownPrismDaemonPids(opts = {}) {
   const lockFiles = Array.isArray(opts.daemonPidFiles)
     ? opts.daemonPidFiles
     : [
-        path.join(__dirname, '.daemon.pid'),
-        path.join(__dirname, '.watch.pid'),
+        path.join(ROOT_DIR, '.daemon.pid'),
+        path.join(ROOT_DIR, '.watch.pid'),
         process.env.AG_PRISM_PLUGIN_DIR ? path.join(process.env.AG_PRISM_PLUGIN_DIR, '.daemon.pid') : '',
         path.join(os.homedir(), '.gemini', 'config', 'plugins', 'obsidian-prism', '.daemon.pid'),
       ];
@@ -7164,32 +7165,32 @@ function minifySingleSource(src) {
 
 // 按需独立通道模块（不打入 Channel 1 主包以严控体积 < 550 KB，仍纳入 SYNC_ROOT_FILES 随安装包/热更新同步）
 const DEFERRED_ROOT_MODULES = [
-  'i18n-locales.js',
-  'dual-mascot-rig.js',
-  'settings-panel.js',
-  'home-studio-panel.js',
+  'src/i18n-locales.js',
+  'src/dual-mascot-rig.js',
+  'src/settings-panel.js',
+  'src/home-studio-panel.js',
 ];
 
 const RUNTIME_PARTS = [
-  'i18n-core.js',
-  'usage-core.js',
-  'crystal-prism-core.js',
-  'animated-icons.js',
-  'motion-engine.js',
-  'ripple-core.js',
-  'conv-aura.js',
-  'smooth-caret.js',
-  'vial-core.js',
-  'pulse-vial-bridge.js',
+  'src/i18n-core.js',
+  'src/usage-core.js',
+  'src/crystal-prism-core.js',
+  'src/animated-icons.js',
+  'src/motion-engine.js',
+  'src/ripple-core.js',
+  'src/conv-aura.js',
+  'src/smooth-caret.js',
+  'src/vial-core.js',
+  'src/pulse-vial-bridge.js',
   'vendor/pulse-dashboard/inline-fallback.js',
   'vendor/effort-slider/slider-coexist.js',
-  'home-ripple-host.js',
-  'model-glyph-crystal.js',
-  'stream-choreography.js',
-  'prism-rim-canvas.js',
-  'host-workbench-enhancer.js',
-  'context-menu-btw.js',
-  'ui-runtime.js',
+  'src/home-ripple-host.js',
+  'src/model-glyph-crystal.js',
+  'src/stream-choreography.js',
+  'src/prism-rim-canvas.js',
+  'src/host-workbench-enhancer.js',
+  'src/context-menu-btw.js',
+  'src/ui-runtime.js',
 ];
 
 const SYNC_ROOT_FILES = [
@@ -7197,14 +7198,15 @@ const SYNC_ROOT_FILES = [
   'package.json',
   'README.md',
   'LICENSE',
+  'NOTICE',
   'THIRD_PARTY_NOTICES.md',
   'config.example.json',
-  'cdp.js',
-  'inject.js',
-  'remove.js',
-  'style.css',
+  'src/cdp.js',
+  'src/inject.js',
+  'src/remove.js',
+  'src/style.css',
   ...DEFERRED_ROOT_MODULES,
-  ...RUNTIME_PARTS.filter((p) => !p.includes('/')),
+  ...RUNTIME_PARTS.filter((p) => p.startsWith('src/')),
 ];
 
 const _mangledUnitCache = new Map();
@@ -7433,19 +7435,20 @@ function stripUnusedUpstreamMenuObserver(src) {
 
 function preprocessPartToUnits(partName, rawSource) {
   const glslCleaned = minifyEmbeddedGlslTemplates(rawSource);
+  const baseName = String(partName || '').replace(/^src\//, '');
   if (
-    partName === 'pulse-vial-bridge.js' ||
-    partName === 'settings-panel.js' ||
-    partName === 'home-studio-panel.js' ||
+    baseName === 'pulse-vial-bridge.js' ||
+    baseName === 'settings-panel.js' ||
+    baseName === 'home-studio-panel.js' ||
     partName === 'vendor/pulse-dashboard/inline-fallback.js'
   ) {
     return [{ key: partName, src: minifyEmbeddedCssTemplate(glslCleaned), prefix: '' }];
   }
-  if (partName === 'i18n-locales.js') {
+  if (baseName === 'i18n-locales.js') {
     return [{ key: partName, src: compactStaticStringArrayMap(glslCleaned, 'UI_TABLE'), prefix: '' }];
   }
   if (partName === 'vendor/effort-slider/slider-coexist.js') {
-    const upstreamPath = path.join(__dirname, 'vendor', 'effort-slider', 'upstream-client.js');
+    const upstreamPath = path.join(ROOT_DIR, 'vendor', 'effort-slider', 'upstream-client.js');
     if (fs.existsSync(upstreamPath) && !glslCleaned.includes('AntigravityCodexEffortSlider = exportsObj')) {
       const upstreamRaw = stripUnusedUpstreamMenuObserver(fs.readFileSync(upstreamPath, 'utf8'));
       return [
@@ -7768,10 +7771,10 @@ function compileUnifiedBundle() {
   const sigParts = [];
 
   for (const partName of partNames) {
-    const fullPath = path.join(__dirname, partName);
+    const fullPath = path.join(ROOT_DIR, partName);
     let sig = getFileSig(fullPath);
     if (partName === 'vendor/effort-slider/slider-coexist.js') {
-      const upPath = path.join(__dirname, 'vendor', 'effort-slider', 'upstream-client.js');
+      const upPath = path.join(ROOT_DIR, 'vendor', 'effort-slider', 'upstream-client.js');
       if (fs.existsSync(upPath)) sig += '|' + getFileSig(upPath);
     }
     sigParts.push(`${partName}:${sig}`);
@@ -7920,7 +7923,11 @@ function compileUnifiedBundle() {
 
 function prepareRuntimePart(partName, rawSource) {
   const normName = String(partName || '').replace(/\\/g, '/');
-  const fullPath = path.join(__dirname, normName);
+  const baseName = normName.replace(/^src\//, '');
+  const canonicalName = normName.includes('/') ? normName : `src/${normName}`;
+  const fullPath = fs.existsSync(path.join(ROOT_DIR, normName))
+    ? path.join(ROOT_DIR, normName)
+    : path.join(ROOT_DIR, canonicalName);
   if (fs.existsSync(fullPath)) {
     try {
       const diskRaw = fs.readFileSync(fullPath, 'utf8');
@@ -7929,17 +7936,20 @@ function prepareRuntimePart(partName, rawSource) {
         if (unified.partCodeByName.has(normName)) {
           return unified.partCodeByName.get(normName);
         }
+        if (unified.partCodeByName.has(canonicalName)) {
+          return unified.partCodeByName.get(canonicalName);
+        }
       }
     } catch {}
   }
 
   let prepped = rawSource;
-  if (normName === 'pulse-vial-bridge.js') {
+  if (baseName === 'pulse-vial-bridge.js') {
     prepped = minifyEmbeddedCssTemplate(prepped);
-  } else if (normName === 'i18n-locales.js') {
+  } else if (baseName === 'i18n-locales.js') {
     prepped = compactStaticStringArrayMap(prepped, 'UI_TABLE');
   } else if (normName === 'vendor/effort-slider/slider-coexist.js') {
-    const upstreamPath = path.join(__dirname, 'vendor', 'effort-slider', 'upstream-client.js');
+    const upstreamPath = path.join(ROOT_DIR, 'vendor', 'effort-slider', 'upstream-client.js');
     if (fs.existsSync(upstreamPath) && !rawSource.includes('AntigravityCodexEffortSlider = exportsObj')) {
       const upstreamRaw = fs.readFileSync(upstreamPath, 'utf8');
       const upstreamMin = minifySingleSource(upstreamRaw);
@@ -8441,17 +8451,17 @@ function sha256Text(str) {
 
 function getBundleSourceFiles() {
   const files = [
-    { rel: 'cdp.js', fullPath: __filename, optional: false },
-    { rel: 'style.css', fullPath: path.join(__dirname, 'style.css'), optional: false },
+    { rel: 'src/cdp.js', fullPath: __filename, optional: false },
+    { rel: 'src/style.css', fullPath: path.join(ROOT_DIR, 'src', 'style.css'), optional: false },
     // i18n-locales.js 虽已拆至按需 Settings 通道，但其活跃语言迷你切片会打入 Channel 1 bootCfg.__uiSlice，故纳入源哈希确保缓存强一致
-    { rel: 'i18n-locales.js', fullPath: path.join(__dirname, 'i18n-locales.js'), optional: true },
+    { rel: 'src/i18n-locales.js', fullPath: path.join(ROOT_DIR, 'src', 'i18n-locales.js'), optional: true },
   ];
   for (const partName of RUNTIME_PARTS) {
-    files.push({ rel: partName, fullPath: path.join(__dirname, partName), optional: false });
+    files.push({ rel: partName, fullPath: path.join(ROOT_DIR, partName), optional: false });
     if (partName === 'vendor/effort-slider/slider-coexist.js') {
       files.push({
         rel: 'vendor/effort-slider/upstream-client.js',
-        fullPath: path.join(__dirname, 'vendor', 'effort-slider', 'upstream-client.js'),
+        fullPath: path.join(ROOT_DIR, 'vendor', 'effort-slider', 'upstream-client.js'),
         optional: true,
       });
     }
@@ -9470,7 +9480,7 @@ function buildInjectExpression(customConfig, opts = null) {
 let _omniClientCache = { sig: '', sourceHash: '', minCode: '', codeHash: '', cachedPaths: new Set() };
 
 function readCompiledOmniClient(opts = null) {
-  const omniPath = path.join(__dirname, 'vendor', 'omni-viewer', 'omni-client.js');
+  const omniPath = path.join(ROOT_DIR, 'vendor', 'omni-viewer', 'omni-client.js');
   if (!fs.existsSync(omniPath)) {
     return { minCode: '', codeHash: '' };
   }
@@ -9688,7 +9698,7 @@ function isSafeV2SidebarClientSource(src) {
 }
 
 function readCompiledSidebarClient(opts = null) {
-  const sidebarPath = path.join(__dirname, 'vendor', 'sidebar-studio', 'sidebar-client.js');
+  const sidebarPath = path.join(ROOT_DIR, 'vendor', 'sidebar-studio', 'sidebar-client.js');
   if (!fs.existsSync(sidebarPath)) {
     return { minCode: '', codeHash: '' };
   }
@@ -9923,9 +9933,9 @@ function shouldEnableHostI18n() {
 }
 
 function readCompiledHostI18nAssets(opts = null) {
-  const rtPath = path.join(__dirname, 'vendor', 'host-i18n', 'host-i18n-runtime.js');
-  const revPath = path.join(__dirname, 'vendor', 'host-i18n', 'reverse-patterns.js');
-  const dictPath = path.join(__dirname, 'vendor', 'host-i18n', 'zh-CN.json');
+  const rtPath = path.join(ROOT_DIR, 'vendor', 'host-i18n', 'host-i18n-runtime.js');
+  const revPath = path.join(ROOT_DIR, 'vendor', 'host-i18n', 'reverse-patterns.js');
+  const dictPath = path.join(ROOT_DIR, 'vendor', 'host-i18n', 'zh-CN.json');
   if (!fs.existsSync(rtPath) || !fs.existsSync(dictPath)) {
     return { minRuntime: '', dictRaw: '', codeHash: '' };
   }
@@ -10269,8 +10279,8 @@ function shouldEnableSwarmI18n() {
 }
 
 function readCompiledSwarmI18nAssets(opts = null) {
-  const rtPath = path.join(__dirname, 'vendor', 'host-i18n', 'swarm-i18n-runtime.js');
-  const dictPath = path.join(__dirname, 'vendor', 'host-i18n', 'swarm-zh-CN.json');
+  const rtPath = path.join(ROOT_DIR, 'vendor', 'host-i18n', 'swarm-i18n-runtime.js');
+  const dictPath = path.join(ROOT_DIR, 'vendor', 'host-i18n', 'swarm-zh-CN.json');
   if (!fs.existsSync(rtPath) || !fs.existsSync(dictPath)) {
     return { minRuntime: '', dictRaw: '', codeHash: '' };
   }
@@ -10413,8 +10423,8 @@ function shouldEnableThought(config = null) {
 }
 
 function readCompiledThoughtAssets(opts = null) {
-  const clientPath = path.join(__dirname, 'vendor', 'thought-translator', 'thought-client.js');
-  const settingsUiPath = path.join(__dirname, 'vendor', 'thought-translator', 'thought-settings-ui.js');
+  const clientPath = path.join(ROOT_DIR, 'vendor', 'thought-translator', 'thought-client.js');
+  const settingsUiPath = path.join(ROOT_DIR, 'vendor', 'thought-translator', 'thought-settings-ui.js');
   if (!fs.existsSync(clientPath) || !fs.existsSync(settingsUiPath)) {
     return { sig: '', minClient: '', minSettingsUi: '', codeHash: '' };
   }
@@ -10652,7 +10662,7 @@ function buildThoughtExpression(config = null, opts = null) {
 let _inlineDiffClientCache = { sig: '', sourceHash: '', minCode: '', codeHash: '', cachedPaths: new Set() };
 
 function readCompiledInlineDiffClient(opts = null) {
-  const clientPath = path.join(__dirname, 'vendor', 'inline-diff', 'inline-diff-client.js');
+  const clientPath = path.join(ROOT_DIR, 'vendor', 'inline-diff', 'inline-diff-client.js');
   if (!fs.existsSync(clientPath)) {
     return { sig: '', minCode: '', codeHash: '' };
   }
@@ -10849,8 +10859,8 @@ function buildInlineDiffInjectExpression(config = null, opts = null) {
 let _wallpaperAssetsCache = { sig: '', sourceHash: '', minClient: '', minSettingsUi: '', codeHash: '', cachedPaths: new Set() };
 
 function readCompiledWallpaperAssets(opts = null) {
-  const clientPath = path.join(__dirname, 'vendor', 'wallpaper', 'wallpaper-client.js');
-  const settingsUiPath = path.join(__dirname, 'vendor', 'wallpaper', 'wallpaper-settings-ui.js');
+  const clientPath = path.join(ROOT_DIR, 'vendor', 'wallpaper', 'wallpaper-client.js');
+  const settingsUiPath = path.join(ROOT_DIR, 'vendor', 'wallpaper', 'wallpaper-settings-ui.js');
   if (!fs.existsSync(clientPath) || !fs.existsSync(settingsUiPath)) {
     return { sig: '', minClient: '', minSettingsUi: '', codeHash: '' };
   }
@@ -11146,7 +11156,7 @@ function shouldEnablePeriodicPicker(config) {
 }
 
 function readCompiledPeriodicPickerAssets(opts = null) {
-  const baseDir = path.join(__dirname, 'vendor', 'periodic-picker');
+  const baseDir = path.join(ROOT_DIR, 'vendor', 'periodic-picker');
   const rtPath = path.join(baseDir, 'periodic-picker.js');
   if (!fs.existsSync(rtPath)) {
     return { sig: '', minRuntime: '', codeHash: '' };
@@ -11364,9 +11374,9 @@ function readCompiledSettingsChannelAssets(opts = null) {
   if (!fs.existsSync(locPath) || !fs.existsSync(setPath)) {
     return { sig: '', minRuntime: '', codeHash: '' };
   }
-  const brandPath = path.join(__dirname, 'assets', 'brand-mark-svg.js');
-  const atlasPath = path.join(__dirname, 'vendor', 'clawd-mascot', 'tavern-atlas-data.js');
-  const stageGlPath = path.join(__dirname, 'vendor', 'clawd-mascot', 'octopath-stage-webgl.js');
+  const brandPath = path.join(ROOT_DIR, 'assets', 'brand-mark-svg.js');
+  const atlasPath = path.join(ROOT_DIR, 'vendor', 'clawd-mascot', 'tavern-atlas-data.js');
+  const stageGlPath = path.join(ROOT_DIR, 'vendor', 'clawd-mascot', 'octopath-stage-webgl.js');
   const hasBrand = fs.existsSync(brandPath);
   const hasAtlas = fs.existsSync(atlasPath);
   const hasStageGl = fs.existsSync(stageGlPath);
@@ -11607,8 +11617,8 @@ function buildMascotChannelExpression(config = null, opts = null) {
 let _suggesterAssetsCache = { sig: '', sourceHash: '', minClient: '', minSettingsUi: '', codeHash: '', cachedPaths: new Set() };
 
 function readCompiledSuggesterAssets(opts = null) {
-  const clientPath = path.join(__dirname, 'vendor', 'prompt-suggester', 'suggester-client.js');
-  const settingsUiPath = path.join(__dirname, 'vendor', 'prompt-suggester', 'suggester-settings-ui.js');
+  const clientPath = path.join(ROOT_DIR, 'vendor', 'prompt-suggester', 'suggester-client.js');
+  const settingsUiPath = path.join(ROOT_DIR, 'vendor', 'prompt-suggester', 'suggester-settings-ui.js');
   if (!fs.existsSync(clientPath) || !fs.existsSync(settingsUiPath)) {
     return { sig: '', minClient: '', minSettingsUi: '', codeHash: '' };
   }

@@ -234,7 +234,7 @@ function makeMiniNode(tag, attrs = {}, rect = { left: 0, top: 0, width: 240, hei
 }
 
 test('P0-1 stream-choreography: running row recognition (spinner + stop button + 1-frame gap hold) & glide pill running state without blue flash', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
   const env = makeFakeTimers(2000);
   const html = makeMiniNode('html', { 'data-ag-cs-sidebar': 'on', 'data-ag-cs-motion': 'standard' });
   const body = makeMiniNode('body');
@@ -404,7 +404,7 @@ test('P0-1 stream-choreography: running row recognition (spinner + stop button +
 });
 
 test('P0-2 conv-aura: continuous resize & html[data-ag-cs-resizing="1"] defer backing realloc to 120ms trailing debounce without per-frame burst redraw', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   const env = makeFakeTimers(1000);
   let roCb = null;
 
@@ -546,7 +546,7 @@ test('P0-2 conv-aura: continuous resize & html[data-ag-cs-resizing="1"] defer ba
 });
 
 test('P0-2 prism-rim-canvas: zero querySelectorAll, zero getBoundingClientRect, and zero redraws during resizing & mascot-drag, then resumes cleanly', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   const env = makeFakeTimers(5000);
   let strokeCalls = 0;
   let qsaCalls = 0;
@@ -670,7 +670,7 @@ test('P0-2 prism-rim-canvas: zero querySelectorAll, zero getBoundingClientRect, 
 });
 
 test('P0-2 host-workbench-enhancer: iframeRo reads entry.contentRect with 0 synchronous getBoundingClientRect calls', () => {
-  const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
+  const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
   let roCb = null;
   const html = makeMiniNode('html', {
     'data-ag-cs-style': '1',
@@ -814,10 +814,10 @@ test('P0-2 pulse inline-fallback: tierRo uses entry.contentRect.width without ex
 });
 
 test('P0-1 + P0-2 ui-runtime end-to-end: aux-pane-split drag sets data-ag-cs-resizing="1" with 0 runSync storms, restores after 120ms, and sidebar pointerdown locks running row', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const uiMainFactory = require(path.join(ROOT, 'ui-runtime.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const uiMainFactory = require(path.join(ROOT, 'src/ui-runtime.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
   const env = makeFakeTimers(3000);
 
   const html = makeMiniNode('html');
@@ -925,8 +925,8 @@ test('P0-1 + P0-2 ui-runtime end-to-end: aux-pane-split drag sets data-ag-cs-res
   sb.globalThis = sb;
 
   // Load real modules used by ui-runtime
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8'), sb);
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8'), sb);
   vm.runInNewContext(`(${uiMainFactory.toString()})(${JSON.stringify(cdp.DEFAULT_CONFIG)})`, sb);
 
   const api = sb.window.__agPrism;
@@ -986,7 +986,7 @@ test('P0-1 + P0-2 ui-runtime end-to-end: aux-pane-split drag sets data-ag-cs-res
 });
 
 test('style.css hygiene & PR #10 / P0-1 / P0-2 CSS contracts (0 :has(), 0 non-ASCII)', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal((css.match(/:has\(/g) || []).length, 0, 'style.css must have 0 :has() selectors');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must have 0 non-ASCII characters');
   assert.ok(

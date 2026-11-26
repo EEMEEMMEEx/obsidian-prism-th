@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 
 function createFakeDom() {
   class FakeEl {
@@ -199,7 +199,7 @@ function createFakeDom() {
 }
 
 test('Issue #57: ui-runtime marks .md-table-host turns & collapsible bodies with data-ag-cs-bleed="1", skips plain turns, updates incrementally, and cleans on destroy', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   const cvLines = css.split('\n').filter((l) => l.includes('content-visibility:auto'));
   assert.ok(cvLines.length >= 3, 'style.css must retain all 3 offscreen content-visibility:auto rules');
   for (const l of cvLines) {
@@ -285,7 +285,7 @@ test('Issue #57: ui-runtime marks .md-table-host turns & collapsible bodies with
   sandbox.window = sandbox;
   sandbox.globalThis = sandbox;
 
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   vm.runInNewContext(uiSrc, sandbox);
   sandbox.__agCsUiMain({ language: 'en', motionLevel: 'standard' });
 
@@ -320,7 +320,7 @@ test('Issue #57: ui-runtime marks .md-table-host turns & collapsible bodies with
 });
 
 test('Issue #58 Bugs 3 & 5: focus outline suppression on conversation-view/autoscroll-viewport/mascot, inset :focus-visible ring & >=7px gap in composer footer', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
   // Bug 5 + Issue #58 residual #4: overview-panel-host, conversation-view & autoscroll-viewport disable focus/focus-visible outline and box-shadow with (1,3,1) specificity
   assert.match(
@@ -413,8 +413,8 @@ test('Issue #58 Bugs 3 & 5: focus outline suppression on conversation-view/autos
 });
 
 test('Issue #58 Bug 4: crystal-prism-core anti-aliasing (aaPx >= 1/dpr), inset rimLine avoiding rimD<1px halo, and single-layer canvas clipping', () => {
-  const cpSrc = fs.readFileSync(path.join(ROOT, 'crystal-prism-core.js'), 'utf8');
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const cpSrc = fs.readFileSync(path.join(ROOT, 'src/crystal-prism-core.js'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
   // Verify aaPx numerator >= 1.0 / dpr
   const aaMatch = cpSrc.match(/float\s+aaPx\s*=\s*[^;]*?(\d+(?:\.\d+)?)\s*\/\s*dpr/);
@@ -500,7 +500,7 @@ test('Channel 10 hot-reload: updating window.__agDualMascotRig and calling sync(
   sandbox.window = sandbox;
   sandbox.globalThis = sandbox;
 
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   vm.runInNewContext(uiSrc, sandbox);
   sandbox.__agCsUiMain({ language: 'en', mascot: 'crab', motionLevel: 'standard' });
 
@@ -539,7 +539,7 @@ test('Gate checks: Channel 1 stays < 549,500 B across all 9 languages and edited
     assert.ok(bytes < 549500, `Channel 1 (${lang}) must stay < 549,500 B, got ${bytes}`);
   }
 
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   let depth = 0;
   for (const ch of css) {
     if (ch === '{') depth += 1;
@@ -550,7 +550,7 @@ test('Gate checks: Channel 1 stays < 549,500 B across all 9 languages and edited
   assert.equal((css.match(/:has\(/g) || []).length, 0, 'style.css must contain 0 :has()');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must contain 0 non-ASCII characters');
 
-  for (const rel of ['style.css', 'ui-runtime.js', 'crystal-prism-core.js', 'test/v108-issue57-58.test.mjs']) {
+  for (const rel of ['src/style.css', 'src/ui-runtime.js', 'src/crystal-prism-core.js', 'test/v108-issue57-58.test.mjs']) {
     const buf = fs.readFileSync(path.join(ROOT, rel));
     assert.equal(buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf, false, `${rel} must not contain UTF-8 BOM`);
     assert.equal(buf.includes(0x0d), false, `${rel} must use LF line endings (0 CRLF)`);

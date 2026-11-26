@@ -13,8 +13,8 @@ const require = createRequire(import.meta.url);
 globalThis.__agCodexEffortSliderDisableAutoBoot = true;
 const upstreamLib = require('../vendor/effort-slider/upstream-client.js');
 const sliderCoexist = require('../vendor/effort-slider/slider-coexist.js');
-const mgc = require('../model-glyph-crystal.js');
-const cdp = require('../cdp.js');
+const mgc = require('../src/model-glyph-crystal.js');
+const cdp = require('../src/cdp.js');
 
 /**
  * 构建支持 CSS 复合选择器、classList、捕获/冒泡事件分发与 React Fiber 挂载的轻量仿真 DOM。
@@ -773,7 +773,7 @@ test('Scenario 5 (多触发器分屏 + 自定义模型 + 双 Observer 防互激 
   assert.equal(env.localStorage._getCount - getsBefore, 2);
 
   // 4) ui-runtime OWN_PLUGIN_SELECTOR & 模型选择器展开保留桌宠交接动画校验
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   assert.ok(uiSrc.includes('.ces-ag-section, .ces-set, #ag-codex-effort-slider-styles'));
   assert.equal(uiSrc.includes("document.querySelector?.('[data-testid=\"model-selector-panel\"]')"), false);
 
@@ -825,7 +825,7 @@ test('Scenario 5 (多触发器分屏 + 自定义模型 + 双 Observer 防互激 
   const bytes = Buffer.byteLength(expr, 'utf8');
   assert.ok(bytes < 690 * 1024, `Default bundle must be strictly < 706,560 B (690 KiB), got ${bytes}`);
   assert.ok(bytes <= 704000, `Default bundle must stay <= 704,000 B, got ${bytes}`);
-  const pulseBytes = fs.statSync(path.join(ROOT, 'pulse-vial-bridge.js')).size;
+  const pulseBytes = fs.statSync(path.join(ROOT, 'src/pulse-vial-bridge.js')).size;
   assert.ok(pulseBytes < 31000, `pulse-vial-bridge.js must stay < 31,000 B, got ${pulseBytes}`);
   assert.ok(cdp.REMOVE_EXPRESSION.includes("'data-ces-slider-ready'"));
 
@@ -1127,7 +1127,7 @@ test('Scenario 7 (R1~R5 防风控加固): 拖动松手单次提交 + 零原型�
   const mm = iwSrc.match(/MANUAL_REFRESH_COOLDOWN=(\d+)/);
   assert.ok(mm && Number(mm[1]) >= 5000, 'R5: MANUAL_REFRESH_COOLDOWN must be >= 5000ms');
 
-  const hweSrc = fs.readFileSync(path.join(ROOT, 'host-workbench-enhancer.js'), 'utf8');
+  const hweSrc = fs.readFileSync(path.join(ROOT, 'src/host-workbench-enhancer.js'), 'utf8');
   const hweEnv = createSimEnv();
   const conv = hweEnv.makeEl('div', { attrs: { 'data-testid': 'conversation-view' } });
   const turn1 = hweEnv.makeEl('div', { attrs: { 'data-testid': 'user-input-step' } });

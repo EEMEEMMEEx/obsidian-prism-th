@@ -245,10 +245,10 @@ function matchesSelectorList(el, selector) {
 }
 
 function bootUiRuntime(initialCfg = {}, opts = {}) {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const uiMainFactory = require(path.join(ROOT, 'ui-runtime.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const uiMainFactory = require(path.join(ROOT, 'src/ui-runtime.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
 
   const html = makeMiniNode('html');
   const head = makeMiniNode('head');
@@ -340,8 +340,8 @@ function bootUiRuntime(initialCfg = {}, opts = {}) {
   sb.window = sb;
   sb.globalThis = sb;
 
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8'), sb);
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8'), sb);
   const bootCfg = { ...cdp.DEFAULT_CONFIG, ...initialCfg };
   vm.runInNewContext(`(${uiMainFactory.toString()})(${JSON.stringify(bootCfg)})`, sb);
 
@@ -637,9 +637,9 @@ test('2-2A homeRipple=false decouples from convAura (stays active while ambient>
 });
 
 test('#6 updateChannel sends { version, channel } immediately without 40ms race & #8a dims all 5 parent-child setting pairs', async () => {
-  const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+  const settingsPanel = require(path.join(ROOT, 'src/settings-panel.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
 
   const html = makeMiniNode('html', { 'data-ag-cs-theme': 'dark' });
   const head = makeMiniNode('head');
@@ -847,7 +847,7 @@ test('#6 updateChannel sends { version, channel } immediately without 40ms race 
 });
 
 test('CSS hygiene, dual-split :not([data-split-overlaid]), dead brand SVG CSS removal, 8-locale setTargetFpsDesc & Channel 1 < 550,000 B', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal(/:has\(/.test(css), false, 'style.css must have 0 :has() selectors');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must have 0 non-ASCII characters');
   assert.equal((css.match(/\{/g) || []).length, (css.match(/\}/g) || []).length, 'style.css braces must be balanced');
@@ -865,8 +865,8 @@ test('CSS hygiene, dual-split :not([data-split-overlaid]), dead brand SVG CSS re
   );
 
   // 2-1A i18n-locales.js 2-locale (th/en) setTargetFpsDesc check + removed locale fallback to th
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const locales = require(path.join(ROOT, 'i18n-locales.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const locales = require(path.join(ROOT, 'src/i18n-locales.js'));
   for (const lang of ['th', 'en']) {
     const desc = locales.getUiStrings(lang).setTargetFpsDesc;
     assert.ok(typeof desc === 'string' && desc.length >= 20, `${lang} setTargetFpsDesc must be non-empty`);
@@ -881,7 +881,7 @@ test('CSS hygiene, dual-split :not([data-split-overlaid]), dead brand SVG CSS re
   }
 
   // Channel 1 budget check (< 550,000 B after Ch9/Ch10 split)
-  const cdp = require(path.join(ROOT, 'cdp.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
   const expr = cdp.buildInjectExpression(cdp.DEFAULT_CONFIG);
   const bytes = Buffer.byteLength(expr, 'utf8');
   assert.ok(bytes < 550000, `Channel 1 bundle must stay < 550,000 B, got ${bytes} B`);

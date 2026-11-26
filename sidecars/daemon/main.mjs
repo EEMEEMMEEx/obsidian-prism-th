@@ -1,7 +1,7 @@
 // Obsidian Prism Native Sidecar Daemon (sidecars/daemon/main.mjs)
 // - Auto-discovers DevToolsActivePort across Windows/macOS/Linux + fast Target.setDiscoverTargets push
 // - Registers Page.addScriptToEvaluateOnNewDocument + Runtime.evaluate (survives Ctrl+Shift+R reloads with zero app.asar touch!)
-// - Hot-upgrades legacy instances to Obsidian Prism v1.0.8-beta.4
+// - Hot-upgrades legacy instances to Obsidian Prism v1.0.8-beta.5
 // - Lazily serves real MetricsStore + DesktopUsage snapshots over __agPrismMetricsCall only when requested (0 idle CPU)
 // - Registers __agPrismRepoCall (paired with window.__agPrismRepoBridge) for live Git status & safe git pull --ff-only + hot-reload!
 
@@ -36,7 +36,15 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEFAULT_ROOT_DIR = path.resolve(__dirname, '..', '..');
-const defaultCdp = require(path.join(DEFAULT_ROOT_DIR, 'cdp.js'));
+function resolveSrcModulePath(rootDir, fileName) {
+  const srcPath = path.join(rootDir, 'src', fileName);
+  if (fs.existsSync(srcPath)) return srcPath;
+  return path.join(rootDir, fileName);
+}
+function resolveCdpModulePath(rootDir) {
+  return resolveSrcModulePath(rootDir, 'cdp.js');
+}
+const defaultCdp = require(resolveCdpModulePath(DEFAULT_ROOT_DIR));
 
 export const METRICS_BINDING = '__agPrismMetricsCall';
 export const REPO_BINDING = '__agPrismRepoCall';
@@ -475,7 +483,7 @@ export function copyUpdatedRuntimeFromRepo(repoDir, pluginDir, syncFilesList) {
   if (realRepoRoot.toLowerCase() === realPluginRoot.toLowerCase()) return 0;
 
   let resolvedFiles = null;
-  const repoCdpPath = path.join(repoRoot, 'cdp.js');
+  const repoCdpPath = resolveCdpModulePath(repoRoot);
   try {
     const cdpStat = fs.lstatSync(repoCdpPath);
     if (!cdpStat.isSymbolicLink() && cdpStat.isFile()) {
@@ -543,7 +551,7 @@ export function copyUpdatedRuntimeFromRepo(repoDir, pluginDir, syncFilesList) {
   let synced = 0;
   const files =
     resolvedFiles ||
-    (Array.isArray(syncFilesList) && syncFilesList.length > 0 ? syncFilesList : ['cdp.js', 'style.css', 'ui-runtime.js']);
+    (Array.isArray(syncFilesList) && syncFilesList.length > 0 ? syncFilesList : ['src/cdp.js', 'src/style.css', 'src/ui-runtime.js']);
   for (const rel of files) {
     if (safeCopyFile(rel)) synced += 1;
   }
@@ -602,6 +610,7 @@ export function copyUpdatedRuntimeFromRepo(repoDir, pluginDir, syncFilesList) {
       }
     }
   };
+  syncSubDir('src');
   syncSubDir('assets');
   syncSubDir('vendor');
   syncSubDir('sidecars');
@@ -2088,7 +2097,7 @@ export class PrismDaemon {
     this.pollIntervalMs = Math.max(200, Number(pollIntervalMs) || 3000);
     this.enabledCheck = enabledCheck;
     this.silent = Boolean(silent);
-    this.cdp = require(path.join(this.rootDir, 'cdp.js'));
+    this.cdp = require(resolveCdpModulePath(this.rootDir));
     this._loadedCdpVerifier = typeof this.cdp?.isExpectedDaemonProcess === 'function' ? this.cdp.isExpectedDaemonProcess : null;
     this._daemonPidVerifier = typeof daemonPidVerifier === 'function' ? daemonPidVerifier : null;
     this._cdpFileSig = this._readCdpFileSig();
@@ -2229,7 +2238,7 @@ export class PrismDaemon {
     this.updateService =
       _testUpdateService ||
       new UpdateService({
-        currentVersion: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.4',
+        currentVersion: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.5',
         channel: initialUpdateChannel,
       });
     if (_testUpdateService && typeof _testUpdateService.setChannel === 'function') {
@@ -3178,7 +3187,7 @@ export class PrismDaemon {
   async _resolveStorageGuardLanguage(targetEntry, cfg = null, _testOverrides = null) {
     let i18nCore = null;
     try {
-      i18nCore = require(path.join(this.rootDir, 'i18n-core.js'));
+      i18nCore = require(resolveSrcModulePath(this.rootDir, 'i18n-core.js'));
     } catch {}
     const normalizeLang = (raw, fallback = 'th') => {
       if (typeof i18nCore?.normalizeLanguage === 'function') {
@@ -3292,7 +3301,7 @@ export class PrismDaemon {
           ? _testOverrides.config
           : this.cdp?.readConfig?.() || {};
       resolvedLang = await this._resolveStorageGuardLanguage(targetEntry, cfg, _testOverrides);
-      const locales = require(path.join(this.rootDir, 'i18n-locales.js'));
+      const locales = require(resolveSrcModulePath(this.rootDir, 'i18n-locales.js'));
       ui = locales.getUiStrings(resolvedLang) || {};
     } catch {}
 
@@ -3745,7 +3754,7 @@ export class PrismDaemon {
   }
 
   _buildCombinedUpdateStatus({ relState = null, gitState = null, action = 'update-status', channelOverride = null } = {}) {
-    const currentVersion = this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.4';
+    const currentVersion = this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.5';
     const rel = relState || this.updateService?.getStatus?.() || {};
     const autoUpdate = this._getAutoUpdateSetting();
     const explicitChannel = channelOverride === 'beta' || channelOverride === 'stable' ? channelOverride : null;
@@ -4030,7 +4039,7 @@ export class PrismDaemon {
         ...applyRes,
         action: 'apply-update',
         channel,
-        currentVersion: this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.4',
+        currentVersion: this.cdp?.PLUGIN_VERSION || this.updateService?.currentVersion || '1.0.8-beta.5',
       };
     }
 
@@ -4123,7 +4132,7 @@ export class PrismDaemon {
 
   _readCdpFileSig() {
     try {
-      const st = fs.statSync(path.join(this.rootDir, 'cdp.js'));
+      const st = fs.statSync(resolveCdpModulePath(this.rootDir));
       return `${st.mtimeMs}:${st.size}`;
     } catch {
       return '';
@@ -4222,7 +4231,7 @@ export class PrismDaemon {
   }
 
   rebuildBundle({ forceReloadCdp = false, deferDiskCacheWrite = false } = {}) {
-    const cdpPath = path.join(this.rootDir, 'cdp.js');
+    const cdpPath = resolveCdpModulePath(this.rootDir);
     const nextSig = this._readCdpFileSig();
     if (forceReloadCdp || !this.cdp || (nextSig && nextSig !== this._cdpFileSig)) {
       if (this._bundleCacheFlushTimer) {
@@ -5379,7 +5388,7 @@ export class PrismDaemon {
   // ── 第十通道：双桌宠按配置门控独立注入（mascot === 'off' 时零注入） ─────────────────
   _hasMascotFile() {
     try {
-      return fs.existsSync(path.join(this.rootDir, 'dual-mascot-rig.js'));
+      return fs.existsSync(resolveSrcModulePath(this.rootDir, 'dual-mascot-rig.js'));
     } catch {
       return false;
     }
@@ -5550,7 +5559,7 @@ export class PrismDaemon {
   // ── 第十二通道：Studio 首页仪表盘按配置门控独立延迟注入（homeLayout !== 'studio' 时零注入） ──
   _hasHomeStudioFile() {
     try {
-      return fs.existsSync(path.join(this.rootDir, 'home-studio-panel.js'));
+      return fs.existsSync(resolveSrcModulePath(this.rootDir, 'home-studio-panel.js'));
     } catch {
       return false;
     }
@@ -5895,7 +5904,7 @@ export class PrismDaemon {
   _getSidebarServerMeta() {
     return {
       binding: SIDEBAR_BINDING,
-      version: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.4',
+      version: this.cdp?.PLUGIN_VERSION || '1.0.8-beta.5',
       schemaVersion: 2,
       serviceReady: !this._sidebarStopped && typeof this.sidebarService?.handleRpc === 'function' &&
         !this.sidebarService.getBootDiagnostic?.(),
@@ -7087,7 +7096,7 @@ export class PrismDaemon {
   }
 
   async fetchUsageRollupBatch(rawItems, opts = {}) {
-    const usageCore = require(path.join(this.rootDir, 'usage-core.js'));
+    const usageCore = require(resolveSrcModulePath(this.rootDir, 'usage-core.js'));
     const entry = opts?.entry || null;
     const action = opts?.action || 'fetch-batch';
     const wantSummaries = action === 'list-summaries' || Boolean(opts?.includeSummaries);

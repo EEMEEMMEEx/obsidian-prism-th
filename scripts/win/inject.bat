@@ -1,3 +1,3 @@
 @echo off
 chcp 65001 >nul
-node "%~dp0..\..\inject.js" %*
+node "%~dp0..\..\src\inject.js" %*

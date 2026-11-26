@@ -7,12 +7,12 @@ import { createRequire } from 'node:module';
 import { buildInstaller, buildVersionInfoSource, windowsVersionParts } from '../scripts/build-installer.mjs';
 
 const ROOT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
-const cdp = createRequire(import.meta.url)(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = createRequire(import.meta.url)(path.join(ROOT_DIR, 'src', 'cdp.js'));
 
 test('windowsVersionParts maps semver to 4 numeric fields clamped to 0..65535', () => {
-  assert.deepEqual(windowsVersionParts('1.0.8-beta.4'), [1, 0, 8, 4]);
+  assert.deepEqual(windowsVersionParts('1.0.8-beta.5'), [1, 0, 8, 5]);
   assert.deepEqual(windowsVersionParts('2.3.4'), [2, 3, 4, 0]);
-  assert.deepEqual(windowsVersionParts('1.0.8-beta.4+sha.2026'), [1, 0, 8, 4]);
+  assert.deepEqual(windowsVersionParts('1.0.8-beta.5+sha.2026'), [1, 0, 8, 5]);
   assert.deepEqual(windowsVersionParts('70000.1.2'), [65535, 1, 2, 0]);
   assert.deepEqual(windowsVersionParts(''), [0, 0, 0, 0]);
   assert.deepEqual(windowsVersionParts('not-a-version'), [0, 0, 0, 0]);
@@ -20,15 +20,15 @@ test('windowsVersionParts maps semver to 4 numeric fields clamped to 0..65535', 
 
 test('buildVersionInfoSource emits assembly attributes that fill the Win32 VS_VERSIONINFO resource', () => {
   const src = buildVersionInfoSource({
-    version: '1.0.8-beta.4',
+    version: '1.0.8-beta.5',
     title: 'Obsidian Prism Installer',
     description: 'desc "quoted" \\ backslash',
   });
   assert.ok(src.includes('[assembly: AssemblyTitle("Obsidian Prism Installer")]'));
   assert.ok(src.includes('[assembly: AssemblyProduct("Obsidian Prism")]'));
-  assert.ok(src.includes('[assembly: AssemblyCompany("Obsidian Prism Contributors")]'));
-  assert.ok(src.includes('[assembly: AssemblyFileVersion("1.0.8.4")]'));
-  assert.ok(src.includes('[assembly: AssemblyInformationalVersion("1.0.8-beta.4")]'));
+  assert.ok(src.includes('[assembly: AssemblyCompany("EEMEEMMEEx")]'));
+  assert.ok(src.includes('[assembly: AssemblyFileVersion("1.0.8.5")]'));
+  assert.ok(src.includes('[assembly: AssemblyInformationalVersion("1.0.8-beta.5")]'));
   assert.ok(src.includes('desc \\"quoted\\" \\\\ backslash'), 'quotes and backslashes must be escaped');
 });
 
@@ -48,7 +48,7 @@ test(
       const utf16 = (s) => Buffer.from(s, 'utf16le');
       assert.ok(buf.includes(utf16('Obsidian Prism Installer')), 'FileDescription resource string missing');
       assert.ok(buf.includes(utf16('Obsidian Prism')), 'ProductName resource string missing');
-      assert.ok(buf.includes(utf16('Obsidian Prism Contributors')), 'CompanyName resource string missing');
+      assert.ok(buf.includes(utf16('EEMEEMMEEx')), 'CompanyName resource string missing');
       assert.ok(buf.includes(utf16(cdp.PLUGIN_VERSION)), 'ProductVersion resource string missing');
       assert.ok(
         buf.includes(utf16(windowsVersionParts(cdp.PLUGIN_VERSION).join('.'))),

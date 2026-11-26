@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 
 test('swarm-board-i18n removal: vendor/host-i18n swarm assets are removed and shouldEnableSwarmI18n/buildSwarmI18nExpression are disabled', () => {
   const hostI18nDir = path.join(ROOT, 'vendor', 'host-i18n');

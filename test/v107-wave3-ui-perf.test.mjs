@@ -326,7 +326,7 @@ function makeDomNode(tag, attrs = {}, rect = { left: 0, top: 0, width: 200, heig
 
 // ── 1. style.css 铁律 + P1-3a/P1-3b + Channel 1 体积预算 ───────────────────
 test('Wave 3 CSS hygiene: 0 :has(), 0 non-ASCII, balanced braces, 0 [style*="--ag-row-i"], toast without backdrop-filter, no sidebar content-visibility, Channel 1 < 685,000 B', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal((css.match(/:has\(/g) || []).length, 0, 'style.css must have 0 :has( selectors');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must have 0 non-ASCII chars');
   assert.equal(checkBalancedBraces(css).ok, true, 'style.css braces must be strictly balanced');
@@ -357,7 +357,7 @@ test('Wave 3 CSS hygiene: 0 :has(), 0 non-ASCII, balanced braces, 0 [style*="--a
   }
 
   // Channel 1 总包必须 < 685,000 B
-  const cdp = require(path.join(ROOT, 'cdp.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
   const expr = cdp.buildInjectExpression(cdp.DEFAULT_CONFIG);
   const bytes = Buffer.byteLength(expr, 'utf8');
   assert.ok(bytes < 685000, `Channel 1 bundle must stay < 685,000 B, got ${bytes} B`);
@@ -365,10 +365,10 @@ test('Wave 3 CSS hygiene: 0 :has(), 0 non-ASCII, balanced braces, 0 [style*="--a
 
 // ── 2. ui-runtime: P1-1, P1-2a, P1-2b, P1-2c, P2-1 真实执行全链路验证 ────────
 test('Wave 3 ui-runtime: P1-1 mascot power sync, P1-2a narrowed dirtyFlags, P1-2b owned fast-path & inConvStream quick check, P1-2c async enhancer sync, P2-1 passive listeners & lazy pointer rect', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const uiMainFactory = require(path.join(ROOT, 'ui-runtime.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const uiMainFactory = require(path.join(ROOT, 'src/ui-runtime.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
 
   const html = makeDomNode('html');
   const head = makeDomNode('head');
@@ -528,7 +528,7 @@ test('Wave 3 ui-runtime: P1-1 mascot power sync, P1-2a narrowed dirtyFlags, P1-2
   sb.globalThis = sb;
 
   // Load real stream-choreography and wrap its measureVisibleChangedHeaders / syncThinkingSparks to spy
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8'), sb);
   const origCreateChoreo = sb.__agPrismStreamChoreography.createStreamChoreographyController;
   sb.__agPrismStreamChoreography.createStreamChoreographyController = (opts) => {
     const origGuard = opts.runGuardedMut;
@@ -767,7 +767,7 @@ test('Wave 3 ui-runtime: P1-1 mascot power sync, P1-2a narrowed dirtyFlags, P1-2
 
 // ── 3. host-workbench-enhancer: P1-2c & P2-2 真实执行验证 ──────────────────
 test('Wave 3 host-workbench-enhancer: cached iframe size, zero-alloc countCodeLines, streamingPre short-circuit & non-tail seal, in-place outline active switch, passive navRail hover short-circuit', () => {
-  const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
+  const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
 
   const html = makeDomNode('html', {
     'data-ag-cs-style': '1',
@@ -978,7 +978,7 @@ test('Wave 3 host-workbench-enhancer: cached iframe size, zero-alloc countCodeLi
 
 // ── 4. stream-choreography: P1-3c 英文历史 "Thinking Process" 不误判 streaming ─
 test('Wave 3 stream-choreography P1-3c: historical English "Thinking Process" never false-triggers streaming spark or comet, while active streaming ellipsis/Chinese/attr works accurately', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
   const html = makeDomNode('html', { 'data-ag-cs-motion': 'ultra' });
   const body = makeDomNode('body');
   html.appendChild(body);
@@ -1087,7 +1087,7 @@ test('Wave 3 stream-choreography P1-3c: historical English "Thinking Process" ne
 
 // ── 5. home-studio-panel: P2-3 非配额页免重绘 ─────────────────────────────
 test('Wave 3 home-studio-panel P2-3: quota telemetry refreshes perform 0 panel re-renders on Overview/Models tabs, and re-render normally on Quotas tab', async () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-studio-panel.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-studio-panel.js'), 'utf8');
   const html = makeDomNode('html');
   const head = makeDomNode('head');
   const body = makeDomNode('body');
@@ -1207,7 +1207,7 @@ test('Wave 3 home-studio-panel P2-3: quota telemetry refreshes perform 0 panel r
 
 // ── 6. model-glyph-crystal: P2-4 stepCrystalLoop 先读后写 + 缓存 knob/宽度 ─
 test('Wave 3 model-glyph-crystal P2-4: stepCrystalLoop reads fillRatio before writing --knob-px/--knob-py and caches knob ref & track width', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'model-glyph-crystal.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/model-glyph-crystal.js'), 'utf8');
   const html = makeDomNode('html', { 'data-ag-cs-ambient': '1' });
   const body = makeDomNode('body');
   html.appendChild(body);
@@ -1454,10 +1454,10 @@ test('Wave 3 pulse inline-fallback P2-5: seatObs merges duplicate isConv() and f
 
 // ── 8. ui-runtime autoUpdate 归一化 & 布尔兼容 ─────────────────────────────
 test('P1 ui-runtime autoUpdate normalization (default off, boolean true/false -> on/off, wire binding alignment)', () => {
-  const cdp = require(path.join(ROOT, 'cdp.js'));
-  const uiMainFactory = require(path.join(ROOT, 'ui-runtime.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
+  const uiMainFactory = require(path.join(ROOT, 'src/ui-runtime.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
 
   const html = makeDomNode('html');
   const head = makeDomNode('head');
@@ -1615,7 +1615,7 @@ test('P1 Effort Slider cleanup strips data-ces-orch-b/tunable, conv-aura compute
   assert.equal(orchRow.hasAttribute('data-ces-orch-b'), false);
 
   // (b) conv-aura computeConvAuraOptics defaults to fresh {} per call (no aliasing / clobbering across external calls)
-  const auraSrc = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const auraSrc = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   const auraSb = { Math, Number, String, Boolean, Array, Object, Set, WeakSet, Map, WeakMap };
   auraSb.window = auraSb;
   auraSb.globalThis = auraSb;
@@ -1628,7 +1628,7 @@ test('P1 Effort Slider cleanup strips data-ces-orch-b/tunable, conv-aura compute
   assert.equal(o2.semantic, 'error-halted');
 
   // (c) host-workbench-enhancer writes outlineTitleEl.textContent inside runGuardedMut
-  const enhMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
+  const enhMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
   const eHtml = makeDomNode('html', { 'data-ag-cs-style': '1', 'data-ag-cs-lang': 'en' });
   const eBody = makeDomNode('body');
   eHtml.appendChild(eBody);

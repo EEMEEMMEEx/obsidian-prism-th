@@ -787,11 +787,11 @@ test('security-sidecar 4: update-service verifies SHA-256 in memory before disk 
               tag_name: 'v1.0.6',
               draft: false,
               prerelease: false,
-              html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.6',
+              html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.6',
               assets: [
                 {
                   name: 'obsidian-prism-installer.exe',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.6/obsidian-prism-installer.exe',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.6/obsidian-prism-installer.exe',
                   digest: `sha256:${expectedSha}`,
                 },
               ],
@@ -836,15 +836,15 @@ test('security-sidecar 4: update-service verifies SHA-256 in memory before disk 
               tag_name: 'v1.0.6',
               draft: false,
               prerelease: false,
-              html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.6',
+              html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.6',
               assets: [
                 {
                   name: 'obsidian-prism-installer.exe',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.6/obsidian-prism-installer.exe',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.6/obsidian-prism-installer.exe',
                 },
                 {
                   name: 'SHA256SUMS.txt',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.6/SHA256SUMS.txt',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.6/SHA256SUMS.txt',
                 },
               ],
             }),
@@ -878,11 +878,11 @@ test('security-sidecar 4: update-service verifies SHA-256 in memory before disk 
               tag_name: 'v1.0.6',
               draft: false,
               prerelease: false,
-              html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.6',
+              html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.6',
               assets: [
                 {
                   name: 'obsidian-prism-installer.exe',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.6/obsidian-prism-installer.exe',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.6/obsidian-prism-installer.exe',
                   digest: `sha256:${'b'.repeat(64)}`,
                 },
               ],
@@ -926,15 +926,15 @@ test('security-sidecar 4: update-service verifies SHA-256 in memory before disk 
               tag_name: 'v1.0.6',
               draft: false,
               prerelease: false,
-              html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.6',
+              html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.6',
               assets: [
                 {
                   name: 'obsidian-prism-installer.exe',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.6/obsidian-prism-installer.exe',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.6/obsidian-prism-installer.exe',
                 },
                 {
                   name: 'SHA256SUMS.txt',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.6/SHA256SUMS.txt',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.6/SHA256SUMS.txt',
                 },
               ],
             }),
@@ -973,7 +973,7 @@ test('security-sidecar 4: update-service verifies SHA-256 in memory before disk 
 });
 
 test('security-sidecar 5: inject.js isolates injectOnce errors (preserving Channel 5), enforces fail-closed mainFrame context & dynamically adds SIDEBAR_BINDING on hot toggle', async () => {
-  const injectSrc = fs.readFileSync(path.join(ROOT, 'inject.js'), 'utf8');
+  const injectSrc = fs.readFileSync(path.join(ROOT, 'src/inject.js'), 'utf8');
 
   function loadInjectHarness({ initialConfig, pages, connectHandler, watchMode = false }) {
     let configState = { ...initialConfig };
@@ -1058,7 +1058,7 @@ test('security-sidecar 5: inject.js isolates injectOnce errors (preserving Chann
       module: moduleObj,
       exports: moduleObj.exports,
       __dirname: ROOT,
-      __filename: path.join(ROOT, 'inject.js'),
+      __filename: path.join(ROOT, 'src/inject.js'),
       process: mockProcess,
       console: { log() {}, error() {}, warn() {} },
       Buffer,
@@ -1585,11 +1585,11 @@ test('security-sidecar 6: red-team hardening for NT device/mixed-slash UNC white
               tag_name: 'v1.0.7',
               draft: false,
               prerelease: false,
-              html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.7',
+              html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.7',
               assets: [
                 {
                   name: 'obsidian-prism-installer.exe',
-                  browser_download_url: 'https://github.com/RMvdesi/obsidian-prism/releases/download/v1.0.7/obsidian-prism-installer.exe',
+                  browser_download_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/download/v1.0.7/obsidian-prism-installer.exe',
                   digest: `sha256:${sha}`,
                 },
               ],

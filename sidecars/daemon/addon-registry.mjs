@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEFAULT_ROOT_DIR = path.resolve(__dirname, '..', '..');
 
-export const GITHUB_REPO = 'RMvdesi/obsidian-prism';
+export const GITHUB_REPO = 'EEMEEMMEEx/obsidian-prism-th';
 export const ADDONS_LAB_ENV_VAR = 'OBSIDIAN_PRISM_ADDONS_LAB';
 export const ADDONS_DIR_ENV_VAR = 'AG_PRISM_ADDONS_DIR';
 
@@ -330,8 +330,8 @@ export function resolveSafeAddonsDir({
  * 严格校验下载 URL 是否满足白名单安全红线：
  * - 仅允许 https:，严禁任何端口（含显式 :443）与 userInfo
  * - Host 严格限定在 TRUSTED_ADDON_HOSTS 6 个域名之内
- * - github.com / raw.githubusercontent.com 路径必须以 /RMvdesi/obsidian-prism/ 开头
- * - api.github.com 路径必须以 /repos/RMvdesi/obsidian-prism/ 开头
+ * - github.com / raw.githubusercontent.com 路径必须以 /EEMEEMMEEx/obsidian-prism-th/ 开头
+ * - api.github.com 路径必须以 /repos/EEMEEMMEEx/obsidian-prism-th/ 开头
  * - 拒绝路径穿越（.. / \ / %2e / %5c / %00）
  */
 export function isTrustedAddonUrl(rawUrl) {

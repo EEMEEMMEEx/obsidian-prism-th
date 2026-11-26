@@ -53,7 +53,7 @@ function buildVersionInfoSource({ version, title, description }) {
     'using System.Reflection;',
     `[assembly: AssemblyTitle(${csString(title)})]`,
     `[assembly: AssemblyDescription(${csString(description)})]`,
-    '[assembly: AssemblyCompany("Obsidian Prism Contributors")]',
+    '[assembly: AssemblyCompany("EEMEEMMEEx")]',
     '[assembly: AssemblyProduct("Obsidian Prism")]',
     '[assembly: AssemblyCopyright("GPL-3.0-only")]',
     `[assembly: AssemblyVersion(${csString(numeric)})]`,

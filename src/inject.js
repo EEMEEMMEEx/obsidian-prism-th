@@ -64,9 +64,10 @@ function isThoughtEnabledForConfig(cfg, checker = shouldEnableThought) {
   }
 }
 
+const ROOT_DIR = path.resolve(__dirname, '..');
 const WATCH = process.argv.includes('--watch');
-const LOG_FILE = path.join(__dirname, 'watch.log');
-const BUNDLE_CACHE_PATH = path.join(__dirname, '.bundle-cache.json');
+const LOG_FILE = path.join(ROOT_DIR, 'watch.log');
+const BUNDLE_CACHE_PATH = path.join(ROOT_DIR, '.bundle-cache.json');
 const PERIODIC_PICKER_CACHE_OPTS = Object.freeze({ cachePath: BUNDLE_CACHE_PATH });
 
 const SECRET_TOKEN_RE =
@@ -598,9 +599,9 @@ async function watch() {
   const attached = new Map();
   let omniServer = null;
   try {
-    const omniMod = await import('./vendor/omni-viewer/omni-server.mjs');
+    const omniMod = await import('../vendor/omni-viewer/omni-server.mjs');
     if (omniMod && typeof omniMod.OmniServer === 'function') {
-      omniServer = new omniMod.OmniServer({ rootDir: __dirname });
+      omniServer = new omniMod.OmniServer({ rootDir: ROOT_DIR });
       await omniServer.start();
       process.on('exit', () => {
         try {
@@ -614,12 +615,12 @@ async function watch() {
 
   let sidebarService = null;
   try {
-    const sidebarMod = await import('./vendor/sidebar-studio/sidebar-service.mjs');
+    const sidebarMod = await import('../vendor/sidebar-studio/sidebar-service.mjs');
     const Ctor = sidebarMod && (sidebarMod.SidebarStudioService || sidebarMod.default);
     if (typeof Ctor === 'function') {
       let hostAdapter = null;
       try {
-        const adapterMod = await import('./vendor/sidebar-studio/live-host-adapter.mjs');
+        const adapterMod = await import('../vendor/sidebar-studio/live-host-adapter.mjs');
         if (typeof adapterMod?.createLiveHostAdapter === 'function') {
           hostAdapter = adapterMod.createLiveHostAdapter({
             logger: (m) => log(m),
@@ -682,7 +683,7 @@ async function watch() {
   async function loadReadSafeInlineDiff() {
     if (typeof _lazyReadSafeInlineDiff === 'function') return _lazyReadSafeInlineDiff;
     try {
-      const daemonMod = await import('./sidecars/daemon/main.mjs');
+      const daemonMod = await import('../sidecars/daemon/main.mjs');
       if (typeof daemonMod?.readSafeInlineDiff === 'function') {
         _lazyReadSafeInlineDiff = daemonMod.readSafeInlineDiff;
         return _lazyReadSafeInlineDiff;
@@ -1272,7 +1273,7 @@ async function watch() {
   }
 
   let reloadTimer = null;
-  fs.watch(__dirname, { recursive: true }, (_, filename) => {
+  fs.watch(ROOT_DIR, { recursive: true }, (_, filename) => {
     const base = filename ? path.basename(filename) : '';
     if (!base || !/\.(css|c?js|mjs|json)$/i.test(base) || base.startsWith('.')) return;
     if (base === 'watch.log' || base === 'daemon.log') return;

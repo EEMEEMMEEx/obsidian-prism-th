@@ -31,12 +31,12 @@ import { discoverLocalConversations } from '../vendor/pulse-dashboard/sidecars/p
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const usageCore = require(path.join(ROOT, 'usage-core.js'));
-const homeStudioPanel = require(path.join(ROOT, 'home-studio-panel.js'));
-const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
-const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const usageCore = require(path.join(ROOT, 'src/usage-core.js'));
+const homeStudioPanel = require(path.join(ROOT, 'src/home-studio-panel.js'));
+const settingsPanel = require(path.join(ROOT, 'src/settings-panel.js'));
+const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
 
 const SUPPORTED_8 = ['zh-CN', 'zh-TW', 'en', 'ja', 'ko', 'es', 'fr', 'de'];
 const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf]/;
@@ -1259,12 +1259,12 @@ test('Settings panel 8-locale Memory/DB Guard + GOMEMLIMIT controls and engineer
   assert.ok(Buffer.byteLength(refExpr, 'utf8') < 4096, `configRefresh exceeded 4096 B`);
 
   const touchedFiles = [
-    'cdp.js',
+    'src/cdp.js',
     'config.example.json',
-    'home-studio-panel.js',
-    'i18n-locales.js',
-    'settings-panel.js',
-    'ui-runtime.js',
+    'src/home-studio-panel.js',
+    'src/i18n-locales.js',
+    'src/settings-panel.js',
+    'src/ui-runtime.js',
     'tools/install-plugin.cjs',
     'installer/setup/Program.cs',
     'installer/watcher/Program.cs',

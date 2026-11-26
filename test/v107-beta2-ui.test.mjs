@@ -7,8 +7,8 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const ctxMenuMod = require(path.join(ROOT, 'context-menu-btw.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const ctxMenuMod = require(path.join(ROOT, 'src/context-menu-btw.js'));
 
 function checkBalancedBraces(css) {
   let depth = 0;
@@ -37,7 +37,7 @@ function checkBalancedBraces(css) {
 }
 
 test('v1.0.7-beta.2 Task 1 (PR #20): .ag-cs-nav-outline-trigger positioning and z-index stay in top safe zone without occluding turn dots or popover', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   const trigLine = css.split(/\r?\n/).find((l) => l.includes('& .ag-cs-nav-outline-trigger{'));
   const popLine = css.split(/\r?\n/).find((l) => l.includes('& .ag-cs-nav-outline-popover{'));
   assert.ok(trigLine, 'style.css must define .ag-cs-nav-outline-trigger');
@@ -59,7 +59,7 @@ test('v1.0.7-beta.2 Task 1 (PR #20): .ag-cs-nav-outline-trigger positioning and 
 });
 
 test('v1.0.7-beta.2 Task 2 (PR #21 hardening): conv-aura caps pre-sleep WebGL2 phases (idle/awaiting-decision/long-task-complete) to ~30fps (33ms), keeps running at smooth 60fps, and enforces 0fps sleep in motion=off & hostSleep', () => {
-  const auraSrc = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const auraSrc = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   let nowMs = 1000;
   let rafSeq = 0;
   let timerSeq = 0;
@@ -274,7 +274,7 @@ test('v1.0.7-beta.2 Task 2 (PR #21 hardening): conv-aura caps pre-sleep WebGL2 p
 });
 
 test('v1.0.7-beta.2 Task 3 (PR #23 hardening): syncHostAnimatedIcons detects React button SVG className (copy->check->copy), role, and data-tooltip-id mutations', () => {
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   // Verify live behavior by booting minimal runtime with Channel 1 ui-runtime.js in a clean VM sandbox
   const makeNode = (tag, attrsInit = {}) => {
     const attrs = new Map(Object.entries(attrsInit));
@@ -853,8 +853,8 @@ test('v1.0.7-beta.2 Task 7 (host-i18n removed): vendor/host-i18n is removed and 
 });
 
 test('v1.0.7-beta.2 #192 [P2-3]: settings-panel.js remount & inject.js fallback remove expression both purge prism-thought-general-config companion card', () => {
-  const settingsSrc = fs.readFileSync(path.join(ROOT, 'settings-panel.js'), 'utf8');
-  const injectSrc = fs.readFileSync(path.join(ROOT, 'inject.js'), 'utf8');
+  const settingsSrc = fs.readFileSync(path.join(ROOT, 'src/settings-panel.js'), 'utf8');
+  const injectSrc = fs.readFileSync(path.join(ROOT, 'src/inject.js'), 'utf8');
   assert.ok(
     settingsSrc.includes('[data-testid="prism-thought-ai-config"],[data-testid="prism-thought-general-config"]'),
     'settings-panel.js mountThoughtUiIfReady must clean stale prism-thought-general-config alongside prism-thought-ai-config'
@@ -882,7 +882,7 @@ test('v1.0.7-beta.2 #192 [P2-3]: settings-panel.js remount & inject.js fallback 
 });
 
 test('v1.0.7-beta.2 CSS hygiene & Channel 1 payload budget gate', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal(css.includes(':has('), false, 'style.css must have 0 :has()');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must have 0 non-ASCII');
   assert.equal(checkBalancedBraces(css), true, 'style.css braces must be strictly balanced');

@@ -12,10 +12,10 @@ import { buildStorageGuardBannerExpression } from '../sidecars/daemon/storage-gu
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
-const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
-const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const settingsPanel = require(path.join(ROOT, 'src/settings-panel.js'));
+const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
+const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
 
 const SUPPORTED_2 = ['th', 'en'];
 const NON_CJK_2 = ['th', 'en'];
@@ -694,14 +694,13 @@ test('PrismDaemon: storage-detail, confirmed >14d prepare-archive, multi-batch r
 });
 
 test('settings-panel (Ch9): lazy <details> drawer, 3-way mutually exclusive confirm gates (>14d + archive-restart + multi-batch restore), 8-locale 0 CJK leak, and 0 B into Ch1 / 0 BOM / 0 CRLF', async () => {
-  // 1) Architecture & engineering gates: settings-panel.js stays in Ch9 (0 B into Ch1), pulse-vial-bridge < 31KB, 0 BOM / 0 CRLF
-  assert.equal(cdp.RUNTIME_PARTS.includes('settings-panel.js'), false, 'settings-panel.js must remain outside Ch1 RUNTIME_PARTS');
-  assert.ok(fs.statSync(path.join(ROOT, 'pulse-vial-bridge.js')).size < 31000, 'pulse-vial-bridge.js must stay < 31,000 B');
+  // 1) Architecture & engineering gates: src/settings-panel.js stays in Ch9 (0 B into Ch1), src/pulse-vial-bridge.js < 31KB, 0 BOM / 0 CRLF
+  assert.equal(cdp.RUNTIME_PARTS.includes('src/settings-panel.js'), false, 'src/settings-panel.js must remain outside Ch1 RUNTIME_PARTS');
+  assert.ok(fs.statSync(path.join(ROOT, 'src', 'pulse-vial-bridge.js')).size < 31000, 'src/pulse-vial-bridge.js must stay < 31,000 B');
   for (const rel of [
     'sidecars/daemon/conversation-archive.mjs',
     'sidecars/daemon/main.mjs',
-    'settings-panel.js',
-    'docs/CONTRIBUTORS.md',
+    'src/settings-panel.js',
     'test/storage-archive-workbench.test.mjs',
   ]) {
     const buf = fs.readFileSync(path.join(ROOT, rel));

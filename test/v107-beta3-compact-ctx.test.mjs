@@ -19,8 +19,8 @@ import { AntigravityClient } from '../vendor/pulse-dashboard/sidecars/panel/clie
 import { MetricsStore } from '../vendor/pulse-dashboard/sidecars/panel/store.mjs';
 
 const require = createRequire(import.meta.url);
-const pulseVialBridge = require('../pulse-vial-bridge.js');
-const vialCore = require('../vial-core.js');
+const pulseVialBridge = require('../src/pulse-vial-bridge.js');
+const vialCore = require('../src/vial-core.js');
 
 const CID = '77777777-8888-4999-8aaa-bbbbbbbbbbbb';
 

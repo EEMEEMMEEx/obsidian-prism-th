@@ -15,9 +15,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
 const installTool = require('../tools/install-plugin.cjs');
-const settingsPanel = require('../settings-panel.js');
-const i18nLocales = require('../i18n-locales.js');
-const i18nCore = require('../i18n-core.js');
+const settingsPanel = require('../src/settings-panel.js');
+const i18nLocales = require('../src/i18n-locales.js');
+const i18nCore = require('../src/i18n-core.js');
 
 function mkTempDir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -917,7 +917,7 @@ test('tools/install-plugin.cjs P1-5: waits for slow-exiting daemon to finish flu
 });
 
 test('remove.js and tools/install-plugin.cjs preserve addons/ on default uninstall, purge addons/ on --purge-data, and refuse symlink/hijacked addons/', async () => {
-  const removeTool = require('../remove.js');
+  const removeTool = require('../src/remove.js');
   const rootTmp = mkTempDir('prism-u-addons-');
   const prevAddonsEnv = process.env.AG_PRISM_ADDONS_DIR;
   try {

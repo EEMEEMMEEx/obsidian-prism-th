@@ -16,12 +16,12 @@ import {
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 const inlineDiffMod = require(path.join(ROOT, 'vendor', 'inline-diff', 'inline-diff-client.js'));
-const ctxMenuMod = require(path.join(ROOT, 'context-menu-btw.js'));
-const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
-const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
-const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
+const ctxMenuMod = require(path.join(ROOT, 'src/context-menu-btw.js'));
+const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
+const settingsPanel = require(path.join(ROOT, 'src/settings-panel.js'));
+const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
 const installPluginTool = require(path.join(ROOT, 'tools', 'install-plugin.cjs'));
 
 function runGit(dir, args) {
@@ -457,7 +457,7 @@ test('Redteam P0-1 & P1-1 & P1-4: zombie singleton prevention, no-RPC native fal
   assert.equal(selPrevented, false, 'Selection inside inline diff box must pass through to /btw menu');
 
   // Verify context-menu-btw.js includes .ag-cs-diff-ctx-menu in EXCL and closes diff menu
-  const btwSrc = fs.readFileSync(path.join(ROOT, 'context-menu-btw.js'), 'utf8');
+  const btwSrc = fs.readFileSync(path.join(ROOT, 'src/context-menu-btw.js'), 'utf8');
   assert.ok(btwSrc.includes('.ag-cs-diff-ctx-menu'));
   assert.ok(btwSrc.includes('closeMenuIfOpen'));
   assert.ok(ctxMenuMod);
@@ -498,9 +498,9 @@ test('Redteam P0-1 & P1-1 & P1-4: zombie singleton prevention, no-RPC native fal
 });
 
 test('Redteam P1-2 & P1-3 & P0-1(ui-runtime): style.css exclusions/contrasts, sidebarNavFold collapsed & parent-gate, and bidirectional hostSleep', () => {
-  const styleCss = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const styleCss = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   const replicaCss = fs.readFileSync(path.join(ROOT, 'workbench', 'replica.css'), 'utf8');
-  const uiRuntimeSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiRuntimeSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
 
   // 1) style.css PR #10 & /btw & Issue #15 contrast guards
   assert.ok(styleCss.includes(':not(.ag-cs-ctx-menu):not(.ag-cs-diff-ctx-menu)'), 'style.css [role="menu"] must exclude both prism context menus');

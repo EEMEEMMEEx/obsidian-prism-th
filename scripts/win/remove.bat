@@ -1,3 +1,3 @@
 @echo off
 chcp 65001 >nul
-node "%~dp0..\..\remove.js" %*
+node "%~dp0..\..\src\remove.js" %*

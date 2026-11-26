@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 
 function createMockDom() {
   const docListeners = new Map();
@@ -293,7 +293,7 @@ function makeSplitPane(mkEl, body, { cid, modelLabel, running = false, footerWid
 }
 
 test('Issue #62 CSS & Budget Gate: tiling-splitter transparent hitbox + ::before 1px hairline + glow, 0 :has(), 0 CSSOM traps & Ch1 < 549,500 B', () => {
-  const cssPath = path.join(ROOT, 'style.css');
+  const cssPath = path.join(ROOT, 'src/style.css');
   const cssBuf = fs.readFileSync(cssPath);
   const css = cssBuf.toString('utf8');
 
@@ -327,7 +327,7 @@ test('Issue #62 CSS & Budget Gate: tiling-splitter transparent hitbox + ::before
   assert.equal(css.includes('background:var(--_x0)'), false, '0 Chromium CSSOM background:var(--_x0) trap');
 
   // pulse-vial-bridge.js strict < 31,000 B & 0 innerHTML
-  const pvbPath = path.join(ROOT, 'pulse-vial-bridge.js');
+  const pvbPath = path.join(ROOT, 'src/pulse-vial-bridge.js');
   const pvbBuf = fs.readFileSync(pvbPath);
   const pvbTxt = pvbBuf.toString('utf8');
   assert.ok(pvbBuf.length < 31000, `pulse-vial-bridge.js must stay < 31,000 B, got ${pvbBuf.length}`);
@@ -440,7 +440,7 @@ test('Issue #62 Multi-Pane Telemetry & Single-Vial Follow: independent bars/RO/c
   // Single vial bridge dynamically follows active/open-card pane with at most 1 GPU vial active
   let vialMounts = 0;
   let vialDisposes = 0;
-  const pvbMod = require(path.join(ROOT, 'pulse-vial-bridge.js'));
+  const pvbMod = require(path.join(ROOT, 'src/pulse-vial-bridge.js'));
   const pvb = pvbMod.mountPulseVialBridge({
     win: sb,
     doc: env.doc,
@@ -525,11 +525,11 @@ test('Issue #62 ui-runtime Multi-Pane Wiring: all visible prism-box, single masc
   const mascotNotifies = [];
   let mascotMounts = 0;
 
-  const uiMainFactory = require(path.join(ROOT, 'ui-runtime.js'));
-  const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-  const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
-  const streamChoreoSrc = fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8');
-  const modelGlyphSrc = fs.readFileSync(path.join(ROOT, 'model-glyph-crystal.js'), 'utf8');
+  const uiMainFactory = require(path.join(ROOT, 'src/ui-runtime.js'));
+  const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+  const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
+  const streamChoreoSrc = fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8');
+  const modelGlyphSrc = fs.readFileSync(path.join(ROOT, 'src/model-glyph-crystal.js'), 'utf8');
 
   const sb = {
     document: env.doc,
@@ -612,7 +612,7 @@ test('Issue #62 ui-runtime Multi-Pane Wiring: all visible prism-box, single masc
   vm.runInNewContext(streamChoreoSrc, sb);
   vm.runInNewContext(modelGlyphSrc, sb);
 
-  const bootSrc = `(${uiMainFactory.toString()})(${JSON.stringify({ ...cdp.DEFAULT_CONFIG, motionLevel: 'ultra', smoothCaret: false })}, { version: '1.0.8-beta.4', codeHash: 'split-test' });`;
+  const bootSrc = `(${uiMainFactory.toString()})(${JSON.stringify({ ...cdp.DEFAULT_CONFIG, motionLevel: 'ultra', smoothCaret: false })}, { version: '1.0.8-beta.5', codeHash: 'split-test' });`;
   vm.runInNewContext(bootSrc, sb);
   const api = sb.__agPrism;
 
@@ -731,8 +731,8 @@ test('Issue #62 Multi-Pane Aura, Choreography & Selectors Isolation: single WebG
   };
   sb.window = sb;
   sb.globalThis = sb;
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8'), sb);
-  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'stream-choreography.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8'), sb);
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'src/stream-choreography.js'), 'utf8'), sb);
 
   const convMod = sb.__agPrismConvAura;
   assert.equal(convMod.isConvRunning(false, p1.cv), true, 'Pane 1 isConvRunning === true');

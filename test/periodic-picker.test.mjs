@@ -33,7 +33,7 @@ const PERIODIC_PICKER_FILE = path.join(PERIODIC_PICKER_DIR, 'periodic-picker.js'
 const HOST_I18N_FILE = path.join(ROOT_DIR, 'vendor', 'host-i18n', 'host-i18n-runtime.js');
 
 const require = createRequire(import.meta.url);
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 
 /**
  * 构造轻量高保真 DOM + 假时钟 + 事件捕获/冒泡沙盒（零外部依赖，严格对称计数监听与定时器）
@@ -6896,7 +6896,7 @@ test('v1.0.8-beta (c) Escape never rolls back committed host model (zero revertH
 });
 
 test('v1.0.8-beta (d) data-ag-pp-open="1" desktop pet peek integration + window.__agPrism.sync() hook', () => {
-  const uiRuntimeSrc = fs.readFileSync(path.join(ROOT_DIR, 'ui-runtime.js'), 'utf8');
+  const uiRuntimeSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/ui-runtime.js'), 'utf8');
   assert.ok(uiRuntimeSrc.includes("ga(de(), 'data-ag-pp-open') === '1'"), 'ui-runtime.js must drive mascotShouldPeek from data-ag-pp-open="1"');
   assert.ok(uiRuntimeSrc.includes("m.attributeName === 'data-ag-pp-open'"), 'ui-runtime.js observer must react to data-ag-pp-open attribute mutations');
   assert.ok(uiRuntimeSrc.includes("syncCrab(primaryCard, activeInfoForCrab, primaryModelInfo, mascotShouldPeek ? 'peek' : 'none')"));
@@ -7812,22 +7812,22 @@ test('v1.0.8-beta perf-dom-bg: 3D hit-layer pointer isolation, event bubble fire
 
   // 5) 背景模块 data-ag-pp-open="1" 真 0fps 休眠静态/行为核验
   const checkSleepFiles = [
-    ['ui-runtime.js', "ga(de(), 'data-ag-pp-open') === '1'"],
-    ['dual-mascot-rig.js', "const PP_OPEN = 'data-ag-pp-open'"],
+    ['src/ui-runtime.js', "ga(de(), 'data-ag-pp-open') === '1'"],
+    ['src/dual-mascot-rig.js', "const PP_OPEN = 'data-ag-pp-open'"],
     ['vendor/wallpaper/wallpaper-client.js', "html.getAttribute('data-ag-pp-open') === '1'"],
-    ['conv-aura.js', "const PP_OPEN = 'data-ag-pp-open'"],
-    ['home-ripple-host.js', "const PP_OPEN = 'data-ag-pp-open'"],
-    ['style.css', ':is([data-ag-cs-win-blur="1"],[data-ag-pp-open="1"])'],
+    ['src/conv-aura.js', "const PP_OPEN = 'data-ag-pp-open'"],
+    ['src/home-ripple-host.js', "const PP_OPEN = 'data-ag-pp-open'"],
+    ['src/style.css', ':is([data-ag-cs-win-blur="1"],[data-ag-pp-open="1"])'],
   ];
   for (const [relFile, needle] of checkSleepFiles) {
     const content = fs.readFileSync(path.join(ROOT_DIR, relFile), 'utf8');
     assert.ok(content.includes(needle), `${relFile} must integrate data-ag-pp-open="1" 0fps sleep guard`);
   }
-  const rimSrc = fs.readFileSync(path.join(ROOT_DIR, 'prism-rim-canvas.js'), 'utf8');
+  const rimSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/prism-rim-canvas.js'), 'utf8');
   assert.equal(rimSrc.includes('data-ag-pp-open'), false, 'prism-rim-canvas.js must keep prism/mirror rims responsive while data-ag-pp-open="1"');
-  const mascotSrc = fs.readFileSync(path.join(ROOT_DIR, 'dual-mascot-rig.js'), 'utf8');
+  const mascotSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/dual-mascot-rig.js'), 'utf8');
   assert.ok(mascotSrc.includes('!isVramSleepState() && !isWindowBlurred() && !isPpOpen()'), 'dual-mascot-rig setRimLight must respect !isPpOpen() 0fps sleep guard');
-  const styleCssSrc = fs.readFileSync(path.join(ROOT_DIR, 'style.css'), 'utf8');
+  const styleCssSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/style.css'), 'utf8');
   assert.equal(/^[^&]*:has\(/m.test(styleCssSrc), false, 'style.css must never introduce top-level :has()');
 
   inst.destroy();

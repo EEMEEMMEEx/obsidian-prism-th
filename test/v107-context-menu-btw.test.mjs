@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const ctxMenuMod = require(path.join(ROOT, 'context-menu-btw.js'));
+const ctxMenuMod = require(path.join(ROOT, 'src/context-menu-btw.js'));
 
 const NO_TR_ATTRS = [
   ['translate', 'no'],
@@ -397,7 +397,7 @@ test('1. UMD / browser singleton export & hot-reload cleanup contract', () => {
   }
 
   const env = createMockEnv();
-  const src = fs.readFileSync(path.join(ROOT, 'context-menu-btw.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/context-menu-btw.js'), 'utf8');
   const sb = {
     window: env.win,
     document: env.doc,
@@ -840,7 +840,7 @@ test('10. destroy() guarantees zero listener/timer/rAF/DOM leaks and style.css h
   assert.equal(ctl.openAt(50, 50), null);
 
   // style.css hygiene checks
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal((css.match(/:has\(/g) || []).length, 0, 'style.css must have 0 :has() selectors');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must have 0 non-ASCII characters');
   let depth = 0;
@@ -960,7 +960,7 @@ test('12. Red-team robustness: Phase-1 upward .return store lookup beats deep 65
   ctl.destroy();
 
   // (d) Lightweight integration check: cdp.buildInjectExpression({ contextMenu: false }) & REMOVE_EXPRESSION
-  const cdp = require(path.join(ROOT, 'cdp.js'));
+  const cdp = require(path.join(ROOT, 'src/cdp.js'));
   const exprOff = cdp.buildInjectExpression({ contextMenu: false });
   assert.doesNotThrow(() => new vm.Script(exprOff));
   assert.ok(exprOff.includes('"contextMenu":false'), 'buildInjectExpression({ contextMenu: false }) must serialize contextMenu:false');

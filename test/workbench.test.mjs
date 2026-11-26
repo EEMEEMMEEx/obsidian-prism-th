@@ -214,8 +214,8 @@ test('workbench & host runtime enforce GPU compositor optimization, 32% aura hei
   const appPath = path.resolve(import.meta.dirname, '..', 'workbench', 'app.js');
   const htmlPath = path.resolve(import.meta.dirname, '..', 'workbench', 'index.html');
   const cssPath = path.resolve(import.meta.dirname, '..', 'workbench', 'styles', 'v2-components.css');
-  const hostCssPath = path.resolve(import.meta.dirname, '..', 'style.css');
-  const runtimePath = path.resolve(import.meta.dirname, '..', 'ui-runtime.js');
+  const hostCssPath = path.resolve(import.meta.dirname, '..', 'src', 'style.css');
+  const runtimePath = path.resolve(import.meta.dirname, '..', 'src', 'ui-runtime.js');
   const src = fs.readFileSync(appPath, 'utf8');
   const htmlSrc = fs.readFileSync(htmlPath, 'utf8');
   const cssSrc = fs.readFileSync(cssPath, 'utf8');
@@ -228,7 +228,7 @@ test('workbench & host runtime enforce GPU compositor optimization, 32% aura hei
     'stream-choreography.js',
     'prism-rim-canvas.js',
   ]
-    .map((rel) => fs.readFileSync(path.resolve(import.meta.dirname, '..', rel), 'utf8'))
+    .map((rel) => fs.readFileSync(path.resolve(import.meta.dirname, '..', 'src', rel), 'utf8'))
     .join('\n');
   const runtimeSrc = fs.readFileSync(runtimePath, 'utf8') + '\n' + extractedParts;
 

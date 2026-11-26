@@ -1545,7 +1545,7 @@ test('omni-client.js has zero persist:ag-prism-omni or custom dock creation, ali
     assert.equal(re.test(testCode), false, `Forbidden pattern ${re} matched in omni-client.test.mjs`);
   }
 
-  const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+  const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
   const staticExpr = cdp.buildInjectExpression(cdp.DEFAULT_CONFIG);
   assert.ok(Buffer.byteLength(staticExpr, 'utf8') < 690 * 1024);
 

@@ -1564,7 +1564,7 @@
     return spec.allowed.includes(val) ? { valid: true, value: val } : { valid: false };
   };
 
-  const buildSanitizedConfigExport = (currentSettings = {}, rawThoughtCfg = null, version = '1.0.8-beta.4') => {
+  const buildSanitizedConfigExport = (currentSettings = {}, rawThoughtCfg = null, version = '1.0.8-beta.5') => {
     const settings = {};
     for (const [k, spec] of O.entries(PRISM_SETTINGS_SCHEMA)) {
       if (k === 'language' && String(currentSettings[k] ?? '').trim().toLowerCase() === 'auto') {
@@ -1574,7 +1574,7 @@
       const c = sanitizeKeyVal(k, currentSettings[k]);
       settings[k] = c.valid ? c.value : spec.default;
     }
-    const out = { schema: 'obsidian-prism-config-v1', version: String(version || '1.0.8-beta.4'), exportedAt: new Date().toISOString(), settings };
+    const out = { schema: 'obsidian-prism-config-v1', version: String(version || '1.0.8-beta.5'), exportedAt: new Date().toISOString(), settings };
     const tSrc = isObj(rawThoughtCfg) && isObj(rawThoughtCfg.config) ? rawThoughtCfg.config : rawThoughtCfg;
     if (isObj(tSrc) && !isArr(tSrc) && !isFn(tSrc.then) && tSrc.ok !== false) {
       out.thought = {
@@ -1660,7 +1660,8 @@
 
   const LICENSE_SUMMARY_TEXT = [
     'GNU General Public License v3.0 (GPL-3.0-only)',
-    'Copyright (C) 2026 RMvdesi (https://github.com/RMvdesi/obsidian-prism)',
+    'Personal Fork by EEMEEMMEEx (https://github.com/EEMEEMMEEx/obsidian-prism-th)',
+    'Upstream: Copyright (C) 2026 RMvdesi (https://github.com/RMvdesi/obsidian-prism)',
     '',
     'Obsidian Prism is free and open-source software licensed under GPL-3.0.',
     'Per GPL-3.0 Sections 4–7 and NOTICE, any modified version, fork, or derivative',
@@ -1676,7 +1677,7 @@
     '  - Copyright (c) 2026 Antigravity Chinese Localization Contributors (yiheng8023/antigravity-chinese)',
     '  - Copyright (c) 2026 chimney / @wp3171216237 (dsh-TUI / Deepy mascot reference)',
     '',
-    'See LICENSE, NOTICE, CITATION.cff, and THIRD_PARTY_NOTICES.md in the repository.',
+    'See LICENSE, NOTICE, and THIRD_PARTY_NOTICES.md in the repository.',
   ].join('\n');
 
   // Channel 9 built-in 2-language Storage Details & Archive Workbench UI (th, en)
@@ -2669,7 +2670,7 @@
           ap(aboutBox, updNote, ap(mkEl('div', CARD_CLS), buildRow(rowDefs.autoUpdate), buildRow(rowDefs.updateChannel)));
 
           let updBusy = false;
-          const isSafeGhUrl = (u) => typeof u === 'string' && /^https:\/\/github\.com\/RMvdesi\/obsidian-prism(?:\/|$)/i.test(u.trim());
+          const isSafeGhUrl = (u) => typeof u === 'string' && /^https:\/\/github\.com\/EEMEEMMEEx\/obsidian-prism-th(?:\/|$)/i.test(u.trim());
           const applyUpdateView = (st) => {
             if (!updChip[K_IC] || !st || st.offline || st.timeout) return;
             const u = uiText(getLang()) || ui;

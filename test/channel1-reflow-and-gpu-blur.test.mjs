@@ -51,7 +51,7 @@ test('upstream-client skips checkVisibility() on single trigger and filters side
 });
 
 test('conv-aura, crystal-prism-core, and sidebar-client enforce ForcedReflow and heavy GPU blur guards', () => {
-  const convAuraSrc = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const convAuraSrc = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   assert.ok(
     convAuraSrc.includes('mountBrandHorizonGlow(glowCanvas, { width: 0, height: 0 })'),
     'conv-aura.js must pass zero initial dimensions to mountBrandHorizonGlow'
@@ -61,7 +61,7 @@ test('conv-aura, crystal-prism-core, and sidebar-client enforce ForcedReflow and
   assert.equal(sbClient.includes('feGaussianBlur'), false, 'sidebar-client.js must not ship 11-filter feGaussianBlur brand SVG');
   assert.equal(sbClient.includes('blur(96px)'), false, 'sidebar-client.js must not use blur(96px) aura orbs');
 
-  const crystalCore = require(path.join(ROOT, 'crystal-prism-core.js'));
+  const crystalCore = require(path.join(ROOT, 'src/crystal-prism-core.js'));
   let rectCalls = 0;
   const mockCv = {
     width: 240, height: 28,

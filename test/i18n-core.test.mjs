@@ -7,10 +7,10 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const i18nCore = require('../i18n-core.js');
-const i18nLocales = require('../i18n-locales.js');
-const settingsPanel = require('../settings-panel.js');
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const i18nCore = require('../src/i18n-core.js');
+const i18nLocales = require('../src/i18n-locales.js');
+const settingsPanel = require('../src/settings-panel.js');
 const pulseInlineFallback = require('../vendor/pulse-dashboard/inline-fallback.js');
 
 function createMiniDom() {

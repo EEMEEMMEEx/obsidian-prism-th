@@ -7,7 +7,7 @@ import vm from 'node:vm';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const cdp = require('../cdp.js');
+const cdp = require('../src/cdp.js');
 
 test('buildInjectExpression and REMOVE_EXPRESSION compile cleanly and stay within budget (< 690 KiB)', () => {
   const injectExpr = cdp.buildInjectExpression();
@@ -397,8 +397,8 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
     assert.ok(sandbox.window.__agPrism, 'Expected window.__agPrism exposed');
     assert.equal(sandbox.window.__agClaudeStyle, sandbox.window.__agPrism, 'Expected legacy alias pointing to __agPrism');
     const st = sandbox.window.__agPrism.getState();
-    assert.equal(st.version, '1.0.8-beta.4');
-    assert.equal(html.getAttribute('data-ag-prism'), '1.0.8-beta.4');
+    assert.equal(st.version, '1.0.8-beta.5');
+    assert.equal(html.getAttribute('data-ag-prism'), '1.0.8-beta.5');
     assert.equal(html.getAttribute('data-ag-cs-light-preset'), 'crystal');
     assert.equal(html.getAttribute('data-ag-cs-telemetry'), 'auto');
     assert.equal(html.getAttribute('data-ag-cs-effort-slider'), 'auto');
@@ -446,7 +446,7 @@ test('inject expression mounts cleanly without model-button or telemetry conflic
     const settingsSec = appearancePanel.querySelector('#ag-cs-settings-sec');
     assert.ok(settingsSec);
     assert.equal(settingsSec.querySelector('h3')?.textContent, 'Obsidian Prism');
-    assert.equal(settingsSec.querySelector('.ag-cs-settings-ver')?.textContent, 'v1.0.8-beta.4');
+    assert.equal(settingsSec.querySelector('.ag-cs-settings-ver')?.textContent, 'v1.0.8-beta.5');
     const brandMarkHtml = settingsSec.querySelector('.ag-cs-settings-brand-mark')?.innerHTML || '';
     assert.ok(
       brandMarkHtml.includes('ag-cs-brand-logo-svg') || brandMarkHtml.includes('ag-cs-settings-brand-svg'),
@@ -3223,15 +3223,15 @@ test('v1.0.1 compiler safety fixes, unified shared string pool (< 690 KiB CI bud
   assert.ok(expr2.includes('"accentTone":"iris"'));
 
   // 6. Extracted/Wave2 microkernel domain modules registered in RUNTIME_PARTS (or DEFERRED_ROOT_MODULES for Channel 12) & SYNC_ROOT_FILES
-  assert.equal(cdp.RUNTIME_PARTS.includes('home-studio-panel.js'), false, 'home-studio-panel.js must be split out of Channel 1 RUNTIME_PARTS into Channel 12');
-  assert.ok(cdp.DEFERRED_ROOT_MODULES.includes('home-studio-panel.js'), 'Missing home-studio-panel.js in DEFERRED_ROOT_MODULES');
-  assert.ok(cdp.SYNC_ROOT_FILES.includes('home-studio-panel.js'), 'Missing home-studio-panel.js in SYNC_ROOT_FILES');
+  assert.equal(cdp.RUNTIME_PARTS.includes('src/home-studio-panel.js'), false, 'src/home-studio-panel.js must be split out of Channel 1 RUNTIME_PARTS into Channel 12');
+  assert.ok(cdp.DEFERRED_ROOT_MODULES.includes('src/home-studio-panel.js'), 'Missing src/home-studio-panel.js in DEFERRED_ROOT_MODULES');
+  assert.ok(cdp.SYNC_ROOT_FILES.includes('src/home-studio-panel.js'), 'Missing src/home-studio-panel.js in SYNC_ROOT_FILES');
   for (const modName of [
-    'home-ripple-host.js',
-    'model-glyph-crystal.js',
-    'stream-choreography.js',
-    'prism-rim-canvas.js',
-    'host-workbench-enhancer.js',
+    'src/home-ripple-host.js',
+    'src/model-glyph-crystal.js',
+    'src/stream-choreography.js',
+    'src/prism-rim-canvas.js',
+    'src/host-workbench-enhancer.js',
   ]) {
     assert.ok(cdp.RUNTIME_PARTS.includes(modName), `Missing ${modName} in RUNTIME_PARTS`);
     assert.ok(cdp.SYNC_ROOT_FILES.includes(modName), `Missing ${modName} in SYNC_ROOT_FILES`);
@@ -4023,7 +4023,7 @@ test('Channel 1 budget (< 684,500 B), periodicModelPicker default on, style.css 
   const ch1Bytes = Buffer.byteLength(expr, 'utf8');
   assert.ok(ch1Bytes < 684500, `Channel 1 bundle must stay strictly < 684,500 B (got ${ch1Bytes} B)`);
 
-  const css = fs.readFileSync(path.join(path.dirname(require.resolve('../cdp.js')), 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(path.dirname(require.resolve('../src/cdp.js')), 'style.css'), 'utf8');
   assert.ok(
     /\.ag-cs-crab\[data-ag-mascot-peek="1"\][^{]*html\[data-ag-pp-open="1"\] \.ag-cs-crab[^{]*\{z-index:8 !important;pointer-events:none !important;user-select:none !important;/.test(css),
     'style.css must include html[data-ag-pp-open="1"] .ag-cs-crab in the mascot peek pass-through rule'

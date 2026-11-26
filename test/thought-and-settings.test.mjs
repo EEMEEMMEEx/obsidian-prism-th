@@ -7,10 +7,10 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const cdp = require('../cdp.js');
-const i18nCore = require('../i18n-core.js');
-const i18nLocales = require('../i18n-locales.js');
-const settingsPanel = require('../settings-panel.js');
+const cdp = require('../src/cdp.js');
+const i18nCore = require('../src/i18n-core.js');
+const i18nLocales = require('../src/i18n-locales.js');
+const settingsPanel = require('../src/settings-panel.js');
 const { PrismDaemon } = await import('../sidecars/daemon/main.mjs');
 
 function createMockDomEnv(initialTheme = 'dark') {

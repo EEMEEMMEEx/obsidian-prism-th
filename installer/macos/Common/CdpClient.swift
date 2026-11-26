@@ -140,7 +140,7 @@ final class PluginManifest {
         let manifestPath = (baseDir as NSString).appendingPathComponent("manifest.json")
         let text = try String(contentsOfFile: manifestPath, encoding: .utf8)
         let raw = try MiniJson.parseObject(text)
-        let version = raw["version"]?.stringValue ?? "1.0.8-beta.4"
+        let version = raw["version"]?.stringValue ?? "1.0.8-beta.5"
         let styleId = raw["styleId"]?.stringValue ?? "ag-prism-css"
         let settingBinding = raw["settingBinding"]?.stringValue ?? "__agPrismSetting"
         let removeExpression = raw["removeExpression"]?.stringValue ?? ""
@@ -170,7 +170,7 @@ final class CdpSession: NSObject, URLSessionWebSocketDelegate {
     private var urlSession: URLSession!
     private var wsTask: URLSessionWebSocketTask!
     private let lock = NSLock()
-    private let sendQueue = DispatchQueue(label: "io.github.rmvdesi.obsidian-prism.cdp.send")
+    private let sendQueue = DispatchQueue(label: "io.github.eemeemmeex.obsidian-prism.cdp.send")
     private var nextId: Int = 0
     private var pending: [Int: (Result<[String: JsonValue], Error>) -> Void] = [:]
     private var listeners: [String: [([String: JsonValue]) -> Void]] = [:]
@@ -194,7 +194,7 @@ final class CdpSession: NSObject, URLSessionWebSocketDelegate {
         cfg.timeoutIntervalForRequest = max(1.0, Double(timeoutMs) / 1000.0)
         let delegateQueue = OperationQueue()
         delegateQueue.maxConcurrentOperationCount = 1
-        delegateQueue.name = "io.github.rmvdesi.obsidian-prism.cdp.ws"
+        delegateQueue.name = "io.github.eemeemmeex.obsidian-prism.cdp.ws"
 
         let sem = DispatchSemaphore(value: 0)
         var connectErr: Error?

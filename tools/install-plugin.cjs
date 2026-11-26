@@ -19,6 +19,11 @@ const zlib = require("node:zlib");
 const { spawnBreakawayNodeProcess, isPidAlive } = require("./patch-asar.cjs");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
+function resolveCdpModulePath(dirPath) {
+  const srcPath = path.join(dirPath, "src", "cdp.js");
+  if (fs.existsSync(srcPath)) return srcPath;
+  return path.join(dirPath, "cdp.js");
+}
 const {
   SYNC_ROOT_FILES,
   readPidFromLockFile,
@@ -27,7 +32,7 @@ const {
   restoreAntigravityShortcutsCdpFlag,
   detectRunningAntigravityHostSync,
   recordRelaunchPromptState,
-} = require(path.join(ROOT_DIR, "cdp.js"));
+} = require(resolveCdpModulePath(ROOT_DIR));
 
 function isAutomatedTestRuntime() {
   if (process.env.NODE_ENV === "test") return true;
@@ -500,7 +505,7 @@ function syncHostPluginRegistry(configDir, enable) {
 const ROOT_FILES_TO_SYNC = SYNC_ROOT_FILES;
 
 const MACOS_LAUNCHER_APP_NAME = "Antigravity Prism.app";
-const MACOS_LAUNCHER_BUNDLE_ID = "io.github.rmvdesi.obsidian-prism.launcher";
+const MACOS_LAUNCHER_BUNDLE_ID = "io.github.eemeemmeex.obsidian-prism.launcher";
 const MACOS_LAUNCHER_MARKER_REL = path.join("Contents", "Resources", ".obsidian-prism-launcher");
 
 function escapeXmlText(str) {
@@ -613,9 +618,9 @@ function normalizeMacosAntigravityAppPath(rawPath) {
   return normalized.toLowerCase().endsWith(".app") ? normalized : fallback;
 }
 
-function generateMacosLauncherInfoPlist(version = "1.0.8-beta.4") {
-  const safeShort = escapeXmlText(version || "1.0.8-beta.4");
-  const numericMatch = String(version || "1.0.8-beta.4").match(/^\d+(?:\.\d+){0,2}/);
+function generateMacosLauncherInfoPlist(version = "1.0.8-beta.5") {
+  const safeShort = escapeXmlText(version || "1.0.8-beta.5");
+  const numericMatch = String(version || "1.0.8-beta.5").match(/^\d+(?:\.\d+){0,2}/);
   const safeBundleVer = escapeXmlText(numericMatch ? numericMatch[0] : "1.0.8");
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -871,7 +876,7 @@ function isManagedMacosLauncherBundle(appPath) {
       if (!plistStat.isSymbolicLink() && plistStat.isFile()) {
         const rawPlist = fs.readFileSync(plistPath, "utf8");
         if (
-          /<key>\s*CFBundleIdentifier\s*<\/key>\s*<string>\s*io\.github\.rmvdesi\.obsidian-prism\.launcher\s*<\/string>/.test(
+          /<key>\s*CFBundleIdentifier\s*<\/key>\s*<string>\s*io\.github\.(?:eemeemmeex|rmvdesi)\.obsidian-prism\.launcher\s*<\/string>/.test(
             rawPlist
           )
         ) {
@@ -917,9 +922,9 @@ function createMacosLosslessLauncher(opts = {}) {
   if (!version) {
     try {
       const pkg = JSON.parse(fs.readFileSync(path.join(opts.sourceDir || ROOT_DIR, "package.json"), "utf8"));
-      version = pkg?.version || "1.0.8-beta.4";
+      version = pkg?.version || "1.0.8-beta.5";
     } catch {
-      version = "1.0.8-beta.4";
+      version = "1.0.8-beta.5";
     }
   }
   const targetApp = normalizeMacosAntigravityAppPath(opts.targetApp || "/Applications/Antigravity.app");
@@ -1166,9 +1171,9 @@ function resolveLinuxLauncherTargetExe(opts = {}) {
   return "antigravity";
 }
 
-function generateLinuxLauncherDesktop({ targetExe = "antigravity", iconPath = "obsidian-prism", version = "1.0.8-beta.4" } = {}) {
+function generateLinuxLauncherDesktop({ targetExe = "antigravity", iconPath = "obsidian-prism", version = "1.0.8-beta.5" } = {}) {
   const safeIcon = String(iconPath || "obsidian-prism").replace(/[\r\n]+/g, "").trim() || "obsidian-prism";
-  const safeVersion = String(version || "1.0.8-beta.4").replace(/[\r\n]+/g, "").trim() || "1.0.8-beta.4";
+  const safeVersion = String(version || "1.0.8-beta.5").replace(/[\r\n]+/g, "").trim() || "1.0.8-beta.5";
   const execToken = formatDesktopExecArg(targetExe);
   return [
     "[Desktop Entry]",
@@ -1225,9 +1230,9 @@ function createLinuxLosslessLauncher(opts = {}) {
   if (!version) {
     try {
       const pkg = JSON.parse(fs.readFileSync(path.join(opts.sourceDir || ROOT_DIR, "package.json"), "utf8"));
-      version = pkg?.version || "1.0.8-beta.4";
+      version = pkg?.version || "1.0.8-beta.5";
     } catch {
-      version = "1.0.8-beta.4";
+      version = "1.0.8-beta.5";
     }
   }
 
@@ -1316,6 +1321,7 @@ function removeLinuxLosslessLauncher(opts = {}) {
 }
 
 const DIRS_TO_SYNC = [
+  "src",
   "assets",
   "vendor",
   "sidecars",
@@ -1724,7 +1730,7 @@ async function installPlugin(opts = {}) {
   let deferredRelaunchHost = null;
   if (deferRelaunchPrompt && !cdpPort && (typeof opts.hostProbe === "function" || (isDefaultTarget && !isAutomatedTestRuntime()))) {
     try {
-      const targetCdpEarly = require(path.join(targetDir, "cdp.js"));
+      const targetCdpEarly = require(resolveCdpModulePath(targetDir));
       let activePortNow = null;
       if (opts.portFile) {
         try {
@@ -1795,7 +1801,7 @@ async function installPlugin(opts = {}) {
     };
 
     try {
-      const targetCdp = require(path.join(targetDir, "cdp.js"));
+      const targetCdp = require(resolveCdpModulePath(targetDir));
       for (let attempt = 0; attempt < 12; attempt++) {
         liveCheck = await verifyLiveWindowAttach(targetCdp, cdpPort);
         if (!liveCheck.cdpPort || liveCheck.unreachable || liveCheck.attachedPages.length > 0) {
@@ -1874,9 +1880,9 @@ async function uninstallPlugin(opts = {}) {
 
   if (!opts.noCdp) {
     try {
-      const cdpPath = fs.existsSync(path.join(targetDir, "cdp.js"))
-        ? path.join(targetDir, "cdp.js")
-        : path.join(ROOT_DIR, "cdp.js");
+      const cdpPath = fs.existsSync(resolveCdpModulePath(targetDir))
+        ? resolveCdpModulePath(targetDir)
+        : resolveCdpModulePath(ROOT_DIR);
       const cdp = require(cdpPath);
       const port = opts.cdpPort || cdp.readPort();
       if (port) {

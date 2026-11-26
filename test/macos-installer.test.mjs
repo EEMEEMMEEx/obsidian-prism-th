@@ -16,7 +16,7 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 const installPluginMod = require(path.join(ROOT_DIR, 'tools', 'install-plugin.cjs'));
 
 function runBin(binPath, args, timeoutMs = 20000) {
@@ -311,7 +311,7 @@ test('generateInfoPlist generates valid bundle metadata and escapes special XML 
   const plist = generateInfoPlist('1.2.3-beta&1<test>');
   assert.ok(plist.includes('<key>CFBundleExecutable</key>'));
   assert.ok(plist.includes('<string>Obsidian Prism</string>'));
-  assert.ok(plist.includes('<string>io.github.rmvdesi.obsidian-prism</string>'));
+  assert.ok(plist.includes('<string>io.github.eemeemmeex.obsidian-prism</string>'));
   assert.ok(plist.includes('<key>NSAllowsLocalNetworking</key>'));
   assert.ok(plist.includes('<string>1.2.3-beta&amp;1&lt;test&gt;</string>'));
 });
@@ -820,7 +820,7 @@ test('macOS lossless wrapper launcher: sandbox creation, Info.plist/marker/scrip
       launcherDir,
       stopRoot: workDir,
       targetApp: trickyTarget,
-      version: '1.0.8-beta.4',
+      version: '1.0.8-beta.5',
       iconPath: iconFile,
     });
     assert.equal(created.supported, true);
@@ -833,7 +833,7 @@ test('macOS lossless wrapper launcher: sandbox creation, Info.plist/marker/scrip
     // Verify Info.plist metadata
     const plist = fs.readFileSync(created.plistPath, 'utf8');
     assert.ok(plist.includes('<key>CFBundleIdentifier</key>'));
-    assert.ok(plist.includes('<string>io.github.rmvdesi.obsidian-prism.launcher</string>'));
+    assert.ok(plist.includes('<string>io.github.eemeemmeex.obsidian-prism.launcher</string>'));
     assert.ok(plist.includes('<key>CFBundleName</key>'));
     assert.ok(plist.includes('<string>Antigravity Prism</string>'));
     assert.ok(plist.includes('<key>CFBundleExecutable</key>'));
@@ -846,8 +846,8 @@ test('macOS lossless wrapper launcher: sandbox creation, Info.plist/marker/scrip
     // Verify marker JSON
     const marker = JSON.parse(fs.readFileSync(created.markerPath, 'utf8'));
     assert.equal(marker.managedBy, 'obsidian-prism');
-    assert.equal(marker.bundleIdentifier, 'io.github.rmvdesi.obsidian-prism.launcher');
-    assert.equal(marker.version, '1.0.8-beta.4');
+    assert.equal(marker.bundleIdentifier, 'io.github.eemeemmeex.obsidian-prism.launcher');
+    assert.equal(marker.version, '1.0.8-beta.5');
     assert.equal(marker.targetApp, "/Users/O'Brien/My Apps/Antigravity.app");
 
     // Verify icon copied
@@ -877,7 +877,7 @@ test('macOS lossless wrapper launcher: sandbox creation, Info.plist/marker/scrip
       launcherDir,
       stopRoot: workDir,
       targetApp: '/Applications/Antigravity.app',
-      version: '1.0.8-beta.4',
+      version: '1.0.8-beta.5',
     });
     assert.equal(updated.updated, true);
     assert.equal(installPluginMod.isManagedMacosLauncherBundle(created.appPath), true);
@@ -1039,7 +1039,7 @@ test('macOS Swift Setup lossless launcher & Issue #37 100% bilingual i18n contra
   assert.ok(setupSwift.includes('创建无损启动器（~/Applications/Antigravity Prism.app，可拖进 Dock 一键开启）'), 'Setup GUI checkbox has Chinese label');
   assert.ok(setupSwift.includes('Create lossless launcher (~/Applications/Antigravity Prism.app, pin to Dock)'), 'Setup GUI checkbox has English label');
   assert.ok(setupSwift.includes('O_NOFOLLOW'), 'Swift launcher uses O_NOFOLLOW atomic writes');
-  assert.ok(setupSwift.includes('io.github.rmvdesi.obsidian-prism.launcher'), 'Swift launcher uses canonical CFBundleIdentifier');
+  assert.ok(setupSwift.includes('io.github.eemeemmeex.obsidian-prism.launcher'), 'Swift launcher uses canonical CFBundleIdentifier');
   assert.ok(setupSwift.includes('Contents/Resources/.obsidian-prism-launcher'), 'Swift launcher writes ownership marker file');
   assert.ok(setupSwift.includes('isManagedLauncherBundle(at:'), 'Swift uninstall verifies ownership marker/BundleID Fail-Closed');
   assert.ok(setupSwift.includes('removeLosslessLauncherIfManaged('), 'Swift runUninstall invokes safe launcher cleanup');

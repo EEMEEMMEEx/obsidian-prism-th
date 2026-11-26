@@ -6,12 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const cdp = require('../cdp.js');
+const cdp = require('../src/cdp.js');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('light-theme overlays avoid specificity inversion and dark fallback leaks across palettes', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   const lightBlockIdx = css.indexOf('html[data-ag-cs-style][data-ag-cs-theme="light"]');
   assert.ok(lightBlockIdx > 0, 'style.css must contain light-theme override block');
 

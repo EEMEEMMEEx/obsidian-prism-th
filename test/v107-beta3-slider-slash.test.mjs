@@ -9,11 +9,11 @@ const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
 
 globalThis.__agCodexEffortSliderDisableAutoBoot = true;
-const ctxMenuMod = require(path.join(ROOT, 'context-menu-btw.js'));
+const ctxMenuMod = require(path.join(ROOT, 'src/context-menu-btw.js'));
 const upstreamLib = require(path.join(ROOT, 'vendor', 'effort-slider', 'upstream-client.js'));
 const sliderCoexist = require(path.join(ROOT, 'vendor', 'effort-slider', 'slider-coexist.js'));
-const mgcMod = require(path.join(ROOT, 'model-glyph-crystal.js'));
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const mgcMod = require(path.join(ROOT, 'src/model-glyph-crystal.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 
 // ── Lightweight Deterministic DOM Harness ───────────────────────────────────
 function matchesSingle(el, rawSel) {
@@ -1100,7 +1100,7 @@ test('8. P2-1/P1-3/P1-5 regressions: drag translate3d uses trackEl.clientWidth u
   ctl.destroy();
 
   // (c) P1-5: ui-runtime.js triggers W.__agPrismThought?.scan?.() on sidebar/history/overlay flags (flags.s || flags.g || flags.o) when getTranslateTitles() is active
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   assert.match(
     uiSrc,
     /\(\(flags\.s\s*\|\|\s*flags\.g\s*\|\|\s*flags\.o\)\s*&&\s*W\.__agPrismThought\?\.getTranslateTitles\?\.\(\)\)/,

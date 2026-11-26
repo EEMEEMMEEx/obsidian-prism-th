@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const usageCore = require('../usage-core.js');
+const usageCore = require('../src/usage-core.js');
 
 test('formatCompactTokens matches expected units and rounding', () => {
   assert.equal(usageCore.formatCompactTokens(0), '0');
@@ -421,7 +421,7 @@ test('v0.9.1 telemetry sidecar isolation & selectServerByCdpLineage multi-instan
 });
 
 test('home-studio-panel backfills Swarm subagent summaries via usageBridge.listSummaries flat fields without deleting cached subagents', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevStorage = globalThis.localStorage;
@@ -550,7 +550,7 @@ test('home-studio-panel backfills Swarm subagent summaries via usageBridge.listS
 
     // #256 guard: home-studio-panel STUDIO_EXTRA_CSS & renderQuotasView must eliminate zebra hatch (.ag-cs-qbar-hatch)
     const fsMod = await import('node:fs');
-    const homePanelSrc = fsMod.readFileSync(new URL('../home-studio-panel.js', import.meta.url), 'utf8');
+    const homePanelSrc = fsMod.readFileSync(new URL('../src/home-studio-panel.js', import.meta.url), 'utf8');
     assert.equal(homePanelSrc.includes('repeating-linear-gradient'), false, 'Studio quota bars must have zero zebra hatch stripes');
     assert.equal(homePanelSrc.includes('ag-cs-qbar-hatch'), false, 'Studio quota bars must render 100% solid remaining width only');
   } finally {
@@ -1383,7 +1383,7 @@ test('PR #22: usage rollup disk cache uses ~/.gemini/config, enforces non-symlin
 });
 
 test('PR #22 edge fixes: offline/0-session exits skeleton within bounded wait and offline >240-step fallback preserves real stats', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevStorage = globalThis.localStorage;
@@ -1847,7 +1847,7 @@ test('Todo 3: Daemon isolates Local vs Remote-SSH targeted RPC, summary cache bu
 
 test('Todo 3: Frontend home-studio-panel namespaces localStorage by scopeKey and renders pure-DOM XSS-safe scope badge', async () => {
   const fs = await import('node:fs');
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevStorage = globalThis.localStorage;
@@ -1976,7 +1976,7 @@ test('Todo 3: Frontend home-studio-panel namespaces localStorage by scopeKey and
     assert.equal(/[<>"]/.test(xssBadge.textContent), false, 'Scope badge textContent must strip HTML metacharacters');
     assert.equal(/[<>"]/.test(xssBadge.getAttribute('data-scope') || ''), false, 'Scope data-scope attribute must strip HTML metacharacters');
 
-    const panelSrc = fs.readFileSync(new URL('../home-studio-panel.js', import.meta.url), 'utf8');
+    const panelSrc = fs.readFileSync(new URL('../src/home-studio-panel.js', import.meta.url), 'utf8');
     const badgeLine = panelSrc.split('\n').find((l) => l.includes('ag-cs-home-scope-badge') && l.includes('markNoTr'));
     assert.ok(badgeLine && !badgeLine.includes('innerHTML'), 'Scope badge must be built via pure DOM textContent with 0 innerHTML');
   } finally {
@@ -2280,7 +2280,7 @@ test('Redteam #192 [P0-1 & P2-4]: unverified SSH window bypasses local HTTP LS, 
 });
 
 test('Redteam #193 [P0-2, P1-3, P2-1]: style hot-upgrade overwrite, data-ag-prism-scope unlock, canPrune tightening, fetchBatch catch exit, ja punctuation & null body guard', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevStorage = globalThis.localStorage;
@@ -2510,7 +2510,7 @@ test('Redteam #193 [P0-2, P1-3, P2-1]: style hot-upgrade overwrite, data-ag-pris
 
 test('v1.0.7-beta.2 regression: Home Studio handles Protobuf BigInt timestamps in Redux summaries and renderer-rpc-adapter falls back to Redux store when getAllCascadeTrajectories is absent', async () => {
   const vm = await import('node:vm');
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const { buildRendererRpcExpression, normalizeRendererSummaries } = await import(
     '../vendor/pulse-dashboard/sidecars/panel/renderer-rpc-adapter.mjs'
   );
@@ -2785,7 +2785,7 @@ test('PR #33 hardening: renderer-rpc-adapter O(1) 1024 cap truncation, recency o
 });
 
 test('PR #33 hardening: home-studio-panel BigInt safety in >1200 cache trim, JSON.stringify replacer, delta gmCount, and liveQuotaSnap.conversations', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevStorage = globalThis.localStorage;
@@ -3296,7 +3296,7 @@ test('Deleted conversations preserve historical token usage across daemon list-s
   const os = await import('node:os');
   const path = await import('node:path');
   const { PrismDaemon } = await import('../sidecars/daemon/main.mjs');
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'prism-deleted-usage-'));
   const cachePath = path.join(tmpDir, 'usage-rollup-cache.json');
@@ -3528,7 +3528,7 @@ test('Deleted conversations preserve historical token usage across daemon list-s
 });
 
 test('Boundary: stepCount: 0 live conversation coexists with archived: true deleted conversation without triggering extra fetchBatch', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const zeroStepId = 'eeeeeeee-5555-4555-8555-555555555555';
   const archivedId = 'ffffffff-6666-4666-8666-666666666666';
   const nowSec = 1763500100;
@@ -3608,7 +3608,7 @@ test('Boundary: stepCount: 0 live conversation coexists with archived: true dele
 });
 
 test('Boundary: slow fetchBatch triggers saveUsageCache and renderHomePanel immediately when seededCache is true', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const liveId = '11111111-7777-4777-8777-777777777777';
   const archivedId = '22222222-8888-4888-8888-888888888888';
   const nowSec = 1763500200;
@@ -3693,7 +3693,7 @@ test('Self-referential rootConversationId on main conversations is never misclas
   const fs = require('node:fs');
   const os = require('node:os');
   const path = require('node:path');
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const { PrismDaemon } = await import('../sidecars/daemon/main.mjs');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-prism-self-root-'));
   const cacheFile = path.join(tmpDir, 'usage-cache.json');
@@ -3880,7 +3880,7 @@ test('Boundary: legacy poisoned { cascadeId: X, subagent: true, parentId: "", ro
   const fs = require('node:fs');
   const os = require('node:os');
   const path = require('node:path');
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const { PrismDaemon } = await import('../sidecars/daemon/main.mjs');
   const arch = await import('../sidecars/daemon/conversation-archive.mjs');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-prism-self-root-empty-parent-'));
@@ -4056,7 +4056,7 @@ test('Boundary: legacy poisoned { cascadeId: X, subagent: true, parentId: "", ro
 });
 
 test('Smoked Obsidian Wave 1: home-studio-panel renders pure createElementNS SVG area-line trend chart & stamps full 5+1 no-translate attrs on heatTipEl', () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevLs = globalThis.localStorage;
@@ -4239,8 +4239,8 @@ test('Smoked Obsidian Wave 1: home-studio-panel renders pure createElementNS SVG
 
 test('PR #41: Home Studio distinguishes cumulative vs active-only sessions with 8-language toolbar toggle, SVG icon, focus preservation, and localStorage persistence', async () => {
   const fs = require('node:fs');
-  const homeStudioPanel = require('../home-studio-panel.js');
-  const i18nLocales = require('../i18n-locales.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
+  const i18nLocales = require('../src/i18n-locales.js');
   const nowSec = Math.floor(Date.now() / 1000);
   const dKey = usageCore.homeDayKey(new Date(nowSec * 1000));
   const mkRec = (id, total, calls, extra = {}) => ({
@@ -4401,7 +4401,7 @@ test('PR #41: Home Studio distinguishes cumulative vs active-only sessions with 
 
     // 3) Static source redlines & preserved exports
     assert.equal(typeof homeStudioPanel.hasPersistedTokens, 'function', 'hasPersistedTokens export must remain intact');
-    const hspSrc = fs.readFileSync(require.resolve('../home-studio-panel.js'), 'utf8');
+    const hspSrc = fs.readFileSync(require.resolve('../src/home-studio-panel.js'), 'utf8');
     assert.equal(hspSrc.includes('⇄'), false, 'Session scope toggle must use inline SVG instead of Unicode ⇄');
     assert.ok(hspSrc.includes('M7 10h14l-4-4m0 8H3l4 4'));
     assert.ok(hspSrc.includes("'aria-hidden', 'true'") && hspSrc.includes("'aria-pressed'"));
@@ -4419,8 +4419,8 @@ test('PR #41: Home Studio distinguishes cumulative vs active-only sessions with 
 });
 
 test('PR #49: Home Studio clarifies local-sessions-only scope across th/en + removed locale fallback without crowding Sessions/Tokens subtitles', async () => {
-  const i18nLocales = require('../i18n-locales.js');
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const i18nLocales = require('../src/i18n-locales.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;
   const prevStorage = globalThis.localStorage;

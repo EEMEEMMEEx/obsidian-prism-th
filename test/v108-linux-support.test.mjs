@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 const installer = require(path.join(ROOT_DIR, 'tools', 'install-plugin.cjs'));
 const {
   DAEMON_SHUTDOWN_SIGNALS,
@@ -724,9 +724,9 @@ test('scripts/build-linux.mjs builds valid zero-dependency portable tar.gz in tm
 
     // Verify complete native-plugin payload inside tarball
     for (const required of [
-      'native-plugin/cdp.js',
-      'native-plugin/style.css',
-      'native-plugin/remove.js',
+      'native-plugin/src/cdp.js',
+      'native-plugin/src/style.css',
+      'native-plugin/src/remove.js',
       'native-plugin/plugin.json',
       'native-plugin/tools/install-plugin.cjs',
       'native-plugin/tools/patch-asar.cjs',
@@ -759,7 +759,7 @@ test('scripts/build-linux.mjs builds valid zero-dependency portable tar.gz in tm
 });
 
 test('style.css Antigravity 2.29.1 selectors, zero :has(), ASCII-only, Ch1 budget < 550,000 B, and UTF-8 LF hygiene', () => {
-  const cssPath = path.join(ROOT_DIR, 'style.css');
+  const cssPath = path.join(ROOT_DIR, 'src/style.css');
   const css = fs.readFileSync(cssPath, 'utf8');
   assert.equal(css.includes(':has('), false, 'style.css must never contain :has(');
   assert.equal(/[^\x00-\x7F]/.test(css), false, 'style.css must remain strictly ASCII');
@@ -777,13 +777,12 @@ test('style.css Antigravity 2.29.1 selectors, zero :has(), ASCII-only, Ch1 budge
 
   // Verify UTF-8 no-BOM and pure LF across all Linux support files
   const filesToCheck = [
-    'style.css',
-    'cdp.js',
+    'src/style.css',
+    'src/cdp.js',
     'sidecars/daemon/main.mjs',
     'sidecars/daemon/conversation-archive.mjs',
     'tools/install-plugin.cjs',
     'scripts/build-linux.mjs',
-    '.github/workflows/release.yml',
     'test/v108-linux-support.test.mjs',
   ];
   for (const rel of filesToCheck) {

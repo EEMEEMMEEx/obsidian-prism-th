@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-const rippleCore = require(path.join(ROOT, 'ripple-core.js'));
+const rippleCore = require(path.join(ROOT, 'src/ripple-core.js'));
 
 test('165Hz beat-frequency aliasing fix: nebulaFrameMs <= 30 keeps every 36.36ms WebGL2 idle frame uploading smoothly', () => {
   assert.ok(
@@ -70,7 +70,7 @@ test('mountBrandHorizonGlow honors explicit { width: 0, height: 0 } without read
 });
 
 test('home-ripple-host pause-safe clock prevents time-teleport on wake and smoothly fades cursor aura before 0fps sleep', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8');
   let now = 5000;
   let rafSeq = 1;
   const rafs = new Map();

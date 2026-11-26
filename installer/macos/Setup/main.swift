@@ -53,12 +53,12 @@ final class OperationResult {
 }
 
 enum InstallerCore {
-    static let launchAgentLabel = "io.github.rmvdesi.obsidian-prism"
-    static let launchAgentFileName = "io.github.rmvdesi.obsidian-prism.plist"
+    static let launchAgentLabel = "io.github.eemeemmeex.obsidian-prism"
+    static let launchAgentFileName = "io.github.eemeemmeex.obsidian-prism.plist"
     static let watcherExeName = "obsidian-prism-watcher"
     static let selfInstalledExeName = "obsidian-prism-installer"
     static let launcherBundleName = "Antigravity Prism.app"
-    static let launcherBundleId = "io.github.rmvdesi.obsidian-prism.launcher"
+    static let launcherBundleId = "io.github.eemeemmeex.obsidian-prism.launcher"
     static let launcherMarkerRelPath = "Contents/Resources/.obsidian-prism-launcher"
 
     static func getDefaultInstallDir() -> String {
@@ -972,7 +972,7 @@ enum InstallerCore {
     }
 
     static func generateLauncherInfoPlist(version: String) -> String {
-        let safeShort = xmlEscape(version.isEmpty ? "1.0.8-beta.4" : version)
+        let safeShort = xmlEscape(version.isEmpty ? "1.0.8-beta.5" : version)
         let numericParts = version.split(separator: "-").first.map(String.init) ?? "1.0.8"
         let safeBundleVer = xmlEscape(numericParts.isEmpty ? "1.0.8" : numericParts)
         return """

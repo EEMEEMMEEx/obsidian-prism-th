@@ -23,10 +23,10 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 const wallpaperClientMod = require(path.join(ROOT, 'vendor', 'wallpaper', 'wallpaper-client.js'));
 const wallpaperSettingsUiMod = require(path.join(ROOT, 'vendor', 'wallpaper', 'wallpaper-settings-ui.js'));
-const settingsPanelMod = require(path.join(ROOT, 'settings-panel.js'));
+const settingsPanelMod = require(path.join(ROOT, 'src/settings-panel.js'));
 
 const NO_TR_ATTRS = [
   ['translate', 'no'],
@@ -1315,7 +1315,7 @@ test('cdp.js Channel 7: WALLPAPER_BINDING, 0 in RUNTIME_PARTS, vm.Script parse, 
     assert.ok(cacheJson.channels && cacheJson.channels.wallpaper, 'Wallpaper channel must be stored in disk cache');
 
     // Clear in-memory cache via fresh require and verify disk cache hit
-    const resolvedCdp = require.resolve(path.join(ROOT, 'cdp.js'));
+    const resolvedCdp = require.resolve(path.join(ROOT, 'src/cdp.js'));
     delete require.cache[resolvedCdp];
     const freshCdp = require(resolvedCdp);
     const hit = freshCdp.buildWallpaperExpression(freshCdp.DEFAULT_CONFIG, { cachePath });

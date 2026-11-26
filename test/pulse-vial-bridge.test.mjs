@@ -9,10 +9,10 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
-const BRIDGE_PATH = path.join(ROOT_DIR, 'pulse-vial-bridge.js');
+const BRIDGE_PATH = path.join(ROOT_DIR, 'src/pulse-vial-bridge.js');
 
 const bridgeMod = require(BRIDGE_PATH);
-const vialCore = require(path.join(ROOT_DIR, 'vial-core.js'));
+const vialCore = require(path.join(ROOT_DIR, 'src/vial-core.js'));
 
 function createPulseMockEnv({ cascadeId = '11111111-2222-4333-8444-555555555555' } = {}) {
   const winListeners = new Map();

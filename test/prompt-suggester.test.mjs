@@ -25,7 +25,7 @@ import {
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 
 const CJK_RE = /[\u3400-\u9FFF\uF900-\uFAFF]/;
 
@@ -515,7 +515,7 @@ test('Channel 1 stays strictly < 550,000 B and Channel 11 suggester sources obey
   assert.deepEqual(daemonActions, Array.from(ALLOWED_SUGGESTER_ACTIONS).sort());
 
   // 确认 settings-panel.js 在 Beta 分组中挂载 prism-suggester-slot，且 Channel 9 按需加载包含 __prismMountSg 兜底
-  const panelSrc = fs.readFileSync(path.join(ROOT_DIR, 'settings-panel.js'), 'utf8');
+  const panelSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/settings-panel.js'), 'utf8');
   assert.ok(
     /if\s*\(grp\.id\s*===\s*'beta'\)\s*\{\s*sgSlot\s*=/.test(panelSrc),
     'prism-suggester-slot must be mounted inside the Beta settings group'
@@ -1327,7 +1327,7 @@ test('2-language alignment (th, en only, 0 CJK leak) and .bundle-cache.json chan
     assert.match(diskJson.channels.suggester.payloadSha256, /^[0-9a-f]{64}$/);
 
     // 模拟冷启：清空 require.cache 重新加载 cdp.js，确认直接命中磁盘缓存 0 编译
-    const cdpPath = require.resolve(path.join(ROOT_DIR, 'cdp.js'));
+    const cdpPath = require.resolve(path.join(ROOT_DIR, 'src/cdp.js'));
     delete require.cache[cdpPath];
     const freshCdp = require(cdpPath);
     freshCdp.resetBundleCacheStats();

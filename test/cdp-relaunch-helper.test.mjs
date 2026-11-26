@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
-const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 const patchAsar = require(path.join(ROOT_DIR, 'tools', 'patch-asar.cjs'));
 
 const LNK_CLSID = Buffer.from([
@@ -281,7 +281,7 @@ async function waitFor(fn, timeoutMs = 8000, intervalMs = 80) {
 
 test('静态红线门禁: cdp.js / tools/patch-asar.cjs / tools/install-plugin.cjs 零隐藏 PowerShell / 零 WMI / 零 WScript.Shell / 0 BOM / 0 CRLF / Ch1 体积红线', () => {
   const targetFiles = [
-    'cdp.js',
+    'src/cdp.js',
     path.join('tools', 'patch-asar.cjs'),
     path.join('tools', 'install-plugin.cjs'),
   ];
@@ -316,7 +316,7 @@ test('静态红线门禁: cdp.js / tools/patch-asar.cjs / tools/install-plugin.c
   }
 
   // cdp.js 与 tools/patch-asar.cjs 额外要求 0 SIGKILL
-  for (const rel of ['cdp.js', path.join('tools', 'patch-asar.cjs')]) {
+  for (const rel of ['src/cdp.js', path.join('tools', 'patch-asar.cjs')]) {
     const text = fs.readFileSync(path.join(ROOT_DIR, rel), 'utf8');
     assert.equal(/\bSIGKILL\b/i.test(text), false, `${rel} must not contain SIGKILL`);
   }

@@ -9,10 +9,10 @@ const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 globalThis.__agCodexEffortSliderDisableAutoBoot = true;
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 const sliderCoexist = require(path.join(ROOT, 'vendor', 'effort-slider', 'slider-coexist.js'));
 const upstreamSlider = require(path.join(ROOT, 'vendor', 'effort-slider', 'upstream-client.js'));
-const enhancerMod = require(path.join(ROOT, 'host-workbench-enhancer.js'));
+const enhancerMod = require(path.join(ROOT, 'src/host-workbench-enhancer.js'));
 
 function createFakeDom() {
   const attrsMap = new WeakMap();
@@ -496,7 +496,7 @@ test('v2.35.0: locked model trigger during running turn locks effort slider, blo
 });
 
 test('v2.35.0: style.css handles locked model/permissions triggers with zero :has() and within 549,500 B Ch1 budget, and host-enhancer ignores locked permissions click', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal(/:has\(/.test(css), false, 'style.css must maintain 0 :has()');
   assert.ok(
     css.includes('& :is([data-testid="model-selector-trigger"],[data-testid="permissions-selector-trigger"]):is(:disabled,[aria-disabled="true"],[data-disabled]:not([data-disabled="false"])){opacity:.58 !important;cursor:not-allowed !important;transform:none !important;}'),

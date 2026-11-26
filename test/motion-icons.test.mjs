@@ -9,8 +9,8 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
 
-const motionEngine = require(path.join(ROOT_DIR, 'motion-engine.js'));
-const animatedIcons = require(path.join(ROOT_DIR, 'animated-icons.js'));
+const motionEngine = require(path.join(ROOT_DIR, 'src/motion-engine.js'));
+const animatedIcons = require(path.join(ROOT_DIR, 'src/animated-icons.js'));
 
 const REQUIRED_ICONS_WITH_PARTS = [
   ['panel-left', ['.ai-part-rail']],
@@ -141,8 +141,8 @@ test('UMD 双端导出与 < 35KB 零依赖体积契约', () => {
   assert.equal(globalThis.__agMotionEngine, motionEngine);
   assert.equal(globalThis.__agAnimatedIcons, animatedIcons);
 
-  const engineBytes = fs.statSync(path.join(ROOT_DIR, 'motion-engine.js')).size;
-  const iconsBytes = fs.statSync(path.join(ROOT_DIR, 'animated-icons.js')).size;
+  const engineBytes = fs.statSync(path.join(ROOT_DIR, 'src/motion-engine.js')).size;
+  const iconsBytes = fs.statSync(path.join(ROOT_DIR, 'src/animated-icons.js')).size;
   const totalBytes = engineBytes + iconsBytes;
 
   assert.ok(

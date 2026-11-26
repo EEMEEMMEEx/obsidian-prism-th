@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 本项目遵循语义化版本（SemVer）规范，记录各正式版本的新增功能、架构变更、安全加固与缺陷修复。
 
+## [1.0.8-beta.5] - 2026-11-26
+
+> **Personal Repository Restructuring (`EEMEEMMEEx/obsidian-prism-th`)** — Converted the repository into a standalone personal project owned exclusively by `EEMEEMMEEx`, moved all 25 root runtime modules and `style.css` into `src/`, removed community/contributor governance files (`.github/`, `docs/CONTRIBUTORS.md`, `CITATION.cff`, `README.en.md`), retargeted auto-update/addon allowlists and installer metadata to `EEMEEMMEEx/obsidian-prism-th`, and preserved GPL-3.0 `LICENSE` / `NOTICE` / `THIRD_PARTY_NOTICES.md`.
+
 ## [1.0.8-beta.4] - 2026-11-26
 
 > **Obsidian Prism `v1.0.8-beta.4` 预发布版** 将界面语言架构收敛为 **严格双语言（`th` 泰语 · `en` 英语）**：`th` 同时作为默认语言与所有回退路径（空值 / `auto` / 未知语言 / 已移除语言）的唯一兜底目标；**移除 `vendor/host-i18n/` 全部宿主界面中文覆盖层与 Swarm 中文运行时**（`zh-CN` · `zh-TW` · `yue` · `ja` · `ko` · `es` · `fr` · `de` 共 8 语言全部下线），`cdp.js` 设置模式随之从 38 个渲染项收敛为 37 项（`hostLocalization` 键移除），Channel 编译数从 9 降至 8 并顺带缩减首屏字节预算；思考过程转译骨架归一化新增泰文字符区间 `U+0E00–U+0E7F`，修复纯泰语思维链在缓存中碰撞的问题；语言解析顺序统一为 `data-ag-cs-lang` → 宿主状态 → `navigator.language`，仅在配置为空或 `auto` 时才回退到系统语言，避免已移除语言被系统语言 `en` 静默顶替。安全项（XSS 消毒、CSP、UNC 路径拦截、密钥脱敏、反翻译属性、`sanitizeFileHref` 白名单、`sanitizeSuggesterConfig` fail-closed）与全部公开 API 均未改动。
@@ -71,7 +75,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Acknowledgements / 社区致谢（Community Credits）
 
-- 衷心感谢推动 `v1.0.8-beta.3` 落地的社区贡献者与验票伙伴（已同步收录至 [`docs/CONTRIBUTORS.md`](./docs/CONTRIBUTORS.md) 并保留 `Co-authored-by` 署名）：
+- 衷心感谢推动 `v1.0.8-beta.3` 落地的社区贡献者与验票伙伴（已同步收录至 `docs/CONTRIBUTORS.md` 并保留 `Co-authored-by` 署名）：
   - **代码贡献（PR）**：**[@OyatsuSuki](https://github.com/OyatsuSuki)**（[PR #67](https://github.com/RMvdesi/obsidian-prism/pull/67) · [PR #68](https://github.com/RMvdesi/obsidian-prism/pull/68) · [PR #70](https://github.com/RMvdesi/obsidian-prism/pull/70) · [PR #75](https://github.com/RMvdesi/obsidian-prism/pull/75) · [PR #76](https://github.com/RMvdesi/obsidian-prism/pull/76) · [PR #77](https://github.com/RMvdesi/obsidian-prism/pull/77)）、**[@yzd05](https://github.com/yzd05)**（[PR #66](https://github.com/RMvdesi/obsidian-prism/pull/66)）、**[@ZaneColinSD](https://github.com/ZaneColinSD)**（[PR #74](https://github.com/RMvdesi/obsidian-prism/pull/74)）、**[@DDykarc](https://github.com/DDykarc)**（[PR #79](https://github.com/RMvdesi/obsidian-prism/pull/79)）、**[@alanheverton](https://github.com/alanheverton)**（[PR #86](https://github.com/RMvdesi/obsidian-prism/pull/86)）。
   - **问题定位与实测验证**：**[@IASUI](https://github.com/IASUI)**（[#58](https://github.com/RMvdesi/obsidian-prism/issues/58)）、**[@Wenzi1911](https://github.com/Wenzi1911)**（[#72](https://github.com/RMvdesi/obsidian-prism/issues/72) · [#73](https://github.com/RMvdesi/obsidian-prism/issues/73)）、**[@zxyzx0430](https://github.com/zxyzx0430)**（[#78](https://github.com/RMvdesi/obsidian-prism/issues/78)）、**[@peco331](https://github.com/peco331)**（[#80](https://github.com/RMvdesi/obsidian-prism/issues/80) · [#81](https://github.com/RMvdesi/obsidian-prism/issues/81)）、**[@uwu9039](https://github.com/uwu9039)**（[#80](https://github.com/RMvdesi/obsidian-prism/issues/80)）、**[@hukun01](https://github.com/hukun01)**（[#82](https://github.com/RMvdesi/obsidian-prism/issues/82)）。
   - *Special thanks to PR contributors [@OyatsuSuki](https://github.com/OyatsuSuki), [@yzd05](https://github.com/yzd05), [@ZaneColinSD](https://github.com/ZaneColinSD), [@DDykarc](https://github.com/DDykarc), and [@alanheverton](https://github.com/alanheverton), and to community diagnostics & feedback from [@IASUI](https://github.com/IASUI), [@Wenzi1911](https://github.com/Wenzi1911), [@zxyzx0430](https://github.com/zxyzx0430), [@peco331](https://github.com/peco331), [@uwu9039](https://github.com/uwu9039), and [@hukun01](https://github.com/hukun01).*
@@ -109,7 +113,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Acknowledgements / 社区致谢（Community Credits）
 
-- 衷心感谢推动 `v1.0.8-beta.2` 落地的社区贡献者与验票伙伴（已同步收录至 [`docs/CONTRIBUTORS.md`](./docs/CONTRIBUTORS.md) 并保留 `Co-authored-by` 署名）：
+- 衷心感谢推动 `v1.0.8-beta.2` 落地的社区贡献者与验票伙伴（已同步收录至 `docs/CONTRIBUTORS.md` 并保留 `Co-authored-by` 署名）：
   - **代码贡献（PR）**：**[@OyatsuSuki](https://github.com/OyatsuSuki)**（[PR #60](https://github.com/RMvdesi/obsidian-prism/pull/60) · [PR #61](https://github.com/RMvdesi/obsidian-prism/pull/61)）。
   - **问题定位与实测验证**：**[@IASUI](https://github.com/IASUI)**（[#62](https://github.com/RMvdesi/obsidian-prism/issues/62)）、**[@VehideX](https://github.com/VehideX)**（[#63](https://github.com/RMvdesi/obsidian-prism/issues/63)）、**[@water707](https://github.com/water707)**（[#64](https://github.com/RMvdesi/obsidian-prism/issues/64)）、**[@yuaniyuan](https://github.com/yuaniyuan)**（[#59](https://github.com/RMvdesi/obsidian-prism/issues/59)）、**[@Xinbeok](https://github.com/Xinbeok)**（PR #60 macOS 验证）。
   - *Special thanks to [@OyatsuSuki](https://github.com/OyatsuSuki) (PR #60/#61), [@IASUI](https://github.com/IASUI) (#62), [@VehideX](https://github.com/VehideX) (#63), [@water707](https://github.com/water707) (#64), [@yuaniyuan](https://github.com/yuaniyuan) (#59), and [@Xinbeok](https://github.com/Xinbeok) (PR #60 macOS verification).*
@@ -173,7 +177,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Acknowledgements / 社区致谢（Community Credits）
 
-- 衷心感谢通过 PR、兼容性排查与细致复现推动 `v1.0.8-beta.1` 落地的各位社区贡献者（全部 PR 贡献者均已保留 `Co-authored-by` 署名并收录于 [`docs/CONTRIBUTORS.md`](./docs/CONTRIBUTORS.md)）：
+- 衷心感谢通过 PR、兼容性排查与细致复现推动 `v1.0.8-beta.1` 落地的各位社区贡献者（全部 PR 贡献者均已保留 `Co-authored-by` 署名并收录于 `docs/CONTRIBUTORS.md`）：
   - **代码贡献（PR）**：**[@tone-leh](https://github.com/tone-leh)**（PR #53 / #54 / #55 / #56 & #52）、**[@OyatsuSuki](https://github.com/OyatsuSuki)**（PR #41 / #43 / #48 & #40 / #47）、**[@Gruu6y](https://github.com/Gruu6y)**（PR #45 & #18）、**[@yzd05](https://github.com/yzd05)**（PR #42）、**[@hukun01](https://github.com/hukun01)**（PR #49 / #50）、**[@zmzwynzj](https://github.com/zmzwynzj)**（PR #51）。
   - **问题定位与社区反馈**：**[@wanghaoyi216](https://github.com/wanghaoyi216)**（#44）、**[@legegeCoder](https://github.com/legegeCoder)**（#57）、**[@IASUI](https://github.com/IASUI)**（#58）。
   - *Special thanks to all PR authors and issue reporters who contributed to `v1.0.8-beta.1`: [@tone-leh](https://github.com/tone-leh), [@OyatsuSuki](https://github.com/OyatsuSuki), [@Gruu6y](https://github.com/Gruu6y), [@yzd05](https://github.com/yzd05), [@hukun01](https://github.com/hukun01), [@zmzwynzj](https://github.com/zmzwynzj), [@wanghaoyi216](https://github.com/wanghaoyi216), [@legegeCoder](https://github.com/legegeCoder), and [@IASUI](https://github.com/IASUI).*
@@ -244,7 +248,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Acknowledgements / 社区致谢（Community Credits）
 
-- 衷心感谢通过 PR、深度根因分析、复现视频与细心建议推动 `v1.0.7` 正式版落地的每一位社区伙伴（PR 贡献者均已保留 `Co-authored-by` 署名并永久收录于 [`docs/CONTRIBUTORS.md`](./docs/CONTRIBUTORS.md)）：
+- 衷心感谢通过 PR、深度根因分析、复现视频与细心建议推动 `v1.0.7` 正式版落地的每一位社区伙伴（PR 贡献者均已保留 `Co-authored-by` 署名并永久收录于 `docs/CONTRIBUTORS.md`）：
   - **代码贡献（PR）**：**[@yzd05](https://github.com/yzd05)**（PR #10 / #13 / #20 / #21 / #22 / #23 / #29）、**[@zzirui321-rgb](https://github.com/zzirui321-rgb)**（PR #30 / #33 / #35 & #28 / #32 / #34 / #36）、**[@Kazaorus](https://github.com/Kazaorus)**（PR #19）、**[@DDykarc](https://github.com/DDykarc)**（PR #12）、**[@SuzumiyaHaruhi719](https://github.com/SuzumiyaHaruhi719)**（PR #17）。
   - **问题定位与社区反馈**：**[@boy14204367](https://github.com/boy14204367)**（#9 / #11 / #14 / #15）、**[@nanpi8633-spec](https://github.com/nanpi8633-spec)**（#38）、**[@yanzhem02](https://github.com/yanzhem02)**（#37）、**[@awasllll0317](https://github.com/awasllll0317)**（#39）、**[@baihao2006](https://github.com/baihao2006)**（#31）、**[@fenzsen](https://github.com/fenzsen)**（#27）、**[@L-yifan](https://github.com/L-yifan)**（#26）、**[@Gruu6y](https://github.com/Gruu6y)**（#18）、**[@Freezecatmeow](https://github.com/Freezecatmeow)**（#16）。
   - *Special thanks to all PR authors and issue reporters who shaped `v1.0.7`: [@yzd05](https://github.com/yzd05), [@zzirui321-rgb](https://github.com/zzirui321-rgb), [@Kazaorus](https://github.com/Kazaorus), [@DDykarc](https://github.com/DDykarc), [@SuzumiyaHaruhi719](https://github.com/SuzumiyaHaruhi719), [@boy14204367](https://github.com/boy14204367), [@nanpi8633-spec](https://github.com/nanpi8633-spec), [@yanzhem02](https://github.com/yanzhem02), [@awasllll0317](https://github.com/awasllll0317), [@baihao2006](https://github.com/baihao2006), [@fenzsen](https://github.com/fenzsen), [@L-yifan](https://github.com/L-yifan), [@Gruu6y](https://github.com/Gruu6y), and [@Freezecatmeow](https://github.com/Freezecatmeow).*

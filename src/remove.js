@@ -332,9 +332,11 @@ async function stopPidFile(filePath, label, opts = {}) {
   return stoppedPid;
 }
 
+const ROOT_DIR = path.resolve(__dirname, '..');
+
 async function stopWatcher(opts = {}) {
   const watchPidFile = opts.watchPidFile || PID_FILE;
-  const daemonPidFile = opts.daemonPidFile || path.join(__dirname, '.daemon.pid');
+  const daemonPidFile = opts.daemonPidFile || path.join(ROOT_DIR, '.daemon.pid');
   const stoppedWatchPid = await stopPidFile(watchPidFile, '守护进程', opts);
   const stoppedDaemonPid = await stopPidFile(daemonPidFile, 'Sidecar 守护进程', opts);
   return { stoppedWatchPid, stoppedDaemonPid };

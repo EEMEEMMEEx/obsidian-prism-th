@@ -364,7 +364,7 @@ final class WatcherApp {
 
         signal(SIGTERM, SIG_IGN)
         signal(SIGINT, SIG_IGN)
-        let sigQueue = DispatchQueue(label: "io.github.rmvdesi.obsidian-prism.signals")
+        let sigQueue = DispatchQueue(label: "io.github.eemeemmeex.obsidian-prism.signals")
         let termSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: sigQueue)
         termSource.setEventHandler(handler: requestExit)
         termSource.resume()
@@ -629,7 +629,7 @@ final class WatcherApp {
             }
         }
 
-        let reloadQueue = DispatchQueue(label: "io.github.rmvdesi.obsidian-prism.reload")
+        let reloadQueue = DispatchQueue(label: "io.github.eemeemmeex.obsidian-prism.reload")
         var pendingReloadWork: DispatchWorkItem?
         var pendingChangedHint: String?
 

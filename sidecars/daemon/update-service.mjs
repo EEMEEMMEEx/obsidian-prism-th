@@ -7,7 +7,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 
-export const GITHUB_REPO = 'RMvdesi/obsidian-prism';
+export const GITHUB_REPO = 'EEMEEMMEEx/obsidian-prism-th';
 export const LATEST_RELEASE_API = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
 export const RELEASES_LIST_API = `https://api.github.com/repos/${GITHUB_REPO}/releases?per_page=15`;
 export const RELEASES_PAGE_URL = `https://github.com/${GITHUB_REPO}/releases`;
@@ -209,7 +209,7 @@ export class UpdateService {
     fetchFn = globalThis.fetch,
     spawnFn = spawn,
     platform = process.platform,
-    currentVersion = '1.0.8-beta.4',
+    currentVersion = '1.0.8-beta.5',
     channel = 'stable',
     checkTtlMs = CHECK_TTL_MS,
     manualCooldownMs = MANUAL_COOLDOWN_MS,
@@ -221,7 +221,7 @@ export class UpdateService {
     this.fetchFn = fetchFn;
     this.spawnFn = spawnFn;
     this.platform = platform;
-    this.currentVersion = normalizeVersionStr(currentVersion) || '1.0.8-beta.4';
+    this.currentVersion = normalizeVersionStr(currentVersion) || '1.0.8-beta.5';
     this.channel = normalizeUpdateChannel(channel);
     this.checkTtlMs = Math.max(0, Number(checkTtlMs) || 0);
     this.manualCooldownMs = Math.max(0, Number(manualCooldownMs) || 0);

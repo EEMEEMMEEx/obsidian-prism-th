@@ -586,7 +586,7 @@ function createMockSocks5Server({ requireAuth = null, routeMap, onConnectEvent =
 }
 
 test('1) cdp.js: merges PR #20 nav-outline-trigger cleanup, excludes thought from RUNTIME_PARTS, and aligns Channel 5 queued/streaming timeouts', () => {
-  const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+  const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
 
   assert.equal(
     cdp.RUNTIME_PARTS.some((p) => p.includes('thought-translator')),
@@ -2038,7 +2038,7 @@ test('11) Red-team #192 [P2-1 & P2-2]: CONNECT 15s timeout, handover RST crash g
 });
 
 test('12) Red-team #193 [P0-2]: cdp.js cleans up ag-prism-studio-v101-css and data-ag-prism-scope in both stripForeignMount & REMOVE_EXPRESSION', () => {
-  const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+  const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
   assert.ok(
     cdp.REMOVE_EXPRESSION.includes('#ag-prism-studio-v101-css'),
     'cdp.js REMOVE_EXPRESSION must remove #ag-prism-studio-v101-css'
@@ -2121,7 +2121,7 @@ test('13) CodeQL High alerts zero-regression: 0 rejectUnauthorized:false, 0 HTML
   assert.equal(/\.innerHTML\s*=/.test(uiSrc), false, 'thought-settings-ui.js must have 0 innerHTML writes');
   assert.equal(clientSrc.includes('/\\s*$/'), false, 'thought-client.js must not contain unanchored /\\s*$/ regex (CodeQL polynomial-redos)');
 
-  const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+  const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
   const ch1Expr = cdp.buildInjectExpression(cdp.DEFAULT_CONFIG);
   assert.equal(
     ch1Expr.includes('thought-diagnose-btn') || ch1Expr.includes('thought-titles-toggle') || ch1Expr.includes('scanConversationTitles'),

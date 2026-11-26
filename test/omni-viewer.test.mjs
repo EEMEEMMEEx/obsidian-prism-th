@@ -1357,7 +1357,7 @@ test('Security & resilience regressions: opaque HTML sandbox, foreignObject/SMIL
   assert.match(tabEnv.pillsEl.textContent, /640×360/);
 
   // 7. style.css preserves transparent browser-hole cutout for host native wcvBrowser
-  const styleCss = fs.readFileSync(path.resolve(__dirname, '../style.css'), 'utf8');
+  const styleCss = fs.readFileSync(path.resolve(__dirname, '../src/style.css'), 'utf8');
   assert.match(styleCss, /body:not\(\[data-has-browser-hole="true"\]\)/);
   assert.match(styleCss, /\.agy-shell[\s\S]{0,120}:not\(\[data-has-browser-hole="true"\]\)/);
   assert.match(styleCss, /\.browser-hole-ancestor\[data-has-browser-hole="true"\][\s\S]{0,360}background-color:transparent !important/);

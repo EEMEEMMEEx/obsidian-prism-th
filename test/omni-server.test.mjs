@@ -422,7 +422,7 @@ test('OmniServer /viewer renders HTML workbench and all 5 RPC actions validate p
   assert.deepEqual(revealed, [tsFile]);
 
   // RPC 4: openExternal (allow https: + safe file; reject javascript: and executable .bat)
-  const extHttp = await server.handleRpcAction('openExternal', { target: 'https://github.com/RMvdesi/obsidian-prism' });
+  const extHttp = await server.handleRpcAction('openExternal', { target: 'https://github.com/EEMEEMMEEx/obsidian-prism-th' });
   assert.equal(extHttp.ok, true);
   const extFile = await server.handleRpcAction('openExternal', { target: svgFile });
   assert.equal(extFile.ok, true);

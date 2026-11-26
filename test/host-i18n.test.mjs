@@ -7,8 +7,8 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
 
 test('host-i18n removal: vendor/host-i18n directory and assets are completely removed', () => {
   const hostI18nDir = path.join(ROOT, 'vendor', 'host-i18n');

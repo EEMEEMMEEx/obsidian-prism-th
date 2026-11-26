@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const rippleCore = require('../ripple-core.js');
+const rippleCore = require('../src/ripple-core.js');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test('hash and fractalNoise are deterministic and bounded in [0, 1)', () => {
@@ -1024,7 +1024,7 @@ test('document.hidden suppresses idle/active frame draws in both createGlyphFiel
 });
 
 test('style.css enforces GPU compositor offloading, dual daylight presets (Crystal & Alabaster), and core specificity guards', () => {
-  const css = fs.readFileSync(path.join(__dirname, '..', 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'src/style.css'), 'utf8');
   let cssBraces = 0;
   for (const ch of css) {
     if (ch === '{') cssBraces++;
@@ -1235,7 +1235,7 @@ test('Wave 1 Optics: HORIZON_FRAGMENT_SHADER & mountBrandHorizonGlow support War
 });
 
 test('Wave 1 ConvAura: Split-Rate 300Hz VSync (~30fps running cap, 1200ms idle sleep) & 3-State 0fps Semantic Afterglow Engine', () => {
-  require('../conv-aura.js');
+  require('../src/conv-aura.js');
   const convAuraMod = globalThis.__agPrismConvAura;
   assert.ok(convAuraMod);
   assert.equal(convAuraMod.CONV_AURA_IDLE_SLEEP_MS, 1200);
@@ -1533,7 +1533,7 @@ test('Wave 1 ConvAura: Split-Rate 300Hz VSync (~30fps running cap, 1200ms idle s
 });
 
 test('Wave 3: createGlyphField & home-ripple-host honor accentTone (mono/iris/amber/cobalt/warm) and ambientIntensity=0 0fps sleep', () => {
-  const homeRippleMod = require('../home-ripple-host.js');
+  const homeRippleMod = require('../src/home-ripple-host.js');
 
   function make2DCanvas(width, height) {
     let lastImage = null;
@@ -1735,7 +1735,7 @@ test('Wave 3: createGlyphField & home-ripple-host honor accentTone (mono/iris/am
 });
 
 test('Conv-aura wave smoothness & 450ms semantic blend: non-negative running surge, continuous flowSec across sleep/wake, clamped dtSec, and fractional uSemantic crossfade', () => {
-  require(path.join(__dirname, '..', 'conv-aura.js'));
+  require(path.join(__dirname, '..', 'src/conv-aura.js'));
   const convAuraMod = globalThis.__agPrismConvAura;
 
   // 1) Running surge must stay >= 0 across full cycle (no sign-flipping between vertical surgeArc and horizontal chimeWave)
@@ -2014,7 +2014,7 @@ test('resize regression: dispose(true) preserves WebGL2 context across resizes, 
     assert.equal(fBroken.mode, 'none', 'shader compile failure must fall back cleanly instead of throwing');
 
     // 5) home-ripple-host layout() calls dispose(true) across resizes and swaps canvas if context is externally lost
-    const homeRippleHost = require(path.resolve(__dirname, '..', 'home-ripple-host.js'));
+    const homeRippleHost = require(path.resolve(__dirname, '..', 'src/home-ripple-host.js'));
     const prevDoc = globalThis.document;
     const prevWin = globalThis.window;
     const prevRaf = globalThis.requestAnimationFrame;
@@ -2190,7 +2190,7 @@ test('resize regression: dispose(true) preserves WebGL2 context across resizes, 
 });
 
 test('Issue #64 WebGL2 white-screen hardening: Chromium canvas-lock true-2D fallback, glowCanvas dispose(true) & self-heal, async webglcontextlost recovery & hide-on-total-failure', () => {
-  const homeRippleHost = require(path.resolve(__dirname, '..', 'home-ripple-host.js'));
+  const homeRippleHost = require(path.resolve(__dirname, '..', 'src/home-ripple-host.js'));
   const prevForce = globalThis.__agRippleForce2D;
   const prevDoc = globalThis.document;
   const prevWin = globalThis.window;
@@ -2507,7 +2507,7 @@ test('Issue #64 WebGL2 white-screen hardening: Chromium canvas-lock true-2D fall
 });
 
 test('conv-aura darkAura tiers (subtle / balanced / vivid) scale dark chat optics monotonically while leaving light mode untouched', () => {
-  require('../conv-aura.js');
+  require('../src/conv-aura.js');
   const { computeConvAuraOptics } = globalThis.__agPrismConvAura;
   const dSubtleIdle = computeConvAuraOptics('idle', 0, 1000, true, false, {}, 'subtle');
   const dBalIdle = computeConvAuraOptics('idle', 0, 1000, true, false, {}, 'balanced');
@@ -2527,7 +2527,7 @@ test('conv-aura darkAura tiers (subtle / balanced / vivid) scale dark chat optic
 });
 
 test('HORIZON_FRAGMENT_SHADER eliminates direct AMBER->SKY_BLUE mixing, decouples blueLoop/prismLoop cross-mix, and supports neonLoop', () => {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'ripple-core.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'src/ripple-core.js'), 'utf8');
   assert.equal(src.includes('mix(PRISM_AMBER, SKY_BLUE'), false, 'prismLoop must fold through coral/iris instead of mixing amber directly into sky blue');
   assert.ok(src.includes('vec3 neonLoop('), 'shader must define neonLoop for Abyssal Glow style');
   assert.ok(src.includes('base = mix(base, pCol, clamp(effPrism * 1.45'), 'shader must decouple hue purity from caustic luminance');

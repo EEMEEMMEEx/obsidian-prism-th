@@ -307,7 +307,7 @@ test('av-hygiene 5: full-repo runtime scripts have zero -EncodedCommand, -Window
     .readdirSync(daemonDir)
     .filter((f) => f.endsWith('.mjs'))
     .map((f) => `sidecars/daemon/${f}`);
-  const targets = ['cdp.js', 'tools/patch-asar.cjs', 'tools/install-plugin.cjs', ...daemonFiles];
+  const targets = ['src/cdp.js', 'tools/patch-asar.cjs', 'tools/install-plugin.cjs', ...daemonFiles];
   const forbidden = [
     ['-Encoded' + 'Command', new RegExp('-Encoded' + 'Command\\b', 'i')],
     ['-WindowStyle Hidden', new RegExp('-WindowStyle\\s+Hidden', 'i')],
@@ -379,7 +379,7 @@ test(
     ].find((p) => fs.existsSync(p));
     assert.ok(csc, 'Expected .NET Framework csc.exe on Windows');
 
-    const cdp = require(path.join(ROOT_DIR, 'cdp.js'));
+    const cdp = require(path.join(ROOT_DIR, 'src/cdp.js'));
     const LNK_CLSID = Buffer.from([
       0x01, 0x14, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
       0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46,

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const rig = require('../dual-mascot-rig.js');
+const rig = require('../src/dual-mascot-rig.js');
 
 /**
  * 构建具备可控 rAF、ResizeObserver、MutationObserver 与零回流计数器的舞台测试夹具

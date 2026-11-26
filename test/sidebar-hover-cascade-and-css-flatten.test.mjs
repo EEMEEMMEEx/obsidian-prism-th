@@ -9,11 +9,11 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const cdp = require('../cdp.js');
+const cdp = require('../src/cdp.js');
 const { PrismDaemon } = await import('../sidecars/daemon/main.mjs');
 
 test('ui-runtime isolates sidebar hover mutations (0 sync/icon cascade), detects stop-button SVGs, guards flattenCss on CSS Nesting, throttles wakeWinBlur, and avoids 5s darkAura poll drift', () => {
-  const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
   let moCb = null;
   let pollCb = null;
   let timerSeq = 1;
@@ -233,7 +233,7 @@ test('ui-runtime isolates sidebar hover mutations (0 sync/icon cascade), detects
 });
 
 test('style.css excludes hover-card-popup from backdrop-filter and enforces Light Mode contrast & mascot clearance', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.ok(
     css.includes('.agy-overlay:not([data-hover-card-popup]):not([data-testid="model-selector-panel"]),.surface-glass:not([data-hover-card-popup]),'),
     'style.css must exclude [data-hover-card-popup] from backdrop-filter on both .agy-overlay and .surface-glass'
@@ -333,7 +333,7 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
 
   // 1) prism-rim-canvas: clears lit rim once on entering real sidebar-split>div:first-child, then schedules 0 rAFs even after markDirty()
   {
-    const rimSrc = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+    const rimSrc = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
     let now = 1000, rafSeq = 1, rafCalls = 0, strokes = 0, clears = 0;
     const rafs = new Map();
     const html = mkEl('html', { 'data-ag-cs-motion': 'ultra', 'data-ag-cs-ambient': '100' });
@@ -414,7 +414,7 @@ test('PR #76 real sidebar-split, 2-level Base UI HoverCard portal isolation, hos
 
   // 2) ui-runtime: 2-level Base UI HoverCard portals, data-state/class/aria-expanded flips, and sibling hover buttons trigger 0 runSync
   {
-    const uiSrc = fs.readFileSync(path.join(ROOT, 'ui-runtime.js'), 'utf8');
+    const uiSrc = fs.readFileSync(path.join(ROOT, 'src/ui-runtime.js'), 'utf8');
     let moCb = null, now = 2000;
     const html = mkEl('html', { 'data-ag-cs-style': '1' });
     const body = mkEl('body');

@@ -7,12 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const cdp = require('../cdp.js');
+const cdp = require('../src/cdp.js');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('step-plan checklist card and home-panel align with Obsidian Prism floating overview-shell optics across light and dark themes', () => {
-  const rawBuf = fs.readFileSync(path.join(ROOT, 'style.css'));
+  const rawBuf = fs.readFileSync(path.join(ROOT, 'src/style.css'));
   assert.equal(rawBuf[0] === 0xef && rawBuf[1] === 0xbb && rawBuf[2] === 0xbf, false, 'style.css must have 0 UTF-8 BOM');
   const css = rawBuf.toString('utf8');
   assert.equal(css.includes('\r'), false, 'style.css must have 0 CRLF');
@@ -95,7 +95,7 @@ test('step-plan checklist card and home-panel align with Obsidian Prism floating
 });
 
 test('prism-rim-canvas caps step-plan rims to newest 2 visible expanded cards, mounts/recycles home-panel rim, and honors pp-open & motion=off 0fps sleep', () => {
-  const rimSrc = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const rimSrc = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   let now = 1000;
   let rafSeq = 1;
   const rafs = new Map();
@@ -338,7 +338,7 @@ test('prism-rim-canvas caps step-plan rims to newest 2 visible expanded cards, m
 });
 
 test('model-selector trigger relaxes container cap to min(300px,100%) and excludes .ag-pp-mini-keycap badge from truncation/collapse', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   // 1) 外层容器允许在 300px 内完整展示模型名与 [10Ne] 徽章，超窄窗口按 flex:0 1 auto 等比收缩
   assert.ok(
     css.includes('div.no-focus-agent-input{flex:0 1 auto !important;min-width:0 !important;max-width:min(300px,100%) !important;overflow:hidden !important;}'),
@@ -356,7 +356,7 @@ test('model-selector trigger relaxes container cap to min(300px,100%) and exclud
 });
 
 test('host-workbench-enhancer detects status-task-running, enforces grid-rows-[1fr], stamps data-ag-sp-running on active step-plan, and cleans up on destroy', () => {
-  const enhancerMod = require('../host-workbench-enhancer.js');
+  const enhancerMod = require('../src/host-workbench-enhancer.js');
   const makeNode = (tag, opts = {}) => {
     const attrs = new Map(Object.entries(opts.attrs || {}));
     const kids = [];
@@ -484,7 +484,7 @@ test('host-workbench-enhancer detects status-task-running, enforces grid-rows-[1
 });
 
 test('stream-choreography decouples triggerHeroALiftoff / triggerHeroBHomeReturn from v2.35.1 animate-fade-in & no-transitions', () => {
-  const scMod = require('../stream-choreography.js');
+  const scMod = require('../src/stream-choreography.js');
   const springCalls = [];
   const staggerCalls = [];
   const motionEngine = {

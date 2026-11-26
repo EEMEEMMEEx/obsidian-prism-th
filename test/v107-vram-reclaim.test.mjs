@@ -80,7 +80,7 @@ function makeFakeTimerEnv(initialNow = 1000) {
 }
 
 test('A1 home-ripple-host: document.hidden true->false shrinks & restores backing stores without losing state or throwing at 0x0', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'home-ripple-host.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/home-ripple-host.js'), 'utf8');
   const env = makeFakeTimerEnv(1000);
   const docBus = makeEventBus();
   const winBus = makeEventBus();
@@ -324,8 +324,8 @@ test('A1 home-ripple-host: document.hidden true->false shrinks & restores backin
 });
 
 test('A1 home-ripple-host + real ripple-core 2D integration: 0x0 hide & visible restore never throws', () => {
-  const rippleCore = require('../ripple-core.js');
-  const homeRippleMod = require('../home-ripple-host.js');
+  const rippleCore = require('../src/ripple-core.js');
+  const homeRippleMod = require('../src/home-ripple-host.js');
   const prevDoc = globalThis.document;
   const prevWin = globalThis.window;
   const prevPerf = globalThis.performance;
@@ -457,7 +457,7 @@ test('A1 home-ripple-host + real ripple-core 2D integration: 0x0 hide & visible 
 });
 
 test('A1 conv-aura: document.hidden true->false releases & restores backing store across running, settled idle, and resize with zero 0x0 draws', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'conv-aura.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/conv-aura.js'), 'utf8');
   const env = makeFakeTimerEnv(1000);
   const docBus = makeEventBus();
   const winBus = makeEventBus();
@@ -690,7 +690,7 @@ test('A1 conv-aura: document.hidden true->false releases & restores backing stor
 });
 
 test('A1 prism-rim-canvas: hidden immediate 0x0 shrink, visible idle timeout shrink (~1800ms), selective active preservation, seamless re-entry restore, and teardown cleanup', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'prism-rim-canvas.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'src/prism-rim-canvas.js'), 'utf8');
   const env = makeFakeTimerEnv(5000);
   const docBus = makeEventBus();
   const rootBus = makeEventBus();

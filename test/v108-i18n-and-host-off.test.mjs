@@ -10,10 +10,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const cdp = require(path.join(ROOT, 'cdp.js'));
-const i18nCore = require(path.join(ROOT, 'i18n-core.js'));
-const i18nLocales = require(path.join(ROOT, 'i18n-locales.js'));
-const settingsPanel = require(path.join(ROOT, 'settings-panel.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
+const i18nCore = require(path.join(ROOT, 'src/i18n-core.js'));
+const i18nLocales = require(path.join(ROOT, 'src/i18n-locales.js'));
+const settingsPanel = require(path.join(ROOT, 'src/settings-panel.js'));
 
 const SUPPORTED_2 = ['th', 'en'];
 const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf]/;
@@ -398,7 +398,7 @@ test('Battle 2 CI Guard: macOS installer NOT_FOUND_MSG uses InstallerI18n (0 har
 
 test('Battle 2 Channel 1 Slimming (< 550 KB across all 9 language modes), SYNC_ROOT_FILES integrity & Ch9/Ch10 disk cache', () => {
   // Deferred modules removed from Channel 1 RUNTIME_PARTS, preserved in SYNC_ROOT_FILES
-  for (const mod of ['i18n-locales.js', 'settings-panel.js', 'dual-mascot-rig.js', 'home-studio-panel.js']) {
+  for (const mod of ['src/i18n-locales.js', 'src/settings-panel.js', 'src/dual-mascot-rig.js', 'src/home-studio-panel.js']) {
     assert.equal(cdp.RUNTIME_PARTS.includes(mod), false, `${mod} must be split out of Channel 1 RUNTIME_PARTS`);
     assert.equal(cdp.SYNC_ROOT_FILES.includes(mod), true, `${mod} MUST remain in SYNC_ROOT_FILES for installer/updater`);
   }
@@ -411,7 +411,7 @@ test('Battle 2 Channel 1 Slimming (< 550 KB across all 9 language modes), SYNC_R
   }
 
   // pulse-vial-bridge.js strict < 31,000 B
-  const pvbSize = fs.statSync(path.join(ROOT, 'pulse-vial-bridge.js')).size;
+  const pvbSize = fs.statSync(path.join(ROOT, 'src/pulse-vial-bridge.js')).size;
   assert.ok(pvbSize < 31_000, `pulse-vial-bridge.js exceeded 31,000 B budget: ${pvbSize} B`);
 
   // Mascot Channel 10: 0 B when off, non-empty when on
@@ -431,8 +431,8 @@ test('Battle 2 Channel 1 Slimming (< 550 KB across all 9 language modes), SYNC_R
     assert.ok(mCold.length > 10_000);
 
     // Reload fresh cdp module to verify cold-process disk hit
-    delete require.cache[require.resolve(path.join(ROOT, 'cdp.js'))];
-    const cdpFresh = require(path.join(ROOT, 'cdp.js'));
+    delete require.cache[require.resolve(path.join(ROOT, 'src/cdp.js'))];
+    const cdpFresh = require(path.join(ROOT, 'src/cdp.js'));
     cdpFresh.resetBundleCacheStats();
     const sHit = cdpFresh.buildSettingsChannelExpression(null, { cachePath });
     const mHit = cdpFresh.buildMascotChannelExpression({ mascot: 'crab' }, { cachePath });
@@ -832,7 +832,7 @@ test('Pre-release hardening: Ch1->Ch9 brand-mark slimming, Mascot cleanup select
   }
 
   // 4) inject.js createFastConfigRefreshBroadcaster supports Mascot enable -> disable lifecycle
-  const injectMod = require(path.join(ROOT, 'inject.js'));
+  const injectMod = require(path.join(ROOT, 'src/inject.js'));
   let mCfg = { ...cdp.DEFAULT_CONFIG, mascot: 'crab', omniModule: 'off', sidebarStudio: 'off', hostLocalization: 'auto', thoughtTranslate: 'off', periodicModelPicker: 'off' };
   const evals = [];
   const sends = [];
@@ -900,9 +900,9 @@ test('Pre-release hardening: Ch1->Ch9 brand-mark slimming, Mascot cleanup select
 
 test('Channel 12 (homeStudio): deferred extraction, cold/route-switch mount, idempotent & hot-swap zero-leak, config gating, disk cache, daemon sync & packaging parity', async () => {
   // 1) Module boundary, config gating & Channel 1 budget headroom
-  assert.equal(cdp.RUNTIME_PARTS.includes('home-studio-panel.js'), false, 'home-studio-panel.js must NOT be in Channel 1 RUNTIME_PARTS');
-  assert.equal(cdp.DEFERRED_ROOT_MODULES.includes('home-studio-panel.js'), true, 'home-studio-panel.js must be in DEFERRED_ROOT_MODULES');
-  assert.equal(cdp.SYNC_ROOT_FILES.includes('home-studio-panel.js'), true, 'home-studio-panel.js must remain in SYNC_ROOT_FILES');
+  assert.equal(cdp.RUNTIME_PARTS.includes('src/home-studio-panel.js'), false, 'src/home-studio-panel.js must NOT be in Channel 1 RUNTIME_PARTS');
+  assert.equal(cdp.DEFERRED_ROOT_MODULES.includes('src/home-studio-panel.js'), true, 'src/home-studio-panel.js must be in DEFERRED_ROOT_MODULES');
+  assert.equal(cdp.SYNC_ROOT_FILES.includes('src/home-studio-panel.js'), true, 'src/home-studio-panel.js must remain in SYNC_ROOT_FILES');
   assert.equal(cdp.shouldEnableHomeStudio({ homeLayout: 'studio' }), true);
   assert.equal(cdp.shouldEnableHomeStudio({ homeLayout: 'classic' }), false);
   assert.equal(cdp.shouldEnableHomeStudio({ homeLayout: 'off' }), false);
@@ -913,7 +913,7 @@ test('Channel 12 (homeStudio): deferred extraction, cold/route-switch mount, ide
   const ch1AutoBytes = Buffer.byteLength(ch1AutoExpr, 'utf8');
   assert.ok(ch1AutoBytes < 547_500, `Channel 1 auto must keep >= 2 KB headroom below 549.5 KB after Ch12 split, got ${ch1AutoBytes} B`);
   const homeStudioPreparedBytes = Buffer.byteLength(
-    cdp.prepareRuntimePart('home-studio-panel.js', fs.readFileSync(path.join(ROOT, 'home-studio-panel.js'), 'utf8')),
+    cdp.prepareRuntimePart('home-studio-panel.js', fs.readFileSync(path.join(ROOT, 'src/home-studio-panel.js'), 'utf8')),
     'utf8'
   );
   assert.ok(homeStudioPreparedBytes > 20_000, `Expected split home-studio-panel.js savings > 20 KB, got ${homeStudioPreparedBytes} B`);
@@ -930,8 +930,8 @@ test('Channel 12 (homeStudio): deferred extraction, cold/route-switch mount, ide
     const ch12Cold = cdp.buildHomeStudioChannelExpression({ ...cdp.DEFAULT_CONFIG, homeLayout: 'studio' }, { cachePath });
     assert.ok(ch12Cold.length > 20_000, 'Expected compiled Channel 12 payload > 20 KB');
 
-    delete require.cache[require.resolve(path.join(ROOT, 'cdp.js'))];
-    const cdpFresh = require(path.join(ROOT, 'cdp.js'));
+    delete require.cache[require.resolve(path.join(ROOT, 'src/cdp.js'))];
+    const cdpFresh = require(path.join(ROOT, 'src/cdp.js'));
     cdpFresh.resetBundleCacheStats();
     const ch12Hit = cdpFresh.buildHomeStudioChannelExpression({ ...cdpFresh.DEFAULT_CONFIG, homeLayout: 'studio' }, { cachePath });
     assert.equal(ch12Hit, ch12Cold, 'Channel 12 disk cache hit must match cold compile byte-for-byte');
@@ -1133,17 +1133,17 @@ test('Channel 12 (homeStudio): deferred extraction, cold/route-switch mount, ide
     assert.ok(sent.some((s) => s.method === 'evaluate' && s.expr.includes('detachHomeStudio')));
   }
 
-  // 5) Packaging parity across Windows/macOS/Linux builders (native-plugin/home-studio-panel.js included)
+  // 5) Packaging parity across Windows/macOS/Linux builders (native-plugin/src/home-studio-panel.js included)
   const buildCommon = await import(pathToFileURL(path.join(ROOT, 'scripts/build-common.mjs')).href);
   const buildLinux = await import(pathToFileURL(path.join(ROOT, 'scripts/build-linux.mjs')).href);
   const nativeEntries = buildCommon.collectNativePluginEntries(path.join(ROOT, 'config.example.json'));
   assert.ok(
-    nativeEntries.some((e) => e.name === 'native-plugin/home-studio-panel.js'),
-    'Windows/macOS collectNativePluginEntries must bundle native-plugin/home-studio-panel.js'
+    nativeEntries.some((e) => e.name === 'native-plugin/src/home-studio-panel.js'),
+    'Windows/macOS collectNativePluginEntries must bundle native-plugin/src/home-studio-panel.js'
   );
   const linuxEntries = buildLinux.collectLinuxPortableEntries();
   assert.ok(
-    linuxEntries.some((e) => e.name === 'obsidian-prism-linux/native-plugin/home-studio-panel.js'),
-    'Linux collectLinuxPortableEntries must bundle obsidian-prism-linux/native-plugin/home-studio-panel.js'
+    linuxEntries.some((e) => e.name === 'obsidian-prism-linux/native-plugin/src/home-studio-panel.js'),
+    'Linux collectLinuxPortableEntries must bundle obsidian-prism-linux/native-plugin/src/home-studio-panel.js'
   );
 });

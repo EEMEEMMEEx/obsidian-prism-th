@@ -24,7 +24,7 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 let _cdp = null;
 function getCdp() {
   if (!_cdp) {
-    _cdp = require(path.join(ROOT_DIR, "cdp.js"));
+    _cdp = require(path.join(ROOT_DIR, "src", "cdp.js"));
   }
   return _cdp;
 }

@@ -26,7 +26,7 @@ const require = createRequire(import.meta.url);
 globalThis.__agCodexEffortSliderDisableAutoBoot = true;
 const effortSlider = require('../vendor/effort-slider/upstream-client.js');
 const sliderCoexist = require('../vendor/effort-slider/slider-coexist.js');
-const usageCore = require('../usage-core.js');
+const usageCore = require('../src/usage-core.js');
 
 test('v2.34.0 Effort Slider: normalizes kebab-case slug effortIndex and unlocks all multi-effort models', () => {
   const neonLow = { label: 'Gemini 4 Neon (Low)', modelId: 'gemini-4-neon-low', value: 1534 };
@@ -459,7 +459,7 @@ test('v2.34.0 follow-up fixes: usage-core stepCount/hours, renderer-proxy 120s d
   assert.equal(formatModelName('gemini-pro-orchestrator-neon'), 'Orchestrator (Neon)');
 
   // 4) stream-choreography & inline-fallback include v2.34.0 agent-response [data-markdown-root]
-  const scSrc = fs.readFileSync(new URL('../stream-choreography.js', import.meta.url), 'utf8');
+  const scSrc = fs.readFileSync(new URL('../src/stream-choreography.js', import.meta.url), 'utf8');
   assert.equal(scSrc.includes('[data-testid="agent-response"] [data-markdown-root]'), true);
   assert.equal(scSrc.includes("tid === 'agent-response'"), true);
   const fbSrc = fs.readFileSync(new URL('../vendor/pulse-dashboard/inline-fallback.js', import.meta.url), 'utf8');
@@ -467,7 +467,7 @@ test('v2.34.0 follow-up fixes: usage-core stepCount/hours, renderer-proxy 120s d
 });
 
 test('v2.34.0 Orchestrator patch: Claude planner shows Claude icon & tunable Orchestrator mounts unlocked crystal prism bar', () => {
-  const mgc = require('../model-glyph-crystal.js');
+  const mgc = require('../src/model-glyph-crystal.js');
   // 1) parseModelLabelInfo recognizes Orchestrator + Claude -> brand=claude, isOrchestrator=true
   const orchClaude = mgc.parseModelLabelInfo('Orchestrator Claude Opus 5.5 High');
   assert.equal(orchClaude.isOrchestrator, true);
@@ -512,14 +512,14 @@ test('v2.34.0 Orchestrator patch: Claude planner shows Claude icon & tunable Orc
   assert.equal(trigInfo.camp, 'claude');
 
   // 3) crystal-prism-core supports hideLock + Scheme-A fillRatio split without adding new GLSL uniforms
-  const cpSrc = fs.readFileSync(new URL('../crystal-prism-core.js', import.meta.url), 'utf8');
+  const cpSrc = fs.readFileSync(new URL('../src/crystal-prism-core.js', import.meta.url), 'utf8');
   assert.equal(cpSrc.includes('u_reduce < 1.5'), true);
   assert.equal(cpSrc.includes('u_reduce > 1.5'), true);
   assert.equal(cpSrc.includes('if (!hideLock) drawLaserEtchedLock'), true);
   assert.equal(cpSrc.includes('sliderFillRatio'), true);
 
   // 4) style.css defines frosted crystal knob with compact 32px mouse-tracking prism rim & crisp detent ticks
-  const cssSrc = fs.readFileSync(new URL('../style.css', import.meta.url), 'utf8');
+  const cssSrc = fs.readFileSync(new URL('../src/style.css', import.meta.url), 'utf8');
   assert.equal(cssSrc.includes('32px circle at var(--knob-px'), true);
   assert.equal(cssSrc.includes('.ces-tick.is-on'), true);
   assert.equal(cssSrc.includes('.ces-knob-notch'), true);
@@ -1623,7 +1623,7 @@ test('Issue #16 + PR #12 + Issue #11: React 19 multi-HostText [" ", "Medium"] ->
 });
 
 test('PR #17 Home Studio Quotas: fallback resilience, telemetry-off veto, no double-fire, R3 cooldowns, inline-fallback lastSnap/timeouts & daemon forwarding', async () => {
-  const homeStudioPanel = require('../home-studio-panel.js');
+  const homeStudioPanel = require('../src/home-studio-panel.js');
   const inlineFallback = require('../vendor/pulse-dashboard/inline-fallback.js');
   const prevWin = globalThis.window;
   const prevDoc = globalThis.document;

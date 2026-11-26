@@ -13,7 +13,7 @@ import { PrismDaemon } from '../sidecars/daemon/main.mjs';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const CDP_PATH = path.join(ROOT, 'cdp.js');
+const CDP_PATH = path.join(ROOT, 'src/cdp.js');
 const installTool = require(path.join(ROOT, 'tools', 'install-plugin.cjs'));
 
 function mkTempDir(prefix) {
@@ -40,7 +40,7 @@ async function createIsolatedPluginSnapshot(prefix) {
     syncShortcuts: false,
   });
   assert.equal(installRes.ok, true);
-  const cdpPath = path.join(pluginDir, 'cdp.js');
+  const cdpPath = path.join(pluginDir, 'src', 'cdp.js');
   const cleanup = () => {
     try {
       delete require.cache[require.resolve(cdpPath)];
@@ -235,7 +235,7 @@ test('v107 A2-4: SHA-256 source hash detects 1-byte source edits even when file 
     });
     assert.equal(installRes.ok, true);
 
-    const isolatedCdpPath = path.join(pluginDir, 'cdp.js');
+    const isolatedCdpPath = path.join(pluginDir, 'src', 'cdp.js');
     const cachePath = path.join(pluginDir, '.bundle-cache.json');
     const cdpIso = loadFreshCdp(isolatedCdpPath);
 
@@ -243,7 +243,7 @@ test('v107 A2-4: SHA-256 source hash detects 1-byte source edits even when file 
     const hashBefore = JSON.parse(fs.readFileSync(cachePath, 'utf8')).sourceHash;
 
     // Modify style.css keeping EXACT byte length and restoring EXACT original atime/mtime
-    const stylePath = path.join(pluginDir, 'style.css');
+    const stylePath = path.join(pluginDir, 'src', 'style.css');
     const origStat = fs.statSync(stylePath);
     const origCss = fs.readFileSync(stylePath, 'utf8');
     const mutatedCss = origCss.replace(/#([0-9a-fA-F]{6})/, (m, hex) => {
@@ -283,7 +283,7 @@ test('v107 A2-4: SHA-256 source hash detects 1-byte source edits even when file 
     assert.equal(fs.existsSync(pluginDir), false);
   } finally {
     try {
-      delete require.cache[require.resolve(path.join(pluginDir, 'cdp.js'))];
+      delete require.cache[require.resolve(path.join(pluginDir, 'src', 'cdp.js'))];
     } catch {}
     fs.rmSync(tmpRoot, { recursive: true, force: true });
   }
@@ -493,7 +493,7 @@ test('v107 A2-7: default buildInjectExpression never pollutes repo, and PrismDae
     assert.equal(fs.existsSync(resolvedInstalledCache), true);
 
     // Simulate daemon restart on same installed plugin dir with fresh cdp.js module load
-    delete require.cache[require.resolve(path.join(installedDir, 'cdp.js'))];
+    delete require.cache[require.resolve(path.join(installedDir, 'src', 'cdp.js'))];
     const d2 = new PrismDaemon({ rootDir: installedDir, silent: true, enableAutoUpdateTimer: false });
     const secondExpr = d2.rebuildBundle();
     assert.equal(secondExpr, firstExpr, 'Restarted daemon must receive byte-identical injectExpr from disk cache');
@@ -510,7 +510,7 @@ test('v107 A2-7: default buildInjectExpression never pollutes repo, and PrismDae
       delete require.cache[require.resolve(path.join(tmpRoot, 'fake-worktree', 'cdp.js'))];
     } catch {}
     try {
-      delete require.cache[require.resolve(path.join(tmpRoot, 'installed-plugin', 'cdp.js'))];
+      delete require.cache[require.resolve(path.join(tmpRoot, 'installed-plugin', 'src', 'cdp.js'))];
     } catch {}
     fs.rmSync(tmpRoot, { recursive: true, force: true });
   }

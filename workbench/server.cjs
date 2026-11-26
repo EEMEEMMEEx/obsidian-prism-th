@@ -26,20 +26,20 @@ const DEFAULT_TOKENS = {
 };
 
 const VENDOR_SLIDER_PATH = path.join(REPO_ROOT, 'vendor', 'effort-slider', 'upstream-client.js');
-const CDP_MODULE_PATH = path.join(REPO_ROOT, 'cdp.js');
+const CDP_MODULE_PATH = path.join(REPO_ROOT, 'src', 'cdp.js');
 const HOST_MIRROR_DIR = path.join(REPO_ROOT, '.antigravity', 'host-mirror');
 
 const ROOT_WATCH_FILES = [
-  'style.css',
-  'ui-runtime.js',
-  'dual-mascot-rig.js',
-  'host-workbench-enhancer.js',
-  'stream-choreography.js',
-  'pulse-vial-bridge.js',
-  'settings-panel.js',
-  'home-studio-panel.js',
-  'home-ripple-host.js',
-  'conv-aura.js',
+  path.join('src', 'style.css'),
+  path.join('src', 'ui-runtime.js'),
+  path.join('src', 'dual-mascot-rig.js'),
+  path.join('src', 'host-workbench-enhancer.js'),
+  path.join('src', 'stream-choreography.js'),
+  path.join('src', 'pulse-vial-bridge.js'),
+  path.join('src', 'settings-panel.js'),
+  path.join('src', 'home-studio-panel.js'),
+  path.join('src', 'home-ripple-host.js'),
+  path.join('src', 'conv-aura.js'),
   path.join('vendor', 'inline-diff', 'inline-diff-client.js'),
 ];
 
@@ -48,15 +48,15 @@ const PRISM_CACHE_SOURCE_PATHS = Array.from(
     CDP_MODULE_PATH,
     ...ROOT_WATCH_FILES.map((rel) => path.join(REPO_ROOT, rel)),
     VENDOR_SLIDER_PATH,
-    path.join(REPO_ROOT, 'i18n-locales.js'),
-    path.join(REPO_ROOT, 'context-menu-btw.js'),
-    path.join(REPO_ROOT, 'prism-rim-canvas.js'),
-    path.join(REPO_ROOT, 'vial-core.js'),
-    path.join(REPO_ROOT, 'ripple-core.js'),
-    path.join(REPO_ROOT, 'motion-engine.js'),
-    path.join(REPO_ROOT, 'animated-icons.js'),
-    path.join(REPO_ROOT, 'model-glyph-crystal.js'),
-    path.join(REPO_ROOT, 'crystal-prism-core.js'),
+    path.join(REPO_ROOT, 'src', 'i18n-locales.js'),
+    path.join(REPO_ROOT, 'src', 'context-menu-btw.js'),
+    path.join(REPO_ROOT, 'src', 'prism-rim-canvas.js'),
+    path.join(REPO_ROOT, 'src', 'vial-core.js'),
+    path.join(REPO_ROOT, 'src', 'ripple-core.js'),
+    path.join(REPO_ROOT, 'src', 'motion-engine.js'),
+    path.join(REPO_ROOT, 'src', 'animated-icons.js'),
+    path.join(REPO_ROOT, 'src', 'model-glyph-crystal.js'),
+    path.join(REPO_ROOT, 'src', 'crystal-prism-core.js'),
     path.join(REPO_ROOT, 'vendor', 'omni-viewer', 'omni-client.js'),
     path.join(REPO_ROOT, 'vendor', 'omni-viewer', 'workbench-page.mjs'),
   ])
@@ -153,13 +153,13 @@ function parseReplicaPrismConfig(searchParams) {
 }
 
 const SHARED_MODULE_MAP = {
-  '/shared/style.css': path.join(REPO_ROOT, 'style.css'),
-  '/shared/ripple-core.js': path.join(REPO_ROOT, 'ripple-core.js'),
-  '/shared/motion-engine.js': path.join(REPO_ROOT, 'motion-engine.js'),
-  '/shared/animated-icons.js': path.join(REPO_ROOT, 'animated-icons.js'),
-  '/shared/dual-mascot-rig.js': path.join(REPO_ROOT, 'dual-mascot-rig.js'),
-  '/shared/vial-core.js': path.join(REPO_ROOT, 'vial-core.js'),
-  '/shared/crystal-prism-core.js': path.join(REPO_ROOT, 'crystal-prism-core.js'),
+  '/shared/style.css': path.join(REPO_ROOT, 'src', 'style.css'),
+  '/shared/ripple-core.js': path.join(REPO_ROOT, 'src', 'ripple-core.js'),
+  '/shared/motion-engine.js': path.join(REPO_ROOT, 'src', 'motion-engine.js'),
+  '/shared/animated-icons.js': path.join(REPO_ROOT, 'src', 'animated-icons.js'),
+  '/shared/dual-mascot-rig.js': path.join(REPO_ROOT, 'src', 'dual-mascot-rig.js'),
+  '/shared/vial-core.js': path.join(REPO_ROOT, 'src', 'vial-core.js'),
+  '/shared/crystal-prism-core.js': path.join(REPO_ROOT, 'src', 'crystal-prism-core.js'),
   '/shared/effort-slider-client.js': VENDOR_SLIDER_PATH,
   '/shared/inline-diff-client.js': path.join(REPO_ROOT, 'vendor', 'inline-diff', 'inline-diff-client.js'),
   '/shared/sidebar-state-machine.mjs': SIDEBAR_STATE_MACHINE_PATH,
@@ -902,7 +902,7 @@ if (require.main === module) {
   const server = createWorkbenchServer();
   server.listen(port, host, () => {
     const addr = server.address();
-    console.log(`Obsidian Prism v1.0.8-beta.4 Workbench listening on http://${host}:${addr.port}`);
+    console.log(`Obsidian Prism v1.0.8-beta.5 Workbench listening on http://${host}:${addr.port}`);
     console.log(`  · Optical Workbench: http://${host}:${addr.port}/`);
     console.log(`  · Bipolar Studio:    http://${host}:${addr.port}/studio`);
   });

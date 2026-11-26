@@ -9,7 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 
 function createMiniDom({ hasLayout = false, hooks = null } = {}) {
   const makeEl = (tag, opts = {}) => {
@@ -417,8 +417,8 @@ test('Task 1 fallback: v2.34 non-sibling interaction-takeover-card inside outer 
 });
 
 test('Task 2, 3, 4 & Invariants: Q&A selected contrast (.bg-secondary.border-border), subagent-only spinner dash, orbital dead-CSS cleanup, flattener & < 685KB budget', () => {
-  const cssPath = path.join(ROOT, 'style.css');
-  const uiPath = path.join(ROOT, 'ui-runtime.js');
+  const cssPath = path.join(ROOT, 'src/style.css');
+  const uiPath = path.join(ROOT, 'src/ui-runtime.js');
   const cssBuf = fs.readFileSync(cssPath);
   const uiBuf = fs.readFileSync(uiPath);
   const css = cssBuf.toString('utf8');

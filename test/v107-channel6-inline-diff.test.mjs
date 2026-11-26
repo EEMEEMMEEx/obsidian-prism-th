@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const cdp = require(path.join(ROOT, 'cdp.js'));
+const cdp = require(path.join(ROOT, 'src/cdp.js'));
 const inlineDiffMod = require(path.join(ROOT, 'vendor', 'inline-diff', 'inline-diff-client.js'));
 
 const NO_TR_ATTRS = [
@@ -261,7 +261,7 @@ test('Channel 6 inline-diff standalone compilation, idempotent mount, missing-fi
   // 3) Missing vendor/inline-diff/inline-diff-client.js must fail closed to ''
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-prism-ch6-missing-'));
   try {
-    fs.copyFileSync(path.join(ROOT, 'cdp.js'), path.join(tmpDir, 'cdp.js'));
+    fs.copyFileSync(path.join(ROOT, 'src/cdp.js'), path.join(tmpDir, 'cdp.js'));
     fs.copyFileSync(path.join(ROOT, 'config.example.json'), path.join(tmpDir, 'config.example.json'));
     const isolatedCdp = require(path.join(tmpDir, 'cdp.js'));
     assert.equal(isolatedCdp.buildInlineDiffInjectExpression(isolatedCdp.DEFAULT_CONFIG), '');
@@ -281,7 +281,7 @@ test('Channel 6 participates in 6-Channel .bundle-cache.json with SHA-256 invali
     assert.equal(cdp.BUNDLE_CACHE_SCHEMA_VERSION, 2);
 
     fs.mkdirSync(clientDir, { recursive: true });
-    fs.copyFileSync(path.join(ROOT, 'cdp.js'), path.join(tmpDir, 'cdp.js'));
+    fs.copyFileSync(path.join(ROOT, 'src/cdp.js'), path.join(tmpDir, 'cdp.js'));
     fs.copyFileSync(path.join(ROOT, 'config.example.json'), path.join(tmpDir, 'config.example.json'));
     fs.copyFileSync(path.join(ROOT, 'vendor', 'inline-diff', 'inline-diff-client.js'), clientPath);
 
@@ -342,11 +342,11 @@ test('Channel 1 size budget, Channel 6 XSS/CSS hygiene, A3 attrs, and C#/Swift C
   const ch1Bytes = Buffer.byteLength(ch1Expr, 'utf8');
   assert.ok(ch1Bytes <= 686080, `Channel 1 must stay <= 686,080 B, got ${ch1Bytes} B`);
   assert.ok(ch1Bytes < 704000, `Channel 1 must stay < 704,000 B, got ${ch1Bytes} B`);
-  const pvBytes = fs.statSync(path.join(ROOT, 'pulse-vial-bridge.js')).size;
+  const pvBytes = fs.statSync(path.join(ROOT, 'src/pulse-vial-bridge.js')).size;
   assert.ok(pvBytes < 31000, `pulse-vial-bridge.js must stay < 31,000 B, got ${pvBytes} B`);
 
   // 2) style.css redlines
-  const styleCss = fs.readFileSync(path.join(ROOT, 'style.css'), 'utf8');
+  const styleCss = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
   assert.equal(/:has\(/.test(styleCss), false, 'style.css must have 0 :has()');
   assert.equal(/[^\x00-\x7F]/.test(styleCss), false, 'style.css must have 0 non-ASCII');
   assert.equal((styleCss.match(/\{/g) || []).length, (styleCss.match(/\}/g) || []).length, 'style.css braces must balance');

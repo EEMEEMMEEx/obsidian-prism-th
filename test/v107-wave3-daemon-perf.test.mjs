@@ -58,7 +58,7 @@ async function createIsolatedPlugin(prefix) {
     syncShortcuts: false,
   });
   assert.equal(res.ok, true);
-  const cdpPath = path.join(pluginDir, 'cdp.js');
+  const cdpPath = path.join(pluginDir, 'src', 'cdp.js');
   return {
     rootTmp,
     pluginDir,
@@ -1003,7 +1003,7 @@ test('Wave3 P2-6a & P2-6b: discoverLocalConversations bounded concurrency + mtim
 
 test('Audit P0-1, P1-4c & P1-5b: inject.js equal-length config write invalidates readConfig cache, autoUpdate boolean normalization, and REMOVE_EXPRESSION fallback cleanup', async () => {
   const snap = await createIsolatedPlugin('prism-audit-fix-');
-  const injectPath = path.join(snap.pluginDir, 'inject.js');
+  const injectPath = path.join(snap.pluginDir, 'src', 'inject.js');
   try {
     const cdp = loadFreshCdp(snap.cdpPath);
     delete require.cache[require.resolve(injectPath)];
@@ -1130,7 +1130,7 @@ test('Audit P0-1, P1-4c & P1-5b: inject.js equal-length config write invalidates
 
 test('SetFix #5/#6/#7b/#7d: legacy alias normalization, thoughtView off removal, update-status channel race elimination, and inject.js disabled-module zero-eval', async () => {
   const snap = await createIsolatedPlugin('prism-setfix-backend-');
-  const injectPath = path.join(snap.pluginDir, 'inject.js');
+  const injectPath = path.join(snap.pluginDir, 'src', 'inject.js');
   try {
     const cdp = loadFreshCdp(snap.cdpPath);
 
@@ -1239,7 +1239,7 @@ test('SetFix #5/#6/#7b/#7d: legacy alias normalization, thoughtView off removal,
             tag_name: 'v1.0.6',
             draft: false,
             prerelease: false,
-            html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.6',
+            html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.6',
             assets: [],
           }),
         };
@@ -1253,7 +1253,7 @@ test('SetFix #5/#6/#7b/#7d: legacy alias normalization, thoughtView off removal,
               tag_name: 'v1.0.7-beta.1',
               draft: false,
               prerelease: true,
-              html_url: 'https://github.com/RMvdesi/obsidian-prism/releases/tag/v1.0.7-beta.1',
+              html_url: 'https://github.com/EEMEEMMEEx/obsidian-prism-th/releases/tag/v1.0.7-beta.1',
               assets: [],
             },
           ],
